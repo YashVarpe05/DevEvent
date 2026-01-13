@@ -9,17 +9,7 @@ type MongooseCache = {
 // Extend the global object to include our mongoose cache
 declare global {
   // eslint-disable-next-line no-var
-  var mongoose: MongooseCache | undefined;
-}
-
-// Retrieve MongoDB URI from environment variables
-const MONGODB_URI = process.env.MONGODB_URI;
-
-// Validate that the MongoDB URI is defined
-if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
-  );
+  var mongooseCache: MongooseCache | undefined;
 }
 
 /**
@@ -27,10 +17,10 @@ if (!MONGODB_URI) {
  * In development, Next.js hot reloads can create multiple connections.
  * Caching prevents this by reusing the existing connection.
  */
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+let cached: MongooseCache = global.mongooseCache || { conn: null, promise: null };
 
-if (!global.mongoose) {
-  global.mongoose = cached;
+if (!global.mongooseCache) {
+  global.mongooseCache = cached;
 }
 
 /**
@@ -49,6 +39,15 @@ if (!global.mongoose) {
  * ```
  */
 async function connectDB(): Promise<typeof mongoose> {
+  // Validate that the MongoDB URI is defined
+  const MONGODB_URI = process.env.MONGODB_URI;
+  
+  if (!MONGODB_URI) {
+    throw new Error(
+      'Please define the MONGODB_URI environment variable inside .env.local'
+    );
+  }
+
   // Return existing connection if available
   if (cached.conn) {
     return cached.conn;

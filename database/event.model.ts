@@ -106,17 +106,30 @@ const EventSchema = new Schema<IEvent>(
 );
 
 // Pre-save hook: Generate slug, normalize date, and validate time
-EventSchema.pre('save', function (next) {
+EventSchema.pre('save', async function (next) {
   const event = this as IEvent;
 
   // Generate URL-friendly slug from title (only if title changed or new document)
   if (event.isModified('title')) {
-    event.slug = event.title
+    const baseSlug = event.title
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
+
+    // Check for slug collision and append timestamp if needed
+    let uniqueSlug = baseSlug;
+    let slugExists = await mongoose.model('Event').exists({ 
+      slug: uniqueSlug,
+      _id: { $ne: event._id } // Exclude current document
+    });
+
+    if (slugExists) {
+      uniqueSlug = `${baseSlug}-${Date.now()}`;
+    }
+
+    event.slug = uniqueSlug;
   }
 
   // Normalize date to ISO format (YYYY-MM-DD)

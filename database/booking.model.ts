@@ -1,4 +1,5 @@
 import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import Event from './event.model';
 
 // TypeScript interface for Booking document
 export interface IBooking extends Document {
@@ -42,8 +43,7 @@ BookingSchema.pre('save', async function (next) {
   // Only validate eventId if it's new or modified
   if (booking.isModified('eventId')) {
     try {
-      // Dynamically import Event model to avoid circular dependency
-      const Event = mongoose.model('Event');
+      // Use imported Event model (ensures it's registered)
       const eventExists = await Event.exists({ _id: booking.eventId });
 
       if (!eventExists) {
@@ -54,6 +54,17 @@ BookingSchema.pre('save', async function (next) {
         );
       }
     } catch (error) {
+      // Handle specific error cases
+      if (error instanceof Error) {
+        if (error.name === 'MissingSchemaError') {
+          return next(
+            new Error('Event model not registered. Please ensure Event model is loaded.')
+          );
+        }
+        return next(
+          new Error(`Event validation failed: ${error.message}`)
+        );
+      }
       return next(
         new Error('Failed to validate event reference. Please try again.')
       );
