@@ -254,6 +254,10 @@
   #book-event {
     @apply flex flex-col gap-6;
 
+    p {
+      @apply text-sm text-light-200;
+    }
+
     form {
       @apply flex flex-col gap-6;
 
@@ -265,7 +269,7 @@
         }
       }
 
-      button {
+      .button-submit {
         @apply bg-primary hover:bg-primary/90 w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-lg font-semibold text-black;
       }
     }
