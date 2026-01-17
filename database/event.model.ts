@@ -132,28 +132,52 @@ EventSchema.pre("save", async function () {
 		event.slug = uniqueSlug;
 	}
 
-	// Normalize date to ISO format (YYYY-MM-DD)
-	if (event.isModified("date")) {
-		try {
-			const parsedDate = new Date(event.date);
-			if (isNaN(parsedDate.getTime())) {
-				throw new Error("Invalid date format. Please provide a valid date.");
-			}
-			event.date = parsedDate.toISOString().split("T")[0];
-		} catch (error) {
-			throw new Error("Invalid date format. Please provide a valid date.");
-		}
-	}
 
-	// Normalize time format to HH:MM (24-hour format)
-	if (event.isModified("time")) {
-		const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-		if (!timeRegex.test(event.time)) {
-			throw new Error(
-				"Invalid time format. Please use HH:MM format (e.g., 14:30)."
-			);
-		}
-	}
+  // Normalize date to YYYY-MM-DD format (timezone-agnostic)
+  if (event.isModified('date')) {
+    // Validate YYYY-MM-DD format before parsing
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(event.date)) {
+      return next(
+        new Error('Invalid date format. Please provide date in YYYY-MM-DD format.')
+      );
+    }
+
+    try {
+      const parsedDate = new Date(event.date);
+      if (isNaN(parsedDate.getTime())) {
+        return next(new Error('Invalid date format. Please provide a valid date.'));
+      }
+      
+      // Use local date components to avoid timezone conversion
+      const year = parsedDate.getFullYear();
+      const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(parsedDate.getDate()).padStart(2, '0');
+      event.date = `${year}-${month}-${day}`;
+    } catch (error) {
+      return next(new Error('Invalid date format. Please provide a valid date.'));
+    }
+  }
+
+  // Normalize time format to HH:MM (24-hour format)
+  if (event.isModified('time')) {
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
+    const match = event.time.trim().match(timeRegex);
+    
+    if (!match) {
+      return next(
+        new Error('Invalid time format. Please use HH:MM format (e.g., 14:30).')
+      );
+    }
+    
+    // Pad hour to two digits (e.g., "9:30" becomes "09:30")
+    const hour = match[1].padStart(2, '0');
+    const minute = match[2];
+    event.time = `${hour}:${minute}`;
+  }
+
+  next();
+
 });
 
 // Create unique index on slug for faster queries and uniqueness enforcement
