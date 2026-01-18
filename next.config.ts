@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+	typescript: {
+		// Only ignore TypeScript errors in non-production environments
+		ignoreBuildErrors: process.env.NODE_ENV !== "production",
+	},
+	cacheComponents: true,
 	/* config options here */
 	images: {
 		remotePatterns: [

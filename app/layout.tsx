@@ -20,6 +20,11 @@ export const metadata: Metadata = {
 	description: "The Hub for Evey Dev Event You Mustn't Miss",
 };
 
+/**
+ * Application root layout that sets global fonts, provides analytics, renders animated background light rays, and hosts page content.
+ *
+ * @param children - The page content to render inside the layout
+ */
 export default function RootLayout({
 	children,
 }: Readonly<{
@@ -29,6 +34,7 @@ export default function RootLayout({
 		<html lang="en">
 			<PostHogProvider>
 				<body
+					suppressHydrationWarning
 					className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
 				>
 					<div className="absolute inset-0 top-0 z-[-1] min-h-screen">

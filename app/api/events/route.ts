@@ -4,9 +4,14 @@ import { v2 as cloudinary } from "cloudinary";
 import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 
-
-
-
+/**
+ * Create a new event record with an uploaded image and persist it to the database.
+ *
+ * Accepts either a JSON payload or multipart FormData. When using FormData, the image file must be provided under the `image` field. The handler normalizes `tags` and `agenda` when they arrive as strings, uploads the image, and stores the created event document.
+ *
+ * @param req - Incoming NextRequest containing event data as JSON or FormData (FormData must include an `image` file)
+ * @returns A NextResponse with status 201 and the created event on success; status 400 when the image is missing; status 500 with an error message on failure
+ */
 export async function POST(req: NextRequest) {
 	try {
 		await connectDB();
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
 		if (!image) {
 			return NextResponse.json(
 				{ message: "Image file is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 		const arrayBuffer = await image.arrayBuffer();
@@ -43,7 +48,7 @@ export async function POST(req: NextRequest) {
 					(error, results) => {
 						if (error) return reject(error);
 						resolve(results);
-					}
+					},
 				)
 				.end(buffer);
 		});
@@ -74,7 +79,7 @@ export async function POST(req: NextRequest) {
 
 		return NextResponse.json(
 			{ message: "Event created successfully", event: createdEvent },
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (e) {
 		console.error(e);
@@ -83,11 +88,16 @@ export async function POST(req: NextRequest) {
 				message: "Event Creation Failed",
 				error: e instanceof Error ? e.message : "Unknown Error",
 			},
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
 
+/**
+ * Fetches all events from the database sorted by creation time in descending order.
+ *
+ * @returns An object with `message` and `events` (array of event documents) on success; on failure, an object with `message` and `error` details.
+ */
 export async function GET() {
 	try {
 		await connectDB();
@@ -96,14 +106,12 @@ export async function GET() {
 
 		return NextResponse.json(
 			{ message: "Events fetched successfully ", events },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (e) {
 		return NextResponse.json(
 			{ message: "Event fetching failed", error: e },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-
-

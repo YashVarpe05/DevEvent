@@ -102,10 +102,10 @@ const EventSchema = new Schema<IEvent>(
 	},
 	{
 		timestamps: true, // Auto-generate createdAt and updatedAt
-	}
+	},
 );
 
-// Pre-save hook: Generate slug, normalize date, and validate time
+// Pre-save hook: Generate slug, normalize date, and validate time (Async)
 EventSchema.pre("save", async function () {
 	const event = this as IEvent;
 
@@ -132,52 +132,61 @@ EventSchema.pre("save", async function () {
 		event.slug = uniqueSlug;
 	}
 
-
-  // Normalize date to YYYY-MM-DD format (timezone-agnostic)
+  // Normalize date to YYYY-MM-DD format (UTC-based validation)
   if (event.isModified('date')) {
-    // Validate YYYY-MM-DD format before parsing
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(event.date)) {
+    // Validate YYYY-MM-DD format and parse components
+    const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const match = event.date.match(dateRegex);
+    
+    if (!match) {
       return next(
         new Error('Invalid date format. Please provide date in YYYY-MM-DD format.')
       );
     }
 
-    try {
-      const parsedDate = new Date(event.date);
-      if (isNaN(parsedDate.getTime())) {
-        return next(new Error('Invalid date format. Please provide a valid date.'));
-      }
-      
-      // Use local date components to avoid timezone conversion
-      const year = parsedDate.getFullYear();
-      const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-      const day = String(parsedDate.getDate()).padStart(2, '0');
-      event.date = `${year}-${month}-${day}`;
-    } catch (error) {
-      return next(new Error('Invalid date format. Please provide a valid date.'));
-    }
-  }
+    const year = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    const day = parseInt(match[3], 10);
 
-  // Normalize time format to HH:MM (24-hour format)
-  if (event.isModified('time')) {
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-    const match = event.time.trim().match(timeRegex);
+    // Validate ranges
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      return next(new Error('Invalid date. Month must be 1-12 and day must be 1-31.'));
+    }
+
+    // Construct UTC date and validate it doesn't roll over
+    const utcDate = new Date(Date.UTC(year, month - 1, day));
     
-    if (!match) {
+    if (
+      isNaN(utcDate.getTime()) ||
+      utcDate.getUTCFullYear() !== year ||
+      utcDate.getUTCMonth() + 1 !== month ||
+      utcDate.getUTCDate() !== day
+    ) {
       return next(
-        new Error('Invalid time format. Please use HH:MM format (e.g., 14:30).')
+        new Error('Invalid date. Please provide a valid calendar date (e.g., 2024-02-30 is invalid).')
       );
     }
-    
-    // Pad hour to two digits (e.g., "9:30" becomes "09:30")
-    const hour = match[1].padStart(2, '0');
-    const minute = match[2];
-    event.time = `${hour}:${minute}`;
+
+    // Set normalized date using validated components
+    event.date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
 
-  next();
+	// Normalize time format to HH:MM (24-hour format)
+	if (event.isModified("time")) {
+		const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
+		const match = event.time.trim().match(timeRegex);
 
+		if (!match) {
+			throw new Error(
+				"Invalid time format. Please use HH:MM format (e.g., 14:30).",
+			);
+		}
+
+		// Pad hour to two digits (e.g., "9:30" becomes "09:30")
+		const hour = match[1].padStart(2, "0");
+		const minute = match[2];
+		event.time = `${hour}:${minute}`;
+	}
 });
 
 // Create unique index on slug for faster queries and uniqueness enforcement

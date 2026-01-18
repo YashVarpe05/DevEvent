@@ -1,4 +1,8 @@
 import BookEvent from "@/components/BookEvent";
+import EventCard from "@/components/EventCard";
+import { IEvent } from "@/database";
+import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
+import { cacheLife } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -45,15 +49,15 @@ const EventDetailsPage = async ({
 }: {
 	params: Promise<{ slug: string }>;
 }) => {
+	"use cache";
+	cacheLife("hours");
 	// ✅ Next.js 16 requires await
 	const { slug } = await params;
 	// let event;
 
 	if (!slug) return notFound();
 
-	const res = await fetch(`${BASE_URL}/api/events/${slug}`, {
-		cache: "no-store",
-	});
+	const res = await fetch(`${BASE_URL}/api/events/${slug}`);
 
 	if (!res.ok) return notFound();
 
@@ -61,6 +65,8 @@ const EventDetailsPage = async ({
 
 	// ✅ API returns { success, data }
 	if (!json?.data) return notFound();
+
+	const event = json.data;
 
 	const {
 		description,
@@ -74,10 +80,12 @@ const EventDetailsPage = async ({
 		mode,
 		tags,
 		organizer,
-	} = json.data;
+	} = event;
 
-	const bookings = 10;
+	// Derive bookings count from event data or hide if unavailable
+	const bookings = event.bookingsCount || 0;
 
+	const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 	return (
 		<section id="event" className="p-6 max-w-7xl mx-auto">
 			<div>
@@ -94,7 +102,6 @@ const EventDetailsPage = async ({
 						alt="Event Banner"
 						className="banner"
 					/>
-
 					<section className="flex-col-gap-2">
 						<h2>Overview</h2>
 						<p>{overview}</p>
@@ -138,9 +145,16 @@ const EventDetailsPage = async ({
 						) : (
 							<p className="text-sm">be the first to book your spot!</p>
 						)}
-						<BookEvent />
+						<BookEvent eventId={event._id} slug={event.slug} />
 					</div>
 				</aside>
+			</div>
+			<div className="flex w-full flex-col gap-4 pt-20">
+				<h2>Similar Events</h2>
+				{similarEvents.length > 0 &&
+					similarEvents.map((similarEvents: IEvent) => (
+						<EventCard {...similarEvents} key={similarEvents.title} />
+					))}
 			</div>
 		</section>
 	);
