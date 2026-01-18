@@ -4,9 +4,6 @@ import { v2 as cloudinary } from "cloudinary";
 import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 
-
-
-
 export async function POST(req: NextRequest) {
 	try {
 		await connectDB();
@@ -27,7 +24,7 @@ export async function POST(req: NextRequest) {
 		if (!image) {
 			return NextResponse.json(
 				{ message: "Image file is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 		const arrayBuffer = await image.arrayBuffer();
@@ -43,7 +40,7 @@ export async function POST(req: NextRequest) {
 					(error, results) => {
 						if (error) return reject(error);
 						resolve(results);
-					}
+					},
 				)
 				.end(buffer);
 		});
@@ -74,7 +71,7 @@ export async function POST(req: NextRequest) {
 
 		return NextResponse.json(
 			{ message: "Event created successfully", event: createdEvent },
-			{ status: 201 }
+			{ status: 201 },
 		);
 	} catch (e) {
 		console.error(e);
@@ -83,7 +80,7 @@ export async function POST(req: NextRequest) {
 				message: "Event Creation Failed",
 				error: e instanceof Error ? e.message : "Unknown Error",
 			},
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
@@ -96,14 +93,12 @@ export async function GET() {
 
 		return NextResponse.json(
 			{ message: "Events fetched successfully ", events },
-			{ status: 200 }
+			{ status: 200 },
 		);
 	} catch (e) {
 		return NextResponse.json(
 			{ message: "Event fetching failed", error: e },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }
-
-
