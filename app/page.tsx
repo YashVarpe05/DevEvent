@@ -3,14 +3,13 @@ import ExploreBtn from "@/components/ExploreBtn";
 import { IEvent } from "@/database";
 import { cacheLife } from "next/cache";
 
-const NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { getAllEvents } from "@/lib/actions/event.actions";
 
 const page = async () => {
 	"use cache";
 	cacheLife("hours");
 
-	const response = await fetch(`${NEXT_PUBLIC_BASE_URL}/api/events`);
-	const { events } = await response.json();
+	const { data: events } = await getAllEvents();
 	return (
 		<section>
 			<h1 className="text-center">

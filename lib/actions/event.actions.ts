@@ -20,3 +20,14 @@ export const getSimilarEventsBySlug = async (slug: string) => {
 		return [];
 	}
 };
+
+export const getAllEvents = async () => {
+	try {
+		await connectDB();
+		const events = await Event.find({}).sort({ createdAt: -1 }).lean();
+		return { success: true, data: events };
+	} catch (error) {
+		console.error("Error fetching events:", error);
+		return { success: false, error: "Failed to fetch events" };
+	}
+};
