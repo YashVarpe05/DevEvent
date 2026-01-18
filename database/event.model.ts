@@ -132,44 +132,44 @@ EventSchema.pre("save", async function () {
 		event.slug = uniqueSlug;
 	}
 
-  // Normalize date to YYYY-MM-DD format (UTC-based validation)
-  if (event.isModified('date')) {
-    // Validate YYYY-MM-DD format and parse components
-    const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
-    const match = event.date.match(dateRegex);
-    
-    if (!match) {
-      return next(
-        new Error('Invalid date format. Please provide date in YYYY-MM-DD format.')
-      );
-    }
+	// Normalize date to YYYY-MM-DD format (UTC-based validation)
+	if (event.isModified("date")) {
+		// Validate YYYY-MM-DD format and parse components
+		const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+		const match = event.date.match(dateRegex);
 
-    const year = parseInt(match[1], 10);
-    const month = parseInt(match[2], 10);
-    const day = parseInt(match[3], 10);
+		if (!match) {
+			throw new Error(
+				"Invalid date format. Please provide date in YYYY-MM-DD format.",
+			);
+		}
 
-    // Validate ranges
-    if (month < 1 || month > 12 || day < 1 || day > 31) {
-      return next(new Error('Invalid date. Month must be 1-12 and day must be 1-31.'));
-    }
+		const year = parseInt(match[1], 10);
+		const month = parseInt(match[2], 10);
+		const day = parseInt(match[3], 10);
 
-    // Construct UTC date and validate it doesn't roll over
-    const utcDate = new Date(Date.UTC(year, month - 1, day));
-    
-    if (
-      isNaN(utcDate.getTime()) ||
-      utcDate.getUTCFullYear() !== year ||
-      utcDate.getUTCMonth() + 1 !== month ||
-      utcDate.getUTCDate() !== day
-    ) {
-      return next(
-        new Error('Invalid date. Please provide a valid calendar date (e.g., 2024-02-30 is invalid).')
-      );
-    }
+		// Validate ranges
+		if (month < 1 || month > 12 || day < 1 || day > 31) {
+			throw new Error("Invalid date. Month must be 1-12 and day must be 1-31.");
+		}
 
-    // Set normalized date using validated components
-    event.date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
+		// Construct UTC date and validate it doesn't roll over
+		const utcDate = new Date(Date.UTC(year, month - 1, day));
+
+		if (
+			isNaN(utcDate.getTime()) ||
+			utcDate.getUTCFullYear() !== year ||
+			utcDate.getUTCMonth() + 1 !== month ||
+			utcDate.getUTCDate() !== day
+		) {
+			throw new Error(
+				"Invalid date. Please provide a valid calendar date (e.g., 2024-02-30 is invalid).",
+			);
+		}
+
+		// Set normalized date using validated components
+		event.date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+	}
 
 	// Normalize time format to HH:MM (24-hour format)
 	if (event.isModified("time")) {
