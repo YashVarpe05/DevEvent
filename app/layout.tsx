@@ -29,6 +29,7 @@ export default function RootLayout({
 		<html lang="en">
 			<PostHogProvider>
 				<body
+					suppressHydrationWarning
 					className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
 				>
 					<div className="absolute inset-0 top-0 z-[-1] min-h-screen">
