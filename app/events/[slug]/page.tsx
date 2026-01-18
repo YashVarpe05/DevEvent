@@ -57,9 +57,7 @@ const EventDetailsPage = async ({
 
 	if (!slug) return notFound();
 
-	const res = await fetch(`${BASE_URL}/api/events/${slug}`, {
-		cache: "no-store",
-	});
+	const res = await fetch(`${BASE_URL}/api/events/${slug}`);
 
 	if (!res.ok) return notFound();
 
@@ -84,7 +82,8 @@ const EventDetailsPage = async ({
 		organizer,
 	} = event;
 
-	const bookings = 10;
+	// Derive bookings count from event data or hide if unavailable
+	const bookings = event.bookingsCount || 0;
 
 	const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 	return (

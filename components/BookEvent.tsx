@@ -14,9 +14,10 @@ const BookEvent = ({ eventId, slug }: { eventId: string; slug: string }) => {
 
 		if (success) {
 			setSubmitted(true);
-			posthog.capture("event_booked", { eventId, slug, email });
+			// Only send non-PII fields to analytics
+			posthog.capture("event_booked", { eventId, slug });
 		} else {
-			console.error("create booking failed", error);
+			console.error("create booking failed");
 			posthog.captureException(error);
 		}
 	};

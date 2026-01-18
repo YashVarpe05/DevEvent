@@ -14,7 +14,8 @@ export const createBooking = async ({
 }) => {
 	try {
 		await connectDB();
-		await Booking.create({ eventId, slug, email });
+		// Only pass fields defined in Booking schema (eventId and email)
+		await Booking.create({ eventId, email });
 		return { success: true };
 	} catch (error: any) {
 		console.error("create booking failed", error);
