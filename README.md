@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Event Platform
+
+A comprehensive platform for developers to discover and manage events like hackathons, meetups, and conferences. This project is built with Next.js and MongoDB, providing a seamless experience for finding and organizing tech events.
+
+## Features
+
+- **Event Discovery:** Browse a wide range of developer-focused events.
+- **Detailed Event Information:** View comprehensive details including agenda, venue, location, and organizer.
+- **Dynamic Routing:** Unique and SEO-friendly URLs for each event using slugs.
+- **Responsive Design:** Optimized for all devices using Tailwind CSS.
+- **Backend API:** Robust API endpoints for event management.
+- **Database Integration:** Scalable data storage with MongoDB and Mongoose.
+
+## Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (React)
+- **Database:** [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Image Management:** [Cloudinary](https://cloudinary.com/) (inferred from dependencies)
+- **Utilities:** `clsx`, `tailwind-merge`
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js installed
+- MongoDB instance (local or Atlas)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    ```bash
+    git clone https://github.com/your-username/event-platform.git
+    cd event-platform
+    ```
 
-## Learn More
+2.  Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    npm install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3.  Set up environment variables:
+    Create a `.env.local` file in the root directory and add your MongoDB connection string and other necessary keys:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```env
+    MONGODB_URI=your_mongodb_connection_string
+    # Add other environment variables here
+    ```
 
-## Deploy on Vercel
+4.  Run the development server:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    ```bash
+    npm run dev
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5.  Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Project Structure
+
+- `app/`: Next.js App Router pages and layouts.
+- `components/`: Reusable UI components.
+- `database/`: Mongoose models and database connection logic.
+- `lib/`: Utility functions and actions.
+- `public/`: Static assets.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
