@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	typescript: {
-		// Only ignore TypeScript errors in non-production environments
-		ignoreBuildErrors: process.env.NODE_ENV !== "production",
+		// [FIXED]: Enforce TypeScript errors in every environment.
+		ignoreBuildErrors: false,
 	},
 	cacheComponents: true,
 	/* config options here */
