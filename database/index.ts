@@ -11,6 +11,7 @@ export { default as PaymentTransaction } from "./payment-transaction.model";
 export { default as OrganizerProfile } from "./organizer-profile.model";
 export { default as OrganizerApplication } from "./organizer-application.model";
 export { default as StripeWebhookEvent } from "./stripe-webhook-event.model";
+export { default as Referral } from "./referral.model";
 export { default as EventAnalyticsDaily } from "./event-analytics-daily.model";
 export { default as UserInterestProfile } from "./user-interest-profile.model";
 export { default as UserEventInteraction } from "./user-event-interaction.model";
@@ -42,6 +43,7 @@ export type {
 	OrganizationType,
 } from "./organizer-profile.model";
 export type { IStripeWebhookEvent } from "./stripe-webhook-event.model";
+export type { IReferral } from "./referral.model";
 export type { IEventAnalyticsDaily } from "./event-analytics-daily.model";
 export type {
 	IUserInterestProfile,

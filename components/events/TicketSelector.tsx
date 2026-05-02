@@ -1,13 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Ticket, Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
-import { ITicketType } from "@/database/ticket-type.model";
+import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
 
 interface TicketSelectorProps {
 	eventId: string;
 	currency: string;
+}
+
+interface TicketOption {
+	_id: string;
+	name: string;
+	price: number;
+	currency?: string;
+	quantitySold: number;
+	quantityTotal: number;
 }
 
 interface PricingBreakdown {
@@ -20,8 +27,7 @@ export default function TicketSelector({
 	eventId,
 	currency,
 }: TicketSelectorProps) {
-	const router = useRouter();
-	const [tickets, setTickets] = useState<any[]>([]);
+	const [tickets, setTickets] = useState<TicketOption[]>([]);
 	const [selection, setSelection] = useState<Record<string, number>>({});
 	const [loading, setLoading] = useState(true);
 	const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -87,7 +93,7 @@ export default function TicketSelector({
 
 		try {
 			const selectedItems = Object.entries(selection)
-				.filter(([_, qty]) => qty > 0)
+				.filter(([, qty]) => qty > 0)
 				.map(([id, qty]) => ({ ticketTypeId: id, quantity: qty }));
 
 			const idempotencyKey = (
@@ -108,8 +114,8 @@ export default function TicketSelector({
 			if (data.url) {
 				window.location.href = data.url;
 			}
-		} catch (err: any) {
-			setError(err.message);
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : "Checkout failed");
 			setIsCheckingOut(false);
 		}
 	};
@@ -145,7 +151,7 @@ export default function TicketSelector({
 									<h4 className="font-semibold text-white">{ticket.name}</h4>
 									<p className="text-sm text-zinc-400">
 										${(ticket.price / 100).toFixed(2)}{" "}
-										{ticket.currency.toUpperCase()}
+										{(ticket.currency || currency).toUpperCase()}
 									</p>
 								</div>
 								<div className="flex items-center gap-3 bg-zinc-800 px-2 py-1 rounded-lg">

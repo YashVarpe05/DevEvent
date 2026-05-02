@@ -4,15 +4,23 @@ import { useState } from "react";
 import { Plus, Trash2, Copy, BarChart3, Loader2 } from "lucide-react";
 import { createReferral, deleteReferral } from "@/lib/actions/referral.actions";
 
+interface ReferralSummary {
+	_id: string;
+	name: string;
+	code: string;
+	clicks: number;
+	conversions: number;
+	revenue: number;
+}
+
 interface ReferralManagerProps {
 	eventId: string;
 	eventSlug: string;
-	organizerId: string;
-	initialReferrals: any[];
+	initialReferrals: ReferralSummary[];
 }
 
-export default function ReferralManager({ eventId, eventSlug, organizerId, initialReferrals }: ReferralManagerProps) {
-	const [referrals, setReferrals] = useState(initialReferrals);
+export default function ReferralManager({ eventId, eventSlug, initialReferrals }: ReferralManagerProps) {
+	const [referrals, setReferrals] = useState<ReferralSummary[]>(initialReferrals);
 	const [isCreating, setIsCreating] = useState(false);
 	const [code, setCode] = useState("");
 	const [name, setName] = useState("");
@@ -24,7 +32,7 @@ export default function ReferralManager({ eventId, eventSlug, organizerId, initi
 		setIsCreating(true);
 
 		try {
-			const res = await createReferral({ eventId, organizerId, code, name });
+			const res = await createReferral({ eventId, code, name });
 			if (res.success && res.data) {
 				setReferrals([res.data, ...referrals]);
 				setCode("");
@@ -32,8 +40,8 @@ export default function ReferralManager({ eventId, eventSlug, organizerId, initi
 			} else {
 				setError(res.error || "Failed to create referral");
 			}
-		} catch (err: any) {
-			setError(err.message || "Something went wrong");
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : "Something went wrong");
 		} finally {
 			setIsCreating(false);
 		}

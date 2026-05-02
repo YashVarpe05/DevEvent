@@ -12,6 +12,16 @@ export const metadata = {
 	title: "Referral Links | DevEvent",
 };
 
+type ObjectIdLike = string | { toString(): string };
+
+interface OrganizerReferralEvent {
+	_id: ObjectIdLike;
+	title: string;
+	slug: string;
+	organizerId: ObjectIdLike;
+	deletedAt?: Date | null;
+}
+
 export default async function ReferralsPage({
 	params,
 }: {
@@ -26,7 +36,7 @@ export default async function ReferralsPage({
 	const { id } = await params;
 
 	await connectDB();
-	const event = await Event.findById(id).lean() as any;
+	const event = await Event.findById(id).lean<OrganizerReferralEvent>();
 
 	if (!event || event.deletedAt) {
 		notFound();
@@ -115,7 +125,6 @@ export default async function ReferralsPage({
 				<ReferralManager
 					eventId={id}
 					eventSlug={event.slug}
-					organizerId={session.user.id}
 					initialReferrals={referrals}
 				/>
 			</div>

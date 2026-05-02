@@ -1,18 +1,30 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Referral from "@/database/referral.model";
+import { Types } from "mongoose";
+import { z } from "zod";
+
+const trackReferralSchema = z.object({
+	eventId: z.string().refine((value) => Types.ObjectId.isValid(value), {
+		message: "Invalid eventId",
+	}),
+	code: z.string().trim().min(1).max(64),
+});
 
 export async function POST(request: Request) {
 	try {
 		await connectDB();
-		const { eventId, code } = await request.json();
+		const parsed = trackReferralSchema.safeParse(await request.json());
 
-		if (!eventId || !code) {
-			return NextResponse.json({ error: "Missing eventId or code" }, { status: 400 });
+		if (!parsed.success) {
+			return NextResponse.json({ error: "Invalid referral payload" }, { status: 400 });
 		}
 
 		await Referral.findOneAndUpdate(
-			{ eventId, code: code.toLowerCase() },
+			{
+				eventId: parsed.data.eventId,
+				code: parsed.data.code.toLowerCase(),
+			},
 			{ $inc: { clicks: 1 } }
 		);
 
