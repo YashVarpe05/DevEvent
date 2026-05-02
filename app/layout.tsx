@@ -3,7 +3,7 @@ import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import LightRays from "@/components/LightRays";
 
-import { PostHogProvider } from "./providers";
+import { Providers } from "./providers";
 
 const schibstedGrotesk = Schibsted_Grotesk({
 	variable: "--font-schibsted-grotesk",
@@ -33,7 +33,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<PostHogProvider>
+			<Providers>
 				<body
 					suppressHydrationWarning
 					className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
@@ -53,7 +53,8 @@ export default function RootLayout({
 					</div>
 					<main>{children}</main>
 				</body>
-			</PostHogProvider>
+			</Providers>
 		</html>
 	);
 }
+
