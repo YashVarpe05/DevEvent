@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
 			_id: { $ne: tokenRecord._id },
 		});
 
-		console.log(`✅ Password reset completed: ${user.email}`);
+		// [FIXED]: Avoid logging account identifiers after password reset.
+		console.log("[Auth] password reset completed");
 
 		return createSuccessResponse({
 			message: "Password reset successful. You can now log in with your new password.",

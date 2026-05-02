@@ -8,7 +8,6 @@ type MongooseCache = {
 
 // Extend the global object to include our mongoose cache
 declare global {
-  // eslint-disable-next-line no-var
   var mongooseCache: MongooseCache | undefined;
 }
 
@@ -17,7 +16,7 @@ declare global {
  * In development, Next.js hot reloads can create multiple connections.
  * Caching prevents this by reusing the existing connection.
  */
-let cached: MongooseCache = global.mongooseCache || { conn: null, promise: null };
+const cached: MongooseCache = global.mongooseCache || { conn: null, promise: null };
 
 if (!global.mongooseCache) {
   global.mongooseCache = cached;
@@ -61,7 +60,7 @@ async function connectDB(): Promise<typeof mongoose> {
 
     // Create a new connection promise
     cached.promise = mongoose.connect(MONGODB_URI, options).then((mongooseInstance) => {
-      console.log('✅ MongoDB connected successfully');
+      console.log('[Database] connection completed');
       return mongooseInstance;
     });
   }

@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
 		// Send verification email
 		await sendVerificationEmail(email, rawToken);
 
-		console.log(`✅ Signup success: ${email}`);
+		// [FIXED]: Avoid logging user email addresses during signup.
+		console.log("[Auth] signup completed");
 
 		return createSuccessResponse(
 			{

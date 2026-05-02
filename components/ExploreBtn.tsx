@@ -8,7 +8,6 @@ const ExploreBtn = () => {
 			type="button"
 			id="explore-btn"
 			className="mt-7 mx-auto"
-			onClick={() => console.log("Click")}
 		>
 			<a href="#events">
 				Explore Events

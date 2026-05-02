@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
 			_id: { $ne: tokenRecord._id },
 		});
 
-		console.log(`✅ Email verified: ${user.email}`);
+		// [FIXED]: Avoid logging user email addresses during verification.
+		console.log("[Auth] email verification completed");
 
 		return createSuccessResponse({
 			message: "Email verified successfully! You can now log in.",

@@ -53,7 +53,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					user.lastLoginAt = new Date();
 					await user.save();
 
-					console.log(`✅ Login success: ${user.email}`);
+					// [FIXED]: Avoid logging authenticated user identifiers.
+					console.log("[Auth] credentials login completed");
 
 					return {
 						id: user._id.toString(),
@@ -113,7 +114,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						user.roles = existingUser.roles;
 						user.isEmailVerified = true;
 
-						console.log(`✅ Google login (existing): ${user.email}`);
+						console.log("[Auth] Google login completed");
 					} else {
 						// Create new user from Google
 						const newUser = await User.create({
@@ -132,7 +133,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						user.roles = created.roles;
 						user.isEmailVerified = true;
 
-						console.log(`✅ Google login (new user): ${user.email}`);
+						console.log("[Auth] Google signup completed");
 					}
 				} catch (error) {
 					console.error("❌ Google sign-in error:", error);

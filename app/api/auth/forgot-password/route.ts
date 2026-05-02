@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
 
 		await sendPasswordResetEmail(email, rawToken);
 
-		console.log(`✅ Password reset requested: ${email}`);
+		// [FIXED]: Avoid logging account identifiers for password reset requests.
+		console.log("[Auth] password reset request completed");
 
 		return createSuccessResponse({ message: successMessage });
 	} catch (error) {
