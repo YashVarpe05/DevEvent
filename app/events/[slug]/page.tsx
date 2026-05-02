@@ -10,6 +10,7 @@ import { CalendarDays, MapPin, Video, ExternalLink, Globe } from "lucide-react";
 import { getRelatedEventsByEvent } from "@/lib/discovery/recommendations";
 import { FollowOrganizerButton } from "@/components/events/FollowOrganizerButton";
 import { ShareEventActions } from "@/components/events/ShareEventActions";
+import { ReferralTracker } from "@/components/events/ReferralTracker";
 import type { Metadata } from "next";
 
 type Props = {
@@ -279,6 +280,7 @@ export default async function EventDetailPage({ params }: Props) {
 
 	return (
 		<main className="min-h-screen bg-gray-50 pb-20">
+			<ReferralTracker eventId={event._id.toString()} />
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{

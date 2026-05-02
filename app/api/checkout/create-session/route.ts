@@ -3,12 +3,18 @@ import connectDB from "@/lib/mongodb";
 import Event from "@/database/event.model";
 import TicketType from "@/database/ticket-type.model";
 import Order from "@/database/order.model";
+import PromoCode from "@/database/promo-code.model";
+import Referral from "@/database/referral.model";
 import OrganizerProfile from "@/database/organizer-profile.model";
+import Registration from "@/database/registration.model";
 import { stripe } from "@/lib/stripe";
 import { calculatePricing } from "@/lib/pricing";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { getClientIp, isRateLimited } from "@/lib/auth.utils";
 import { trackServerEvent } from "@/lib/analytics";
+import { generateTicketCode, generateQrPayload } from "@/lib/utils/ticket";
+import { sendRegistrationEmail } from "@/lib/email";
+import { Types } from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -31,7 +37,7 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const { eventId, items, idempotencyKey } = parsed.data;
+		const { eventId, items, idempotencyKey, promoCode, referralCode } = parsed.data;
 		const clientIp = getClientIp(request);
 
 		if (
@@ -180,6 +186,47 @@ export async function POST(request: Request) {
 			}
 		}
 
+		// Validate Promo Code
+		let discount;
+		let appliedPromoCode;
+		if (promoCode) {
+			const promo = await PromoCode.findOne({
+				eventId,
+				code: promoCode.toUpperCase(),
+				isActive: true,
+			});
+
+			if (!promo) {
+				return NextResponse.json({ error: "Invalid promo code" }, { status: 400 });
+			}
+
+			if (promo.expiresAt && now > new Date(promo.expiresAt)) {
+				return NextResponse.json({ error: "Promo code has expired" }, { status: 400 });
+			}
+
+			if (promo.maxUses && promo.currentUses >= promo.maxUses) {
+				return NextResponse.json({ error: "Promo code has reached its usage limit" }, { status: 400 });
+			}
+
+			appliedPromoCode = promo;
+			discount = {
+				type: promo.type,
+				value: promo.value,
+			};
+		}
+
+		// Validate Referral Code
+		let appliedReferral;
+		if (referralCode) {
+			const ref = await Referral.findOne({
+				eventId,
+				code: referralCode.toLowerCase(),
+			});
+			if (ref) {
+				appliedReferral = ref;
+			}
+		}
+
 		// Calculate pricing
 		const pricingItems = items.map((item) => ({
 			ticketType: ticketTypes.find(
@@ -201,7 +248,30 @@ export async function POST(request: Request) {
 			).toLowerCase(),
 			organizerPlan: "free",
 			eventId: event._id.toString(),
+			discount,
 		});
+
+		// Calculate item-level discount proportional to subtotal if there's a discount
+		const itemTotals = pricingItems.map((pi) => {
+			const sub = pi.ticketType.price * pi.quantity;
+			let itemDiscount = 0;
+			if (pricing.discountAmount > 0 && pricing.subtotal > 0) {
+				itemDiscount = Math.round(pricing.discountAmount * (sub / pricing.subtotal));
+			}
+			return {
+				...pi,
+				subtotal: sub,
+				amountDiscount: itemDiscount,
+				amountTotal: Math.max(0, sub - itemDiscount),
+			};
+		});
+
+		// Fix any rounding diff on amountDiscount
+		const totalAssignedDiscount = itemTotals.reduce((acc, it) => acc + it.amountDiscount, 0);
+		if (totalAssignedDiscount !== pricing.discountAmount && itemTotals.length > 0) {
+			itemTotals[0].amountDiscount += (pricing.discountAmount - totalAssignedDiscount);
+			itemTotals[0].amountTotal = Math.max(0, itemTotals[0].subtotal - itemTotals[0].amountDiscount);
+		}
 
 		// Create Pending Order
 		const order = await Order.create({
@@ -210,14 +280,15 @@ export async function POST(request: Request) {
 			organizerId: event.organizerId,
 			status: "pending_payment",
 			currency: pricing.currency,
-			lineItems: pricingItems.map((pi) => ({
-				ticketTypeId: pi.ticketType._id,
-				ticketNameSnapshot: pi.ticketType.name,
-				quantity: pi.quantity,
-				unitPrice: pi.ticketType.price,
-				subtotal: pi.ticketType.price * pi.quantity,
-				amountSubtotal: pi.ticketType.price * pi.quantity,
-				amountTotal: pi.ticketType.price * pi.quantity,
+			lineItems: itemTotals.map((it) => ({
+				ticketTypeId: it.ticketType._id,
+				ticketNameSnapshot: it.ticketType.name,
+				quantity: it.quantity,
+				unitPrice: it.ticketType.price,
+				subtotal: it.subtotal,
+				amountSubtotal: it.subtotal,
+				amountDiscount: it.amountDiscount,
+				amountTotal: it.amountTotal,
 			})),
 			pricingSnapshot: {
 				platformFeeRate: pricing.platformFeeRate,
@@ -227,6 +298,8 @@ export async function POST(request: Request) {
 				organizerNetEstimate: pricing.organizerNetEstimate,
 			},
 			idempotencyKey,
+			referralId: appliedReferral ? appliedReferral._id : undefined,
+			referralCode: appliedReferral ? appliedReferral.code : undefined,
 			refunds: [],
 			expiresAt: new Date(Date.now() + 30 * 60000), // 30 min expiry
 		});
@@ -251,18 +324,114 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// --- FREE TIER BYPASS LOGIC ---
+		const totalOrderAmount = pricing.totalBuyerPayable;
+
+		if (totalOrderAmount === 0) {
+			// Bypass Stripe, finalize order immediately
+			order.status = "paid";
+			order.stripeCheckoutSessionId = "free_bypass_" + Date.now();
+			await order.save();
+
+			if (appliedPromoCode) {
+				appliedPromoCode.currentUses += 1;
+				await appliedPromoCode.save();
+			}
+
+			if (appliedReferral) {
+				await Referral.findByIdAndUpdate(appliedReferral._id, {
+					$inc: { conversions: 1 },
+				});
+			}
+
+			const buyerEmail = session.user.email || "paid-attendee@unknown.local";
+			const buyerName = session.user.name || "Attendee";
+
+			for (const item of pricingItems) {
+				const inventoryUpdate = await TicketType.findOneAndUpdate(
+					{
+						_id: item.ticketType._id,
+						status: "active",
+						$expr: {
+							$lte: [
+								{ $add: ["$quantitySold", item.quantity] },
+								"$quantityTotal",
+							],
+						},
+					},
+					{ $inc: { quantitySold: item.quantity } },
+					{ new: true },
+				);
+
+				if (!inventoryUpdate) {
+					order.status = "payment_failed";
+					await order.save();
+					return NextResponse.json(
+						{ error: "Inventory conflict during free order processing" },
+						{ status: 409 },
+					);
+				}
+
+				for (let i = 0; i < item.quantity; i++) {
+					const registrationId = new Types.ObjectId();
+					const ticketCode = generateTicketCode();
+					const qrPayload = generateQrPayload(
+						registrationId.toString(),
+						order.eventId.toString(),
+					);
+
+					await Registration.create({
+						_id: registrationId,
+						eventId: order.eventId,
+						attendeeUserId: order.buyerUserId,
+						attendeeEmail: buyerEmail,
+						attendeeName: buyerName,
+						status: "confirmed",
+						bookingType: "free",
+						quantity: 1,
+						ticketCode,
+						qrPayload,
+						orderId: order._id,
+						ticketTypeId: item.ticketType._id,
+						source: "web",
+					});
+
+					await sendRegistrationEmail(
+						buyerEmail,
+						buyerName,
+						event.title,
+						ticketCode,
+					);
+				}
+			}
+
+			trackServerEvent("free_order_processed", {
+				orderId: order._id.toString(),
+				eventId: eventId,
+				buyerUserId: session.user.id,
+			});
+
+			return NextResponse.json({
+				url: `${appUrl}/orders/${order._id}/confirmation`,
+				orderId: order._id,
+				pricing,
+				bypassed: true,
+			});
+		}
+		// --- END FREE TIER BYPASS LOGIC ---
+
 		const checkoutSession = await stripe.checkout.sessions.create({
 			mode: "payment",
 			payment_method_types: ["card"],
-			line_items: pricingItems.map((pi) => ({
+			line_items: itemTotals.map((it) => ({
 				price_data: {
 					currency: pricing.currency,
 					product_data: {
-						name: `${pi.ticketType.name} - ${event.title}`,
+						name: it.quantity > 1 ? `${it.quantity}x ${it.ticketType.name} - ${event.title}` : `${it.ticketType.name} - ${event.title}`,
 					},
-					unit_amount: pi.ticketType.price,
+					unit_amount: it.amountTotal,
 				},
-				quantity: pi.quantity,
+				quantity: 1,
 			})),
 			success_url: `${appUrl}/orders/${order._id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${appUrl}/events/${event.slug}?cancelled=true`,
@@ -276,12 +445,16 @@ export async function POST(request: Request) {
 				metadata: {
 					orderId: order._id.toString(),
 					eventId: eventId,
+					promoCodeId: appliedPromoCode ? appliedPromoCode._id.toString() : "",
+					referralId: appliedReferral ? appliedReferral._id.toString() : "",
 				},
 			},
 			metadata: {
 				orderId: order._id.toString(),
 				eventId: eventId,
 				buyerUserId: session.user.id,
+				promoCodeId: appliedPromoCode ? appliedPromoCode._id.toString() : "",
+				referralId: appliedReferral ? appliedReferral._id.toString() : "",
 			},
 			expires_at: Math.floor((Date.now() + 30 * 60 * 1000) / 1000),
 		});

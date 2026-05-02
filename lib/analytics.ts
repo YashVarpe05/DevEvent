@@ -8,6 +8,8 @@ export function trackServerEvent(
 		| "refund_succeeded"
 		| "chargeback_created"
 		| "organizer_connected_account_updated"
+		| "free_order_processed"
+		| "order_paid"
 		| "search_performed"
 		| "filter_applied"
 		| "event_card_clicked"
