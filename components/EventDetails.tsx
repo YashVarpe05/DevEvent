@@ -121,7 +121,7 @@ const EventDetails = async ({ params }: { params: Promise<{ slug: string }> }) =
 
 	if (!slug) return notFound();
 
-	const res = await fetch(`${BASE_URL}/api/events/${slug}`, {
+	const res = await fetch(`${BASE_URL}/api/public/events/${slug}`, {
 		cache: "no-store",
 	});
 
