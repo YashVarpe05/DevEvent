@@ -1,8 +1,13 @@
-import Image from "next/image";
+import { connection } from "next/server";
 import Link from "next/link";
-import React from "react";
+import Image from "next/image";
+import { auth } from "@/lib/auth";
+import { NavbarUserMenu } from "./NavbarUserMenu";
 
-const Navbar = () => {
+const Navbar = async () => {
+	await connection();
+	const session = await auth();
+
 	return (
 		<header>
 			<nav>
@@ -13,7 +18,24 @@ const Navbar = () => {
 				<ul>
 					<Link href="/">Home</Link>
 					<Link href="/">Events</Link>
-					<Link href="/">Create Events</Link>
+					{session?.user ? (
+						<NavbarUserMenu user={session.user} />
+					) : (
+						<>
+							<Link
+								href="/login"
+								className="text-light-100 hover:text-white transition-colors"
+							>
+								Login
+							</Link>
+							<Link
+								href="/signup"
+								className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-black hover:bg-primary/90 transition-colors"
+							>
+								Sign Up
+							</Link>
+						</>
+					)}
 				</ul>
 			</nav>
 		</header>

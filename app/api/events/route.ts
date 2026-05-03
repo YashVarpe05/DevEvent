@@ -1,116 +1,122 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
-
 import Event from "@/database/event.model";
+import OrganizerProfile from "@/database/organizer-profile.model";
 import connectDB from "@/lib/mongodb";
+import { auth } from "@/lib/auth";
+import { cacheDelByPrefix } from "@/lib/cache/redis";
 
-/**
- * Create a new event record with an uploaded image and persist it to the database.
- *
- * Accepts either a JSON payload or multipart FormData. When using FormData, the image file must be provided under the `image` field. The handler normalizes `tags` and `agenda` when they arrive as strings, uploads the image, and stores the created event document.
- *
- * @param req - Incoming NextRequest containing event data as JSON or FormData (FormData must include an `image` file)
- * @returns A NextResponse with status 201 and the created event on success; status 400 when the image is missing; status 500 with an error message on failure
- */
 export async function POST(req: NextRequest) {
 	try {
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+		}
+		const roles = session.user.roles || [];
+		if (!roles.includes("organizer") && !roles.includes("admin")) {
+			return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+		}
+
 		await connectDB();
 
-		let event: any;
-		const contentType = req.headers.get("content-type") || "";
-
-		if (contentType.includes("application/json")) {
-			event = await req.json();
-		} else {
-			const formData = await req.formData();
-			event = {};
-			for (const [key, value] of formData.entries()) {
-				event[key.trim()] = value;
-			}
-		}
-		const image = event.image as File | undefined;
-		if (!image) {
+		// Find organizer profile
+		const profile = await OrganizerProfile.findOne({ userId: session.user.id });
+		if (!profile) {
 			return NextResponse.json(
-				{ message: "Image file is required" },
+				{ message: "Organizer profile not found. Please complete onboarding." },
 				{ status: 400 },
 			);
 		}
-		const arrayBuffer = await image.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
 
-		const uploadResult = await new Promise((resolve, reject) => {
-			cloudinary.uploader
-				.upload_stream(
-					{
-						resource_type: "image",
-						folder: "DevEvent",
-					},
-					(error, results) => {
-						if (error) return reject(error);
-						resolve(results);
-					},
-				)
-				.end(buffer);
+		const body = await req.json();
+
+		// Basic validation for creating a draft
+		if (
+			!body.title ||
+			!body.shortDescription ||
+			!body.timezone ||
+			!body.startAt ||
+			!body.endAt
+		) {
+			return NextResponse.json(
+				{
+					message:
+						"Missing required fields: title, shortDescription, timezone, startAt, endAt",
+				},
+				{ status: 400 },
+			);
+		}
+
+		if (new Date(body.startAt) >= new Date(body.endAt)) {
+			return NextResponse.json(
+				{ message: "startAt must be before endAt" },
+				{ status: 400 },
+			);
+		}
+
+		// Create event
+		const newEvent = await Event.create({
+			...body,
+			organizerId: session.user.id,
+			organizerProfileId: profile._id,
+			status: "draft", // enforce draft status on creation
 		});
 
-		event.image = (uploadResult as { secure_url: string }).secure_url;
-
-		console.log("Received keys:", Object.keys(event));
-
-		// Parse array fields if they come as strings (common in FormData)
-		if (typeof event.tags === "string") {
-			try {
-				event.tags = JSON.parse(event.tags);
-			} catch {
-				event.tags = event.tags.split(",").map((t: string) => t.trim());
-			}
-		}
-		if (typeof event.agenda === "string") {
-			try {
-				event.agenda = JSON.parse(event.agenda);
-			} catch {
-				// Keep as is or handle error, validation will catch if it's not an array
-			}
-		}
-
-		console.log("Received event data:", event);
-
-		const createdEvent = await Event.create(event);
+		await Promise.all([
+			cacheDelByPrefix("discovery:search:"),
+			cacheDelByPrefix("discovery:recommended:"),
+		]);
 
 		return NextResponse.json(
-			{ message: "Event created successfully", event: createdEvent },
+			{ message: "Event draft created", event: newEvent },
 			{ status: 201 },
 		);
-	} catch (e) {
-		console.error(e);
+	} catch (error: any) {
+		console.error("POST /api/events error:", error);
+		if (error.code === 11000) {
+			return NextResponse.json(
+				{ message: "A unique slug conflict occurred", error: error.message },
+				{ status: 400 },
+			);
+		}
 		return NextResponse.json(
-			{
-				message: "Event Creation Failed",
-				error: e instanceof Error ? e.message : "Unknown Error",
-			},
+			{ message: "Failed to create event", error: error.message },
 			{ status: 500 },
 		);
 	}
 }
 
-/**
- * Fetches all events from the database sorted by creation time in descending order.
- *
- * @returns An object with `message` and `events` (array of event documents) on success; on failure, an object with `message` and `error` details.
- */
-export async function GET() {
+// GET admin list
+export async function GET(req: NextRequest) {
 	try {
+		const session = await auth();
+		if (!session?.user || !session.user.roles?.includes("admin")) {
+			return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+		}
 		await connectDB();
+		const url = new URL(req.url);
+		const page = parseInt(url.searchParams.get("page") || "1", 10);
+		const limit = parseInt(url.searchParams.get("limit") || "50", 10);
+		const skip = (page - 1) * limit;
 
-		const events = await Event.find().sort({ createdAt: -1 });
+		const total = await Event.countDocuments({ deletedAt: null });
+		const events = await Event.find({ deletedAt: null })
+			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limit)
+			.lean();
 
+		return NextResponse.json({
+			events,
+			pagination: {
+				total,
+				page,
+				limit,
+				totalPages: Math.ceil(total / limit),
+			},
+		}, { status: 200 });
+	} catch (error: any) {
 		return NextResponse.json(
-			{ message: "Events fetched successfully ", events },
-			{ status: 200 },
-		);
-	} catch (e) {
-		return NextResponse.json(
-			{ message: "Event fetching failed", error: e },
+			{ message: "Failed to fetch events", error: error.message },
 			{ status: 500 },
 		);
 	}

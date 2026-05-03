@@ -17,7 +17,8 @@ export function trackServerEvent(
 		| "related_event_clicked"
 		| "organizer_followed"
 		| "saved_search_created"
-		| "share_clicked",
+		| "share_clicked"
+		| "user_referral_conversion_success",
 	payload: Record<string, unknown>,
 ) {
 	void payload;

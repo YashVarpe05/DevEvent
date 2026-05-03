@@ -19,6 +19,7 @@ interface TicketOption {
 
 interface PricingBreakdown {
 	subtotal: number;
+	discountAmount: number;
 	platformFeeAmount: number;
 	totalBuyerPayable: number;
 }
@@ -33,6 +34,15 @@ export default function TicketSelector({
 	const [isCheckingOut, setIsCheckingOut] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [pricing, setPricing] = useState<PricingBreakdown | null>(null);
+
+	const [promoCodeInput, setPromoCodeInput] = useState("");
+	const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+	const [promoDiscount, setPromoDiscount] = useState<{
+		type: "percentage" | "fixed";
+		value: number;
+	} | null>(null);
+	const [promoError, setPromoError] = useState<string | null>(null);
+	const [isValidatingPromo, setIsValidatingPromo] = useState(false);
 
 	useEffect(() => {
 		const fetchTickets = async () => {
@@ -77,13 +87,60 @@ export default function TicketSelector({
 			return;
 		}
 
-		const platformFeeAmount = Math.round(totalPrice * feeRate) + feeFixed;
+		let discountAmount = 0;
+		if (promoDiscount) {
+			if (promoDiscount.type === "percentage") {
+				discountAmount = Math.round(totalPrice * (promoDiscount.value / 100));
+			} else {
+				discountAmount = promoDiscount.value;
+			}
+		}
+		discountAmount = Math.min(discountAmount, totalPrice);
+		const discountedSubtotal = Math.max(0, totalPrice - discountAmount);
+
+		const platformFeeAmount =
+			discountedSubtotal > 0
+				? Math.round(discountedSubtotal * feeRate) + feeFixed
+				: 0;
 		setPricing({
 			subtotal: totalPrice,
+			discountAmount,
 			platformFeeAmount,
-			totalBuyerPayable: totalPrice + platformFeeAmount,
+			totalBuyerPayable: discountedSubtotal + platformFeeAmount,
 		});
-	}, [totalPrice]);
+	}, [totalPrice, promoDiscount]);
+
+	const handleApplyPromo = async () => {
+		if (!promoCodeInput.trim()) return;
+		setIsValidatingPromo(true);
+		setPromoError(null);
+		try {
+			const res = await fetch("/api/checkout/validate-promo", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ eventId, code: promoCodeInput }),
+			});
+			const data = await res.json();
+			if (!res.ok)
+				throw new Error(data.error || "Failed to validate promo code");
+			setPromoDiscount(data.discount);
+			setAppliedPromo(promoCodeInput.toUpperCase());
+			setPromoCodeInput("");
+		} catch (err: any) {
+			setPromoError(err.message);
+			setPromoDiscount(null);
+			setAppliedPromo(null);
+		} finally {
+			setIsValidatingPromo(false);
+		}
+	};
+
+	const handleRemovePromo = () => {
+		setAppliedPromo(null);
+		setPromoDiscount(null);
+		setPromoCodeInput("");
+		setPromoError(null);
+	};
 
 	const handleCheckout = async () => {
 		if (totalItems === 0) return;
@@ -100,12 +157,21 @@ export default function TicketSelector({
 				globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`
 			).toString();
 
-			const referralCode = localStorage.getItem(`event_ref_${eventId}`) || undefined;
+			const referralCode =
+				localStorage.getItem(`event_ref_${eventId}`) || undefined;
+
+			const payload: any = {
+				eventId,
+				items: selectedItems,
+				idempotencyKey,
+			};
+			if (referralCode) payload.referralCode = referralCode;
+			if (appliedPromo) payload.promoCode = appliedPromo;
 
 			const res = await fetch(`/api/checkout/create-session`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ eventId, items: selectedItems, idempotencyKey, ...(referralCode && { referralCode }) }),
+				body: JSON.stringify(payload),
 			});
 
 			const data = await res.json();
@@ -193,6 +259,51 @@ export default function TicketSelector({
 				})}
 			</div>
 
+			{totalItems > 0 && (
+				<div className="pt-4 border-t border-zinc-800">
+					{appliedPromo ? (
+						<div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
+							<div className="flex items-center gap-2 text-emerald-400">
+								<span className="font-semibold uppercase">{appliedPromo}</span>
+								<span className="text-sm">applied</span>
+							</div>
+							<button
+								onClick={handleRemovePromo}
+								className="text-zinc-400 hover:text-white text-sm"
+							>
+								Remove
+							</button>
+						</div>
+					) : (
+						<div>
+							<div className="flex gap-2">
+								<input
+									type="text"
+									placeholder="Promo Code"
+									value={promoCodeInput}
+									onChange={(e) => setPromoCodeInput(e.target.value)}
+									className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
+								/>
+								<button
+									onClick={handleApplyPromo}
+									disabled={!promoCodeInput.trim() || isValidatingPromo}
+									className="bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-xl transition-colors flex items-center justify-center min-w-[80px]"
+								>
+									{isValidatingPromo ? (
+										<Loader2 className="animate-spin w-5 h-5" />
+									) : (
+										"Apply"
+									)}
+								</button>
+							</div>
+							{promoError && (
+								<p className="text-red-500 text-xs mt-2 ml-1">{promoError}</p>
+							)}
+						</div>
+					)}
+				</div>
+			)}
+
 			{error && (
 				<p className="text-xs text-red-500 bg-red-500/10 p-2 rounded border border-red-500/20">
 					{error}
@@ -227,6 +338,14 @@ export default function TicketSelector({
 					</p>
 					{pricing && (
 						<>
+							{pricing.discountAmount > 0 && (
+								<p className="text-sm text-emerald-400 mt-1">
+									Discount:{" "}
+									<span className="font-bold">
+										-${(pricing.discountAmount / 100).toFixed(2)}
+									</span>
+								</p>
+							)}
 							<p className="text-xs text-zinc-500 mt-1">
 								Platform fee: ${(pricing.platformFeeAmount / 100).toFixed(2)}
 							</p>

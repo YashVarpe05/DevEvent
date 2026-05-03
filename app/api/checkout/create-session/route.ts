@@ -227,6 +227,27 @@ export async function POST(request: Request) {
 			}
 		}
 
+		// User Referral lookup
+		let appliedUserReferrerId;
+		import("@/database/user-referral.model").then(({ default: UserReferral }) => {
+			// This will be done synchronously via await before proceeding
+		});
+		const { default: UserReferral } = await import("@/database/user-referral.model");
+		const userRefRecord = await UserReferral.findOne({
+			eventId,
+			referredUserId: session.user.id,
+		}).sort({ createdAt: -1 });
+
+		if (userRefRecord && ["clicked", "signed_up"].includes(userRefRecord.status)) {
+			appliedUserReferrerId = userRefRecord.referrerId.toString();
+		} else {
+			const { getUserReferralCookie } = await import("@/lib/utils/user-referral");
+			const urefCookie = await getUserReferralCookie();
+			if (urefCookie && urefCookie.eventId === eventId) {
+				appliedUserReferrerId = urefCookie.referrerId;
+			}
+		}
+
 		// Calculate pricing
 		const pricingItems = items.map((item) => ({
 			ticketType: ticketTypes.find(
@@ -344,6 +365,21 @@ export async function POST(request: Request) {
 				});
 			}
 
+			if (appliedUserReferrerId) {
+				await UserReferral.findOneAndUpdate(
+					{ referrerId: appliedUserReferrerId, eventId, referredUserId: session.user.id },
+					{ status: "converted", orderId: order._id },
+					{ upsert: true }
+				);
+
+				trackServerEvent("user_referral_conversion_success", {
+					referrerId: appliedUserReferrerId,
+					eventId: eventId.toString(),
+					referredUserId: session.user.id.toString(),
+					orderId: order._id.toString(),
+				});
+			}
+
 			const buyerEmail = session.user.email || "paid-attendee@unknown.local";
 			const buyerName = session.user.name || "Attendee";
 
@@ -447,6 +483,7 @@ export async function POST(request: Request) {
 					eventId: eventId,
 					promoCodeId: appliedPromoCode ? appliedPromoCode._id.toString() : "",
 					referralId: appliedReferral ? appliedReferral._id.toString() : "",
+					userReferrerId: appliedUserReferrerId || "",
 				},
 			},
 			metadata: {
@@ -455,6 +492,7 @@ export async function POST(request: Request) {
 				buyerUserId: session.user.id,
 				promoCodeId: appliedPromoCode ? appliedPromoCode._id.toString() : "",
 				referralId: appliedReferral ? appliedReferral._id.toString() : "",
+				userReferrerId: appliedUserReferrerId || "",
 			},
 			expires_at: Math.floor((Date.now() + 30 * 60 * 1000) / 1000),
 		});

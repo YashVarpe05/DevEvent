@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import LightRays from "@/components/LightRays";
@@ -51,10 +52,11 @@ export default function RootLayout({
 							distortion={0.02}
 						/>
 					</div>
-					<main>{children}</main>
+					<Suspense>
+						<main>{children}</main>
+					</Suspense>
 				</body>
 			</Providers>
 		</html>
 	);
 }
-

@@ -29,19 +29,34 @@ export async function GET(
 
 		const url = new URL(request.url);
 		const status = url.searchParams.get("status");
+		const page = parseInt(url.searchParams.get("page") || "1", 10);
+		const limit = parseInt(url.searchParams.get("limit") || "50", 10);
+		const skip = (page - 1) * limit;
+
 		const query: any = { eventId: id, organizerId: session.user.id };
 		if (status) {
 			query.status = status;
 		}
 
+		const total = await Order.countDocuments(query);
 		const orders = await Order.find(query)
 			.sort({ createdAt: -1 })
+			.skip(skip)
+			.limit(limit)
 			.select(
 				"status currency lineItems pricingSnapshot createdAt buyerUserId stripePaymentIntentId stripeCheckoutSessionId",
 			)
 			.lean();
 
-		return NextResponse.json({ orders });
+		return NextResponse.json({
+			orders,
+			pagination: {
+				total,
+				page,
+				limit,
+				totalPages: Math.ceil(total / limit),
+			},
+		});
 	} catch (error: any) {
 		console.error("Organizer event orders error", error);
 		return NextResponse.json(

@@ -87,6 +87,31 @@ export async function POST(request: NextRequest) {
 		// [FIXED]: Avoid logging user email addresses during signup.
 		console.log("[Auth] signup completed");
 
+		// Track user referral conversion asynchronously (non-blocking)
+		import("@/lib/utils/user-referral").then(({ getUserReferralCookie }) => {
+			getUserReferralCookie().then((refCookie) => {
+				if (refCookie) {
+					const { referrerId, eventId } = refCookie;
+					import("@/database/user-referral.model").then(({ default: UserReferral }) => {
+						UserReferral.findOneAndUpdate(
+							{ referrerId, eventId, referredUserId: null, status: "clicked" },
+							{ $set: { referredUserId: user._id, status: "signed_up" } },
+							{ sort: { createdAt: -1 } }
+						).then((doc) => {
+							if (!doc) {
+								return UserReferral.create({
+									referrerId,
+									eventId,
+									referredUserId: user._id,
+									status: "signed_up",
+								});
+							}
+						}).catch((err) => console.error("Referral tracking error:", err));
+					}).catch(console.error);
+				}
+			}).catch(console.error);
+		}).catch(console.error);
+
 		return createSuccessResponse(
 			{
 				message:
