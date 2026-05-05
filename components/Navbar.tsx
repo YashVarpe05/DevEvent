@@ -1,45 +1,20 @@
 import { connection } from "next/server";
-import Link from "next/link";
-import Image from "next/image";
 import { auth } from "@/lib/auth";
-import { NavbarUserMenu } from "./NavbarUserMenu";
+import { NavbarShell } from "./NavbarShell";
 
-const Navbar = async () => {
+export default async function Navbar() {
 	await connection();
 	const session = await auth();
 
-	return (
-		<header>
-			<nav>
-				<Link href="/" className="logo">
-					<Image src="/icons/logo.png" alt="logo" width={24} height={24} />
-					<p>DevEvents</p>
-				</Link>
-				<ul>
-					<Link href="/">Home</Link>
-					<Link href="/events">Events</Link>
-					{session?.user ? (
-						<NavbarUserMenu user={session.user} />
-					) : (
-						<>
-							<Link
-								href="/login"
-								className="text-light-100 hover:text-white transition-colors"
-							>
-								Login
-							</Link>
-							<Link
-								href="/signup"
-								className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-black hover:bg-primary/90 transition-colors"
-							>
-								Sign Up
-							</Link>
-						</>
-					)}
-				</ul>
-			</nav>
-		</header>
-	);
-};
+	const user = session?.user
+		? {
+				name: session.user.name || null,
+				email: session.user.email || null,
+				image: session.user.image || null,
+				roles: session.user.roles || [],
+				organizerStatus: session.user.organizerStatus || "not_applied",
+			}
+		: null;
 
-export default Navbar;
+	return <NavbarShell user={user} />;
+}
