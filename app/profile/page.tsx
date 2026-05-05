@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { connection } from "next/server";
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";

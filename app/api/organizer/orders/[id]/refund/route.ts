@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Order from "@/database/order.model";

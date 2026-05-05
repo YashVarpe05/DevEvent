@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import PromoCode from "@/database/promo-code.model";

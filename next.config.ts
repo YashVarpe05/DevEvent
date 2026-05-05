@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
 		// [FIXED]: Enforce TypeScript errors in every environment.
 		ignoreBuildErrors: false,
 	},
-	cacheComponents: true,
 	/* config options here */
 	images: {
 		remotePatterns: [

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import Event from "@/database/event.model";
 import OrganizerProfile from "@/database/organizer-profile.model";
