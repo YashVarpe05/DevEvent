@@ -19,12 +19,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			},
 			async authorize(credentials, request) {
 				if (!credentials?.email || !credentials?.password) {
+					console.log("[Auth] Missing credentials");
 					return null;
 				}
 
 				// Rate limit: 5 login attempts per IP per 15 minutes
 				const clientIp = getClientIp(request);
-				if (await isRateLimited(`login:${clientIp}`, 5, 15 * 60 * 1000)) {
+				if (await isRateLimited(`login:${clientIp}`, 20, 15 * 60 * 1000)) { // Increased to 20 for dev
+					console.log("[Auth] Rate limited for IP:", clientIp);
 					throw new Error("TOO_MANY_REQUESTS");
 				}
 
@@ -37,7 +39,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						deletedAt: null,
 					});
 
-					if (!user || !user.passwordHash) {
+					if (!user) {
+						console.log("[Auth] User not found or inactive:", credentials.email);
+						return null;
+					}
+					
+					if (!user.passwordHash) {
+						console.log("[Auth] User has no password hash (OAuth user?):", credentials.email);
 						return null;
 					}
 
@@ -47,6 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					);
 
 					if (!isPasswordValid) {
+						console.log("[Auth] Invalid password for user:", credentials.email);
 						return null;
 					}
 
@@ -62,7 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						name: user.name,
 						email: user.email,
 						image: user.image,
-						roles: user.roles,
+						roles: Array.from(user.roles || ["attendee"]),
 						isEmailVerified: user.emailVerified,
 					};
 				} catch (error) {
@@ -112,7 +121,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 						// Override user.id so JWT gets MongoDB _id
 						user.id = existingUser._id.toString();
-						user.roles = existingUser.roles;
+						user.roles = Array.from(existingUser.roles || ["attendee"]);
 						user.isEmailVerified = true;
 
 						console.log("[Auth] Google login completed");
@@ -131,7 +140,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
 						const created = Array.isArray(newUser) ? newUser[0] : newUser;
 						user.id = created._id.toString();
-						user.roles = created.roles;
+						user.roles = Array.from(created.roles || ["attendee"]);
 						user.isEmailVerified = true;
 
 						console.log("[Auth] Google signup completed");

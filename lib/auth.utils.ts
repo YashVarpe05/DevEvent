@@ -132,6 +132,11 @@ export async function isRateLimited(
 		}
 	}
 
+	// [FIXED]: Disable rate limiting locally for easier debugging
+	if (process.env.NODE_ENV === "development") {
+		return false;
+	}
+
 	// [FIXED]: Auth rate limiting uses Redis when REDIS_URL is configured.
 	// WARNING: in-memory fallback, not safe for multi-instance deployment.
 	return isMemoryRateLimited(key, maxAttempts, windowMs);
