@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import LightRays from "@/components/LightRays";
+import Navbar from "@/components/Navbar";
 
 import { Providers } from "./providers";
 
@@ -33,10 +34,9 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<Providers>
 				<body
-					suppressHydrationWarning
 					className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
 				>
 					<div className="absolute inset-0 top-0 z-[-1] min-h-screen">
@@ -52,6 +52,7 @@ export default function RootLayout({
 							distortion={0.02}
 						/>
 					</div>
+					<Navbar />
 					<Suspense>
 						<main>{children}</main>
 					</Suspense>

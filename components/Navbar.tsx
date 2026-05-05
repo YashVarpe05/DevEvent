@@ -17,7 +17,7 @@ const Navbar = async () => {
 				</Link>
 				<ul>
 					<Link href="/">Home</Link>
-					<Link href="/">Events</Link>
+					<Link href="/events">Events</Link>
 					{session?.user ? (
 						<NavbarUserMenu user={session.user} />
 					) : (

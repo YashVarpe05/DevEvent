@@ -8,6 +8,7 @@ import { authConfig } from "./auth.config";
 import { isRateLimited, getClientIp } from "./auth.utils";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+	trustHost: true,
 	...authConfig,
 	providers: [
 		Credentials({
