@@ -3,13 +3,12 @@ import Booking from "@/database/booking.model";
 
 import connectDB from "../mongodb";
 
+// [FIXED]: Removed unused slug input from the legacy booking action contract.
 export const createBooking = async ({
 	eventId,
-	slug,
 	email,
 }: {
 	eventId: string;
-	slug: string;
 	email: string;
 }) => {
 	try {
@@ -17,9 +16,15 @@ export const createBooking = async ({
 		// Only pass fields defined in Booking schema (eventId and email)
 		await Booking.create({ eventId, email });
 		return { success: true };
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("create booking failed", error);
-		if (error.code === 11000) {
+		const duplicateKeyError =
+			typeof error === "object" &&
+			error !== null &&
+			"code" in error &&
+			(error as { code?: number }).code === 11000;
+
+		if (duplicateKeyError) {
 			return { success: false, error: "You have already booked this event." };
 		}
 		return {

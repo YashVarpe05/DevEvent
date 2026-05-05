@@ -1,0 +1,62 @@
+.next/types/validator.ts(25,44): error TS2344: Type 'Route' does not satisfy the constraint '"/"'.
+  Type 'LayoutRoutes' is not assignable to type '"/"'.
+    Type '"/organizer/settings"' is not assignable to type '"/"'.
+.next/types/validator.ts(25,75): error TS2344: Type 'Route' does not satisfy the constraint '"/"'.
+  Type 'LayoutRoutes' is not assignable to type '"/"'.
+    Type '"/organizer/settings"' is not assignable to type '"/"'.
+.next/types/validator.ts(171,31): error TS2344: Type 'typeof import("C:/Project/event-platform/app/api/admin/organizer-applications/[id]/approve/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/admin/organizer-applications/[id]/approve">'.
+  Types of property 'POST' are incompatible.
+    Type '(req: Request, { params }: { params: { id: string; }; }) => Promise<NextResponse<{ error: string; }> | NextResponse<{ message: string; application: Document<unknown, {}, IOrganizerApplication, {}, DefaultSchemaOptions> & IOrganizerApplication & Required<...> & { ...; } & { ...; }; user: { ...; }; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type '{ params: { id: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+.next/types/validator.ts(180,31): error TS2344: Type 'typeof import("C:/Project/event-platform/app/api/admin/organizer-applications/[id]/reject/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/admin/organizer-applications/[id]/reject">'.
+  Types of property 'POST' are incompatible.
+    Type '(req: Request, { params }: { params: { id: string; }; }) => Promise<NextResponse<{ error: string; }> | NextResponse<{ message: string; application: Document<unknown, {}, IOrganizerApplication, {}, DefaultSchemaOptions> & IOrganizerApplication & Required<...> & { ...; } & { ...; }; user: { ...; }; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type '{ params: { id: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+app/api/admin/organizer-applications/[id]/approve/route.ts(60,3): error TS2322: Type 'string' is not assignable to type 'ObjectId'.
+app/api/admin/organizer-applications/[id]/reject/route.ts(63,3): error TS2322: Type 'string' is not assignable to type 'ObjectId'.
+app/organizer/settings/profile/page.tsx(20,3): error TS2322: Type 'Resolver<{ displayName: string; slug: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 7 more ...; isPublic?: boolean | undefined; }, any, { ...; }>' is not assignable to type 'Resolver<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }, any, { ...; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>' is not assignable to type 'ResolverOptions<{ displayName: string; slug: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 7 more ...; isPublic?: boolean | undefined; }>'.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+app/organizer/settings/profile/page.tsx(110,33): error TS2345: Argument of type '(data: OrganizerProfileInput) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }'.
+      Type 'FieldValues' is missing the following properties from type '{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }': displayName, slug, bio, contactEmail, and 4 more.
+app/organizer/settings/profile/page.tsx(117,20): error TS2345: Argument of type '"name"' is not assignable to parameter of type '"displayName" | "slug" | "bio" | "avatarUrl" | "website" | "contactEmail" | "phone" | "location" | "socialLinks" | "organizationType" | "teamSize" | "eventCategories" | "isPublic" | ... 6 more ... | `eventCategories.${number}`'.
+app/organizer/settings/profile/page.tsx(121,14): error TS2339: Property 'name' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(122,56): error TS2339: Property 'name' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(135,20): error TS2345: Argument of type '"tagline"' is not assignable to parameter of type '"displayName" | "slug" | "bio" | "avatarUrl" | "website" | "contactEmail" | "phone" | "location" | "socialLinks" | "organizationType" | "teamSize" | "eventCategories" | "isPublic" | ... 6 more ... | `eventCategories.${number}`'.
+app/organizer/settings/profile/page.tsx(139,14): error TS2339: Property 'tagline' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(140,56): error TS2339: Property 'tagline' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(181,21): error TS2345: Argument of type '"twitterUrl"' is not assignable to parameter of type '"displayName" | "slug" | "bio" | "avatarUrl" | "website" | "contactEmail" | "phone" | "location" | "socialLinks" | "organizationType" | "teamSize" | "eventCategories" | "isPublic" | ... 6 more ... | `eventCategories.${number}`'.
+app/organizer/settings/profile/page.tsx(185,15): error TS2339: Property 'twitterUrl' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(186,57): error TS2339: Property 'twitterUrl' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(196,21): error TS2345: Argument of type '"linkedInUrl"' is not assignable to parameter of type '"displayName" | "slug" | "bio" | "avatarUrl" | "website" | "contactEmail" | "phone" | "location" | "socialLinks" | "organizationType" | "teamSize" | "eventCategories" | "isPublic" | ... 6 more ... | `eventCategories.${number}`'.
+app/organizer/settings/profile/page.tsx(200,15): error TS2339: Property 'linkedInUrl' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+app/organizer/settings/profile/page.tsx(201,57): error TS2339: Property 'linkedInUrl' does not exist on type 'FieldErrors<{ displayName: string; slug: string; bio: string; contactEmail: string; location: { city: string; country: string; }; organizationType: "individual" | "company" | "community" | "university" | "nonprofit" | "other"; ... 6 more ...; teamSize?: number | undefined; }>'.
+components/EventDetails.tsx(15,9): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+components/EventDetails.tsx(15,10): error TS2786: 'Image' cannot be used as a JSX component.
+  Its type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not a valid JSX element type.
+    Type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not assignable to type 'new (props: any, context: any) => Component<any, any, any>'.
+      Type 'HTMLImageElement' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 2 more.
+components/EventDetails.tsx(42,5): error TS2304: Cannot find name 'cacheLife'.
+components/EventDetails.tsx(46,20): error TS2304: Cannot find name 'notFound'.
+components/EventDetails.tsx(52,22): error TS2304: Cannot find name 'notFound'.
+components/EventDetails.tsx(57,26): error TS2304: Cannot find name 'notFound'.
+components/EventDetails.tsx(77,23): error TS2552: Cannot find name 'IEvent'. Did you mean 'Event'?
+components/EventDetails.tsx(77,40): error TS2304: Cannot find name 'getSimilarEventsBySlug'.
+components/EventDetails.tsx(87,6): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+components/EventDetails.tsx(87,7): error TS2786: 'Image' cannot be used as a JSX component.
+  Its type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not a valid JSX element type.
+    Type 'new (width?: number | undefined, height?: number | undefined) => HTMLImageElement' is not assignable to type 'new (props: any, context: any) => Component<any, any, any>'.
+      Type 'HTMLImageElement' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 2 more.
+components/EventDetails.tsx(137,8): error TS2304: Cannot find name 'BookEvent'.
+components/EventDetails.tsx(144,40): error TS2304: Cannot find name 'IEvent'.
+components/EventDetails.tsx(145,8): error TS2304: Cannot find name 'EventCard'.

@@ -1,0 +1,73 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function FollowOrganizerButton({
+	organizerId,
+}: {
+	organizerId: string;
+}) {
+	const [loading, setLoading] = useState(false);
+	const [following, setFollowing] = useState(false);
+	const [followersCount, setFollowersCount] = useState(0);
+	const [error, setError] = useState("");
+
+	useEffect(() => {
+		const load = async () => {
+			try {
+				const response = await fetch(`/api/organizers/${organizerId}/follow`);
+				const data = await response.json();
+				setFollowing(!!data.following);
+				setFollowersCount(Number(data.followersCount || 0));
+			} catch {
+				setError("Could not load follow state");
+			}
+		};
+		load();
+	}, [organizerId]);
+
+	const handleToggle = async () => {
+		setLoading(true);
+		setError("");
+		try {
+			const method = following ? "DELETE" : "PUT";
+			const response = await fetch(`/api/organizers/${organizerId}/follow`, {
+				method,
+			});
+			if (!response.ok) {
+				const data = await response.json();
+				setError(data.error || "Please sign in to follow organizers");
+				return;
+			}
+
+			setFollowing((current) => !current);
+			setFollowersCount((count) =>
+				following ? Math.max(0, count - 1) : count + 1,
+			);
+		} catch {
+			setError("Unable to update follow state");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<div>
+			<button
+				type="button"
+				onClick={handleToggle}
+				disabled={loading}
+				id="organizer-follow-button"
+				className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+					following
+						? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+						: "bg-primary text-white hover:bg-primary/90"
+				}`}
+			>
+				{loading ? "Updating..." : following ? "Following" : "Follow Organizer"}
+			</button>
+			<p className="mt-1 text-xs text-gray-500">{followersCount} followers</p>
+			{error ? <p className="mt-1 text-xs text-red-500">{error}</p> : null}
+		</div>
+	);
+}

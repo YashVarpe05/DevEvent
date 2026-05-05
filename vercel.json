@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/event-reminders",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/organizer-payouts",
+      "schedule": "0 1 * * *"
+    }
+  ]
+}

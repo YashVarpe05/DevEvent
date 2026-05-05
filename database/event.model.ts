@@ -1,198 +1,312 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-// TypeScript interface for Event document
+export type EventType = "online" | "offline" | "hybrid";
+export type EventVisibility = "public" | "unlisted" | "private";
+export type EventStatus = "draft" | "published" | "unpublished" | "cancelled" | "completed";
+export type CapacityType = "limited" | "unlimited";
+
 export interface IEvent extends Document {
+	organizerId: Types.ObjectId;
+	organizerProfileId: Types.ObjectId;
 	title: string;
 	slug: string;
-	description: string;
-	overview: string;
-	image: string;
-	venue: string;
-	location: string;
-	date: string;
-	time: string;
-	mode: "online" | "offline" | "hybrid";
-	audience: string;
-	agenda: string[];
-	organizer: string;
+	shortDescription: string;
+	description?: string;
+	category?: string;
 	tags: string[];
+	coverImageUrl?: string;
+	galleryImages: string[];
+	eventType: EventType;
+	visibility: EventVisibility;
+	status: EventStatus;
+	timezone: string;
+	startAt: Date;
+	endAt: Date;
+	isAllDay: boolean;
+	location?: {
+		venueName?: string;
+		addressLine1?: string;
+		addressLine2?: string;
+		city?: string;
+		state?: string;
+		country?: string;
+		postalCode?: string;
+		lat?: number;
+		lng?: number;
+	};
+	online?: {
+		platform?: string;
+		meetingUrl?: string;
+		accessNotes?: string;
+	};
+	capacityType: CapacityType;
+	capacity?: number;
+	registrationStartAt?: Date;
+	registrationEndAt?: Date;
+	isPaid: boolean;
+	currency?: string;
+	basePrice?: number;
+	seo?: {
+		metaTitle?: string;
+		metaDescription?: string;
+		ogImage?: string;
+	};
+	stats: {
+		viewsCount: number;
+		bookmarksCount: number;
+		registrationsCount: number;
+	};
+	searchableText: string;
+	qualityScore: number;
+	popularityScore: number;
+	trendingScore: number;
+	geo?: {
+		type: "Point";
+		coordinates: [number, number];
+	};
+	language?: string;
+	isFeatured: boolean;
+	publishedAt?: Date | null;
+	lastPublishedAt?: Date | null;
+	deletedAt?: Date | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
 
 const EventSchema = new Schema<IEvent>(
 	{
+		organizerId: {
+			type: Schema.Types.ObjectId,
+			ref: "User",
+			required: true,
+			index: true,
+		},
+		organizerProfileId: {
+			type: Schema.Types.ObjectId,
+			ref: "OrganizerProfile",
+			required: true,
+			index: true,
+		},
 		title: {
 			type: String,
-			required: [true, "Event title is required"],
+			required: [true, "Title is required"],
 			trim: true,
+			maxlength: 120,
 		},
 		slug: {
 			type: String,
 			unique: true,
+			index: true,
 			lowercase: true,
 			trim: true,
 		},
-		description: {
+		shortDescription: {
 			type: String,
-			required: [true, "Event description is required"],
+			required: [true, "Short description is required"],
 			trim: true,
+			maxlength: 250,
 		},
-		overview: {
+		description: { type: String },
+		category: { type: String, trim: true },
+		tags: { type: [String], default: [] },
+		coverImageUrl: { type: String },
+		galleryImages: { type: [String], default: [] },
+		eventType: {
 			type: String,
-			required: [true, "Event overview is required"],
-			trim: true,
+			enum: ["online", "offline", "hybrid"],
+			default: "offline",
 		},
-		image: {
+		visibility: {
 			type: String,
-			required: [true, "Event image is required"],
+			enum: ["public", "unlisted", "private"],
+			default: "public",
 		},
-		venue: {
+		status: {
 			type: String,
-			required: [true, "Event venue is required"],
-			trim: true,
+			enum: ["draft", "published", "unpublished", "cancelled", "completed"],
+			default: "draft",
+			index: true,
 		},
+		timezone: { type: String, required: [true, "Timezone is required"] },
+		startAt: {
+			type: Date,
+			required: [true, "Start time is required"],
+			index: true,
+		},
+		endAt: { type: Date, required: [true, "End time is required"] },
+		isAllDay: { type: Boolean, default: false },
 		location: {
-			type: String,
-			required: [true, "Event location is required"],
-			trim: true,
+			venueName: { type: String, trim: true },
+			addressLine1: { type: String, trim: true },
+			addressLine2: { type: String, trim: true },
+			city: { type: String, trim: true },
+			state: { type: String, trim: true },
+			country: { type: String, trim: true },
+			postalCode: { type: String, trim: true },
+			lat: { type: Number },
+			lng: { type: Number },
 		},
-		date: {
-			type: String,
-			required: [true, "Event date is required"],
+		online: {
+			platform: { type: String, trim: true },
+			meetingUrl: { type: String, trim: true },
+			accessNotes: { type: String, trim: true },
 		},
-		time: {
+		capacityType: {
 			type: String,
-			required: [true, "Event time is required"],
+			enum: ["limited", "unlimited"],
+			default: "unlimited",
 		},
-		mode: {
-			type: String,
-			required: [true, "Event mode is required"],
-			enum: {
-				values: ["online", "offline", "hybrid"],
-				message: "Mode must be either online, offline, or hybrid",
+		capacity: { type: Number },
+		registrationStartAt: { type: Date },
+		registrationEndAt: { type: Date },
+		isPaid: { type: Boolean, default: false },
+		currency: { type: String, default: "USD" },
+		basePrice: { type: Number },
+		seo: {
+			metaTitle: { type: String, trim: true },
+			metaDescription: { type: String, trim: true },
+			ogImage: { type: String, trim: true },
+		},
+		stats: {
+			viewsCount: { type: Number, default: 0 },
+			bookmarksCount: { type: Number, default: 0 },
+			registrationsCount: { type: Number, default: 0 },
+		},
+		searchableText: { type: String, default: "", index: true },
+		qualityScore: { type: Number, default: 0, min: 0, max: 100, index: true },
+		popularityScore: {
+			type: Number,
+			default: 0,
+			min: 0,
+			max: 100,
+			index: true,
+		},
+		trendingScore: { type: Number, default: 0, min: 0, max: 100, index: true },
+		geo: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				required: false,
+			},
+			coordinates: {
+				type: [Number],
+				validate: {
+					validator: (coords: number[] | undefined) => {
+						if (!coords) return true;
+						return coords.length === 2;
+					},
+					message: "Geo coordinates must be [lng, lat]",
+				},
 			},
 		},
-		audience: {
-			type: String,
-			required: [true, "Target audience is required"],
-			trim: true,
-		},
-		agenda: {
-			type: [String],
-			required: [true, "Event agenda is required"],
-			validate: {
-				validator: (value: string[]) => value.length > 0,
-				message: "Agenda must contain at least one item",
-			},
-		},
-		organizer: {
-			type: String,
-			required: [true, "Event organizer is required"],
-			trim: true,
-		},
-		tags: {
-			type: [String],
-			required: [true, "Event tags are required"],
-			validate: {
-				validator: (value: string[]) => value.length > 0,
-				message: "Tags must contain at least one item",
-			},
-		},
+		language: { type: String, trim: true, lowercase: true },
+		isFeatured: { type: Boolean, default: false, index: true },
+		publishedAt: { type: Date, default: null },
+		lastPublishedAt: { type: Date, default: null },
+		deletedAt: { type: Date, default: null },
+	},
+	{ timestamps: true },
+);
+
+// Compound indexes
+EventSchema.index({ organizerId: 1, createdAt: -1 });
+EventSchema.index({ status: 1, visibility: 1, startAt: 1 });
+EventSchema.index({ status: 1, visibility: 1, endAt: 1, startAt: 1 });
+EventSchema.index({ status: 1, visibility: 1, category: 1, startAt: 1 });
+EventSchema.index({ status: 1, visibility: 1, eventType: 1, startAt: 1 });
+EventSchema.index({ status: 1, visibility: 1, isPaid: 1, basePrice: 1 });
+EventSchema.index({ status: 1, visibility: 1, publishedAt: -1 });
+EventSchema.index({
+	status: 1,
+	visibility: 1,
+	popularityScore: -1,
+	startAt: 1,
+});
+EventSchema.index({ status: 1, visibility: 1, trendingScore: -1, startAt: 1 });
+EventSchema.index({ geo: "2dsphere" });
+EventSchema.index(
+	{
+		title: "text",
+		shortDescription: "text",
+		description: "text",
+		tags: "text",
+		searchableText: "text",
 	},
 	{
-		timestamps: true, // Auto-generate createdAt and updatedAt
+		weights: {
+			title: 10,
+			shortDescription: 5,
+			tags: 7,
+			description: 2,
+			searchableText: 1,
+		},
 	},
 );
 
-// Pre-save hook: Generate slug, normalize date, and validate time (Async)
+// Pre-save hook for slug generation
 EventSchema.pre("save", async function () {
 	const event = this as IEvent;
 
-	// Generate URL-friendly slug from title (only if title changed or new document)
-	if (event.isModified("title")) {
+	if (event.isModified("title") && !event.slug) {
 		const baseSlug = event.title
 			.toLowerCase()
 			.trim()
-			.replace(/[^\w\s-]/g, "") // Remove special characters
-			.replace(/\s+/g, "-") // Replace spaces with hyphens
-			.replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
+			.replace(/[^\w\s-]/g, "")
+			.replace(/\s+/g, "-")
+			.replace(/-+/g, "-");
 
-		// Check for slug collision and append timestamp if needed
 		let uniqueSlug = baseSlug;
-		let slugExists = await mongoose.model("Event").exists({
-			slug: uniqueSlug,
-			_id: { $ne: event._id }, // Exclude current document
-		});
+		let counter = 1;
 
-		if (slugExists) {
-			uniqueSlug = `${baseSlug}-${Date.now()}`;
+		while (true) {
+			const slugExists = await mongoose.model("Event").exists({
+				slug: uniqueSlug,
+				_id: { $ne: event._id },
+			});
+
+			if (!slugExists) break;
+			uniqueSlug = `${baseSlug}-${counter}`;
+			counter++;
 		}
-
 		event.slug = uniqueSlug;
 	}
 
-	// Normalize date to YYYY-MM-DD format (UTC-based validation)
-	if (event.isModified("date")) {
-		// Validate YYYY-MM-DD format and parse components
-		const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
-		const match = event.date.match(dateRegex);
-
-		if (!match) {
-			throw new Error(
-				"Invalid date format. Please provide date in YYYY-MM-DD format.",
-			);
+	if (event.isModified("location") || event.isModified("eventType")) {
+		const lat = event.location?.lat;
+		const lng = event.location?.lng;
+		if (typeof lat === "number" && typeof lng === "number") {
+			event.geo = { type: "Point", coordinates: [lng, lat] };
+		} else {
+			event.geo = undefined;
 		}
-
-		const year = parseInt(match[1], 10);
-		const month = parseInt(match[2], 10);
-		const day = parseInt(match[3], 10);
-
-		// Validate ranges
-		if (month < 1 || month > 12 || day < 1 || day > 31) {
-			throw new Error("Invalid date. Month must be 1-12 and day must be 1-31.");
-		}
-
-		// Construct UTC date and validate it doesn't roll over
-		const utcDate = new Date(Date.UTC(year, month - 1, day));
-
-		if (
-			isNaN(utcDate.getTime()) ||
-			utcDate.getUTCFullYear() !== year ||
-			utcDate.getUTCMonth() + 1 !== month ||
-			utcDate.getUTCDate() !== day
-		) {
-			throw new Error(
-				"Invalid date. Please provide a valid calendar date (e.g., 2024-02-30 is invalid).",
-			);
-		}
-
-		// Set normalized date using validated components
-		event.date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 	}
 
-	// Normalize time format to HH:MM (24-hour format)
-	if (event.isModified("time")) {
-		const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-		const match = event.time.trim().match(timeRegex);
+	if (
+		event.isModified("title") ||
+		event.isModified("shortDescription") ||
+		event.isModified("description") ||
+		event.isModified("category") ||
+		event.isModified("tags") ||
+		event.isModified("location")
+	) {
+		const parts = [
+			event.title,
+			event.shortDescription,
+			event.description || "",
+			event.category || "",
+			(event.tags || []).join(" "),
+			event.location?.city || "",
+			event.location?.country || "",
+		];
 
-		if (!match) {
-			throw new Error(
-				"Invalid time format. Please use HH:MM format (e.g., 14:30).",
-			);
-		}
-
-		// Pad hour to two digits (e.g., "9:30" becomes "09:30")
-		const hour = match[1].padStart(2, "0");
-		const minute = match[2];
-		event.time = `${hour}:${minute}`;
+		event.searchableText = parts
+			.join(" ")
+			.toLowerCase()
+			.replace(/\s+/g, " ")
+			.trim();
 	}
 });
 
-// Create unique index on slug for faster queries and uniqueness enforcement
-// Index removed to avoid duplicate definition with slug: { unique: true }
-
-// Create and export the Event model
 const Event: Model<IEvent> =
 	mongoose.models.Event || mongoose.model<IEvent>("Event", EventSchema);
 

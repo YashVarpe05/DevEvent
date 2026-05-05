@@ -1,0 +1,364 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
+
+interface TicketSelectorProps {
+	eventId: string;
+	currency: string;
+}
+
+interface TicketOption {
+	_id: string;
+	name: string;
+	price: number;
+	currency?: string;
+	quantitySold: number;
+	quantityTotal: number;
+}
+
+interface PricingBreakdown {
+	subtotal: number;
+	discountAmount: number;
+	platformFeeAmount: number;
+	totalBuyerPayable: number;
+}
+
+export default function TicketSelector({
+	eventId,
+	currency,
+}: TicketSelectorProps) {
+	const [tickets, setTickets] = useState<TicketOption[]>([]);
+	const [selection, setSelection] = useState<Record<string, number>>({});
+	const [loading, setLoading] = useState(true);
+	const [isCheckingOut, setIsCheckingOut] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [pricing, setPricing] = useState<PricingBreakdown | null>(null);
+
+	const [promoCodeInput, setPromoCodeInput] = useState("");
+	const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+	const [promoDiscount, setPromoDiscount] = useState<{
+		type: "percentage" | "fixed";
+		value: number;
+	} | null>(null);
+	const [promoError, setPromoError] = useState<string | null>(null);
+	const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+
+	useEffect(() => {
+		const fetchTickets = async () => {
+			try {
+				const res = await fetch(`/api/events/${eventId}/tickets`);
+				const data = await res.json();
+				if (data.tickets) {
+					setTickets(data.tickets);
+				}
+			} catch (err) {
+				console.error("Fetch tickets error:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchTickets();
+	}, [eventId]);
+
+	const updateQuantity = (id: string, delta: number, max: number) => {
+		setSelection((prev) => {
+			const current = prev[id] || 0;
+			const next = Math.max(0, Math.min(max, current + delta));
+			return { ...prev, [id]: next };
+		});
+	};
+
+	const totalItems = Object.values(selection).reduce((a, b) => a + b, 0);
+	const totalPrice = tickets.reduce(
+		(acc, t) => acc + t.price * (selection[t._id] || 0),
+		0,
+	);
+
+	useEffect(() => {
+		const feeRate = Number(
+			process.env.NEXT_PUBLIC_PLATFORM_FEE_PREVIEW_RATE ?? "0.05",
+		);
+		const feeFixed = Number(
+			process.env.NEXT_PUBLIC_PLATFORM_FEE_PREVIEW_FIXED_MINOR ?? "50",
+		);
+		if (totalPrice <= 0) {
+			setPricing(null);
+			return;
+		}
+
+		let discountAmount = 0;
+		if (promoDiscount) {
+			if (promoDiscount.type === "percentage") {
+				discountAmount = Math.round(totalPrice * (promoDiscount.value / 100));
+			} else {
+				discountAmount = promoDiscount.value;
+			}
+		}
+		discountAmount = Math.min(discountAmount, totalPrice);
+		const discountedSubtotal = Math.max(0, totalPrice - discountAmount);
+
+		const platformFeeAmount =
+			discountedSubtotal > 0
+				? Math.round(discountedSubtotal * feeRate) + feeFixed
+				: 0;
+		setPricing({
+			subtotal: totalPrice,
+			discountAmount,
+			platformFeeAmount,
+			totalBuyerPayable: discountedSubtotal + platformFeeAmount,
+		});
+	}, [totalPrice, promoDiscount]);
+
+	const handleApplyPromo = async () => {
+		if (!promoCodeInput.trim()) return;
+		setIsValidatingPromo(true);
+		setPromoError(null);
+		try {
+			const res = await fetch("/api/checkout/validate-promo", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ eventId, code: promoCodeInput }),
+			});
+			const data = await res.json();
+			if (!res.ok)
+				throw new Error(data.error || "Failed to validate promo code");
+			setPromoDiscount(data.discount);
+			setAppliedPromo(promoCodeInput.toUpperCase());
+			setPromoCodeInput("");
+		} catch (err: any) {
+			setPromoError(err.message);
+			setPromoDiscount(null);
+			setAppliedPromo(null);
+		} finally {
+			setIsValidatingPromo(false);
+		}
+	};
+
+	const handleRemovePromo = () => {
+		setAppliedPromo(null);
+		setPromoDiscount(null);
+		setPromoCodeInput("");
+		setPromoError(null);
+	};
+
+	const handleCheckout = async () => {
+		if (totalItems === 0) return;
+
+		setIsCheckingOut(true);
+		setError(null);
+
+		try {
+			const selectedItems = Object.entries(selection)
+				.filter(([, qty]) => qty > 0)
+				.map(([id, qty]) => ({ ticketTypeId: id, quantity: qty }));
+
+			const idempotencyKey = (
+				globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`
+			).toString();
+
+			const referralCode =
+				localStorage.getItem(`event_ref_${eventId}`) || undefined;
+
+			const payload: any = {
+				eventId,
+				items: selectedItems,
+				idempotencyKey,
+			};
+			if (referralCode) payload.referralCode = referralCode;
+			if (appliedPromo) payload.promoCode = appliedPromo;
+
+			const res = await fetch(`/api/checkout/create-session`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+
+			const data = await res.json();
+			if (!res.ok) throw new Error(data.error || "Checkout failed");
+
+			if (data.url) {
+				window.location.href = data.url;
+			}
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : "Checkout failed");
+			setIsCheckingOut(false);
+		}
+	};
+
+	if (loading)
+		return (
+			<div className="flex justify-center p-4">
+				<Loader2 className="animate-spin text-zinc-500" />
+			</div>
+		);
+
+	if (tickets.length === 0)
+		return (
+			<p className="text-zinc-500 italic text-center py-4">
+				No tickets available.
+			</p>
+		);
+
+	return (
+		<div className="space-y-4">
+			<div className="space-y-2 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
+				{tickets.map((ticket) => {
+					const qty = selection[ticket._id] || 0;
+					const isSoldOut = ticket.quantitySold >= ticket.quantityTotal;
+
+					return (
+						<div
+							key={ticket._id}
+							className={`p-3 rounded-lg border ${qty > 0 ? "border-primary-500 bg-primary-500/5" : "border-zinc-800 bg-zinc-900/50"} transition-all`}
+						>
+							<div className="flex justify-between items-start mb-2">
+								<div>
+									<h4 className="font-semibold text-white">{ticket.name}</h4>
+									<p className="text-sm text-zinc-400">
+										${(ticket.price / 100).toFixed(2)}{" "}
+										{(ticket.currency || currency).toUpperCase()}
+									</p>
+								</div>
+								<div className="flex items-center gap-3 bg-zinc-800 px-2 py-1 rounded-lg">
+									<button
+										onClick={() => updateQuantity(ticket._id, -1, 10)}
+										disabled={qty === 0 || isSoldOut}
+										className="p-1 text-zinc-400 hover:text-white disabled:opacity-30"
+									>
+										<Minus size={14} />
+									</button>
+									<span className="text-sm font-bold min-w-[1.2rem] text-center text-white">
+										{isSoldOut ? 0 : qty}
+									</span>
+									<button
+										onClick={() =>
+											updateQuantity(
+												ticket._id,
+												1,
+												Math.min(
+													10,
+													ticket.quantityTotal - ticket.quantitySold,
+												),
+											)
+										}
+										disabled={isSoldOut || qty >= 10}
+										className="p-1 text-zinc-400 hover:text-white disabled:opacity-30"
+									>
+										<Plus size={14} />
+									</button>
+								</div>
+							</div>
+							{isSoldOut && (
+								<p className="text-[10px] text-red-500 font-bold uppercase tracking-wider">
+									Sold Out
+								</p>
+							)}
+						</div>
+					);
+				})}
+			</div>
+
+			{totalItems > 0 && (
+				<div className="pt-4 border-t border-zinc-800">
+					{appliedPromo ? (
+						<div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
+							<div className="flex items-center gap-2 text-emerald-400">
+								<span className="font-semibold uppercase">{appliedPromo}</span>
+								<span className="text-sm">applied</span>
+							</div>
+							<button
+								onClick={handleRemovePromo}
+								className="text-zinc-400 hover:text-white text-sm"
+							>
+								Remove
+							</button>
+						</div>
+					) : (
+						<div>
+							<div className="flex gap-2">
+								<input
+									type="text"
+									placeholder="Promo Code"
+									value={promoCodeInput}
+									onChange={(e) => setPromoCodeInput(e.target.value)}
+									className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
+								/>
+								<button
+									onClick={handleApplyPromo}
+									disabled={!promoCodeInput.trim() || isValidatingPromo}
+									className="bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-xl transition-colors flex items-center justify-center min-w-[80px]"
+								>
+									{isValidatingPromo ? (
+										<Loader2 className="animate-spin w-5 h-5" />
+									) : (
+										"Apply"
+									)}
+								</button>
+							</div>
+							{promoError && (
+								<p className="text-red-500 text-xs mt-2 ml-1">{promoError}</p>
+							)}
+						</div>
+					)}
+				</div>
+			)}
+
+			{error && (
+				<p className="text-xs text-red-500 bg-red-500/10 p-2 rounded border border-red-500/20">
+					{error}
+				</p>
+			)}
+
+			<button
+				onClick={handleCheckout}
+				disabled={totalItems === 0 || isCheckingOut}
+				className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:bg-zinc-800 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group"
+			>
+				{isCheckingOut ? (
+					<Loader2 className="animate-spin w-5 h-5" />
+				) : (
+					<>
+						<span>Proceed to Checkout</span>
+						<ArrowRight
+							size={18}
+							className="group-hover:translate-x-1 transition-transform"
+						/>
+					</>
+				)}
+			</button>
+
+			{totalItems > 0 && (
+				<div className="text-center pt-2">
+					<p className="text-sm text-zinc-400">
+						Subtotal:{" "}
+						<span className="text-white font-bold">
+							${(totalPrice / 100).toFixed(2)}
+						</span>
+					</p>
+					{pricing && (
+						<>
+							{pricing.discountAmount > 0 && (
+								<p className="text-sm text-emerald-400 mt-1">
+									Discount:{" "}
+									<span className="font-bold">
+										-${(pricing.discountAmount / 100).toFixed(2)}
+									</span>
+								</p>
+							)}
+							<p className="text-xs text-zinc-500 mt-1">
+								Platform fee: ${(pricing.platformFeeAmount / 100).toFixed(2)}
+							</p>
+							<p className="text-sm text-zinc-300 mt-1">
+								Total payable:{" "}
+								<span className="text-white font-bold">
+									${(pricing.totalBuyerPayable / 100).toFixed(2)}
+								</span>
+							</p>
+						</>
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
