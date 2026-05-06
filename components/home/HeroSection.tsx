@@ -1,163 +1,206 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { IconArrowRight, IconSparkles } from "@tabler/icons-react";
+import { Button } from "../ui/Button";
+import { FlipFadeText } from "../ui/flip-fade-text";
 
-const ease = [0.16, 1, 0.3, 1];
+const fadeUp = {
+	initial: { opacity: 0, y: 24 },
+	animate: { opacity: 1, y: 0 },
+};
 
 export function HeroSection() {
+	const sectionRef = useRef(null);
+	const { scrollYProgress } = useScroll({
+		target: sectionRef,
+		offset: ["start start", "end start"],
+	});
+
+	const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+
 	return (
 		<section
-			className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden px-5"
-			style={{ backgroundColor: "var(--bg-base)" }}
+			ref={sectionRef}
+			className="relative flex min-h-[85vh] items-center justify-center overflow-hidden"
+			style={{ backgroundColor: "var(--bg-void)" }}
 		>
-			{/* Grid dot pattern */}
-			<div
-				className="pointer-events-none absolute inset-0 opacity-40"
-				style={{
-					backgroundImage:
-						"radial-gradient(circle, #2A2A2A 1px, transparent 1px)",
-					backgroundSize: "32px 32px",
-				}}
-			/>
-
-			{/* Radial amber glow */}
-			<div
+			{/* Grid lines BG */}
+			<motion.div
+				style={{ y: bgY }}
 				className="pointer-events-none absolute inset-0"
-				style={{
-					background:
-						"radial-gradient(ellipse 800px 400px at 50% 40%, rgba(255,181,71,0.06) 0%, transparent 70%)",
-				}}
-			/>
-
-			{/* Top border line */}
-			<div
-				className="absolute top-0 left-0 right-0 h-px"
-				style={{ backgroundColor: "var(--border)" }}
-			/>
+			>
+				<div
+					className="absolute inset-0"
+					style={{
+						backgroundImage: `
+							linear-gradient(to right, var(--border-dim) 1px, transparent 1px),
+							linear-gradient(to bottom, var(--border-dim) 1px, transparent 1px)
+						`,
+						backgroundSize: "80px 80px",
+						opacity: 0.3,
+					}}
+				/>
+				{/* Gold radial glow top center */}
+				<div
+					className="absolute left-1/2 top-0 -translate-x-1/2 h-[500px] w-[800px]"
+					style={{
+						background:
+							"radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 70%)",
+					}}
+				/>
+			</motion.div>
 
 			{/* Content */}
-			<div className="relative z-10 flex max-w-2xl flex-col items-center text-center">
-				{/* Label */}
+			<div className="relative z-10 mx-auto max-w-4xl px-5 text-center">
+				{/* Eyebrow */}
 				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ duration: 0.6, ease }}
+					variants={fadeUp}
+					initial="initial"
+					animate="animate"
+					transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+					className="mx-auto mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+					style={{
+						border: "1px solid var(--border-gold)",
+						backgroundColor: "var(--gold-subtle)",
+					}}
 				>
+					<IconSparkles size={12} style={{ color: "var(--gold)" }} />
 					<span
-						className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em]"
-						style={{ color: "var(--text-muted)" }}
+						className="text-[11px] font-medium uppercase tracking-[0.1em]"
+						style={{ color: "var(--gold)" }}
 					>
-						<span style={{ color: "var(--accent)", fontSize: "8px" }}>
-							●
-						</span>
-						India&apos;s Developer Event Platform
+						India&#39;s Developer Event Platform
 					</span>
 				</motion.div>
 
-				{/* Heading */}
+				{/* Headline */}
 				<motion.h1
-					initial={{ opacity: 0, y: 16 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, ease, delay: 0.1 }}
-					className="mt-6 font-display text-[40px] leading-[0.95] tracking-tight sm:text-[56px] md:text-[72px]"
+					variants={fadeUp}
+					initial="initial"
+					animate="animate"
+					transition={{
+						duration: 0.6,
+						delay: 0.1,
+						ease: [0.16, 1, 0.3, 1],
+					}}
+					className="text-display-xl"
 					style={{ color: "var(--text-primary)" }}
 				>
-					Where Developers
+					Where Builders
 					<br />
-					Find Their{" "}
-					<span style={{ color: "var(--accent)" }}>Next Event</span>
+					<em
+						style={{
+							fontStyle: "italic",
+							color: "var(--gold)",
+						}}
+					>
+						Come Together
+					</em>
 				</motion.h1>
 
-				{/* Subheading */}
+				{/* Subhead */}
 				<motion.p
-					initial={{ opacity: 0, y: 16 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, ease, delay: 0.2 }}
-					className="mt-5 max-w-[480px] text-[17px]"
+					variants={fadeUp}
+					initial="initial"
+					animate="animate"
+					transition={{
+						duration: 0.5,
+						delay: 0.2,
+						ease: [0.16, 1, 0.3, 1],
+					}}
+					className="mx-auto mt-5 max-w-xl text-[17px] leading-[1.6]"
 					style={{ color: "var(--text-secondary)" }}
 				>
-					Discover tech meetups, hackathons, and workshops.
-					<br />
-					Book your spot in seconds.
+					Discover hackathons, meetups, and tech workshops handpicked for
+					developers who ship. Book your spot in seconds.
 				</motion.p>
 
-				{/* CTA Buttons */}
+				{/* Rotating words */}
 				<motion.div
-					initial={{ opacity: 0, y: 16 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, ease, delay: 0.3 }}
-					className="mt-8 flex items-center gap-3"
+					variants={fadeUp}
+					initial="initial"
+					animate="animate"
+					transition={{
+						duration: 0.5,
+						delay: 0.25,
+						ease: [0.16, 1, 0.3, 1],
+					}}
+					className="mt-4 flex flex-row items-center justify-center"
+					style={{ gap: "12px" }}
+				>
+					<span
+						style={{
+							fontSize: "12px",
+							color: "var(--text-muted)",
+							fontFamily: "var(--font-body)",
+							textTransform: "uppercase",
+							letterSpacing: "0.08em",
+							whiteSpace: "nowrap",
+						}}
+					>
+						Trending:
+					</span>
+					<div
+						style={{
+							overflow: "hidden",
+							height: "24px",
+							display: "inline-flex",
+							alignItems: "center",
+							fontSize: "14px",
+							fontFamily: "var(--font-body)",
+						}}
+					>
+						<FlipFadeText
+							words={[
+								"Hackathons",
+								"Meetups",
+								"Workshops",
+								"Conferences",
+								"Open Source Days",
+							]}
+							textClassName="text-[var(--text-primary)]"
+							className="text-[var(--text-primary)] font-medium"
+						/>
+					</div>
+				</motion.div>
+
+				{/* CTAs */}
+				<motion.div
+					variants={fadeUp}
+					initial="initial"
+					animate="animate"
+					transition={{
+						duration: 0.5,
+						delay: 0.35,
+						ease: [0.16, 1, 0.3, 1],
+					}}
+					className="mt-8 flex flex-wrap items-center justify-center gap-3"
 				>
 					<Link href="/events">
-						<Button variant="primary" size="lg">
-							Browse Events
+						<Button variant="primary" size="lg" className="glow-gold-sm">
+							Explore Events
+							<IconArrowRight size={16} stroke={2} />
 						</Button>
 					</Link>
 					<Link href="/become-organizer">
 						<Button variant="secondary" size="lg">
-							Host an Event
+							List Your Event
 						</Button>
 					</Link>
 				</motion.div>
-
-				{/* Social proof */}
-				<motion.div
-					initial={{ opacity: 0, y: 16 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, ease, delay: 0.4 }}
-					className="mt-8 flex items-center gap-3"
-				>
-					{/* Overlapping avatars */}
-					<div className="flex -space-x-2">
-						{["A", "R", "S", "P"].map((letter, i) => (
-							<div
-								key={i}
-								className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-md)] text-[10px] font-semibold"
-								style={{
-									backgroundColor: "var(--bg-overlay)",
-									border: "1px solid var(--border)",
-									color: "var(--text-muted)",
-								}}
-							>
-								{letter}
-							</div>
-						))}
-					</div>
-					<span
-						className="text-[13px]"
-						style={{ color: "var(--text-muted)" }}
-					>
-						Join 500+ developers
-					</span>
-				</motion.div>
 			</div>
 
-			{/* Scroll indicator */}
-			<motion.div
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ duration: 0.6, delay: 0.6 }}
-				className="absolute bottom-8 flex flex-col items-center gap-2"
-			>
-				<motion.div
-					animate={{ y: [0, 6, 0] }}
-					transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-				>
-					<ChevronDown
-						size={16}
-						style={{ color: "var(--text-muted)" }}
-					/>
-				</motion.div>
-				<span
-					className="text-[11px] uppercase tracking-[0.1em]"
-					style={{ color: "var(--text-muted)" }}
-				>
-					Scroll to explore
-				</span>
-			</motion.div>
+			{/* Bottom fade */}
+			<div
+				className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
+				style={{
+					background:
+						"linear-gradient(to top, var(--bg-base), transparent)",
+				}}
+			/>
 		</section>
 	);
 }
