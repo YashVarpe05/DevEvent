@@ -6,17 +6,17 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import {
-	Menu,
-	X,
-	Bell,
-	User,
-	Ticket,
-	ShoppingBag,
-	LayoutDashboard,
-	Shield,
-	Briefcase,
-	LogOut,
-} from "lucide-react";
+	IconMenu2,
+	IconX,
+	IconBell,
+	IconUser,
+	IconTicket,
+	IconShoppingBag,
+	IconLayoutDashboard,
+	IconShield,
+	IconBriefcase,
+	IconLogout,
+} from "@tabler/icons-react";
 import { Button } from "./ui/Button";
 
 interface NavbarUser {
@@ -32,8 +32,9 @@ interface NavbarShellProps {
 }
 
 const NAV_LINKS = [
-	{ href: "/events", label: "Events" },
+	{ href: "/events", label: "Discover" },
 	{ href: "/become-organizer", label: "Organizers" },
+	{ href: "https://github.com/YashVarpe05/DevEvent", label: "Open Source", external: true },
 ];
 
 export function NavbarShell({ user }: NavbarShellProps) {
@@ -45,10 +46,9 @@ export function NavbarShell({ user }: NavbarShellProps) {
 	const { scrollY } = useScroll();
 
 	useMotionValueEvent(scrollY, "change", (latest) => {
-		setScrolled(latest > 40);
+		setScrolled(latest > 50);
 	});
 
-	// Close dropdown on outside click
 	useEffect(() => {
 		const handler = (e: MouseEvent) => {
 			if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -59,11 +59,20 @@ export function NavbarShell({ user }: NavbarShellProps) {
 		return () => document.removeEventListener("mousedown", handler);
 	}, []);
 
-	// Close mobile menu on route change
 	useEffect(() => {
 		setMenuOpen(false);
 		setDropdownOpen(false);
 	}, [pathname]);
+
+	// Lock body scroll when mobile menu is open
+	useEffect(() => {
+		if (menuOpen) {
+			document.body.style.overflow = "hidden";
+		} else {
+			document.body.style.overflow = "";
+		}
+		return () => { document.body.style.overflow = ""; };
+	}, [menuOpen]);
 
 	const initials = user?.name
 		? user.name
@@ -77,64 +86,107 @@ export function NavbarShell({ user }: NavbarShellProps) {
 	const isOrganizer = user?.roles?.includes("organizer");
 	const isAdmin = user?.roles?.includes("admin");
 
+	const isActive = (href: string) => pathname === href;
+
 	return (
 		<>
+			{/* ── Fixed Navbar ── */}
 			<header
-				className="fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color] duration-200"
+				className="fixed top-0 left-0 right-0 z-50"
 				style={{
-					backgroundColor: scrolled ? "var(--bg-elevated)" : "transparent",
-					borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
+					height: 58,
+					backgroundColor: scrolled ? "rgba(8,8,9,0.88)" : "transparent",
+					backdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
+					WebkitBackdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
+					borderBottom: scrolled ? "1px solid var(--border-dim)" : "1px solid transparent",
+					transition: "all 280ms cubic-bezier(0.16, 1, 0.3, 1)",
 				}}
 			>
-				<nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-8">
+				<nav className="mx-auto flex h-[58px] max-w-7xl items-center justify-between px-5 sm:px-6">
 					{/* LEFT — Logo */}
 					<Link href="/" className="flex items-center gap-0 no-underline">
 						<span
-							className="font-display text-xl tracking-wide"
-							style={{ color: "var(--text-primary)" }}
+							style={{
+								fontFamily: "var(--font-display)",
+								fontSize: 22,
+								fontWeight: 600,
+								color: "var(--text-primary)",
+							}}
 						>
-							DEV
+							Dev
 						</span>
-						<span
-							className="font-display text-xl"
-							style={{ color: "var(--accent)" }}
+						<em
+							style={{
+								fontFamily: "var(--font-display)",
+								fontSize: 22,
+								fontWeight: 600,
+								fontStyle: "italic",
+								color: "var(--gold)",
+							}}
 						>
-							·
-						</span>
-						<span
-							className="font-display text-xl tracking-wide"
-							style={{ color: "var(--text-primary)" }}
-						>
-							EVENT
-						</span>
+							Event
+						</em>
 					</Link>
 
 					{/* CENTER — Nav links (desktop) */}
-					<div className="hidden items-center gap-8 md:flex">
-						{NAV_LINKS.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								className="text-[13px] font-medium no-underline transition-colors duration-150"
-								style={{
-									color:
-										pathname === link.href
-											? "var(--text-primary)"
-											: "var(--text-secondary)",
-								}}
-								onMouseEnter={(e) =>
-									(e.currentTarget.style.color = "var(--text-primary)")
-								}
-								onMouseLeave={(e) =>
-									(e.currentTarget.style.color =
-										pathname === link.href
-											? "var(--text-primary)"
-											: "var(--text-secondary)")
-								}
-							>
-								{link.label}
-							</Link>
-						))}
+					<div className="hidden items-center md:flex" style={{ gap: 0 }}>
+						{NAV_LINKS.map((link, i) => {
+							const active = !link.external && isActive(link.href);
+							return (
+								<div key={link.href} className="flex items-center">
+									{i > 0 && (
+										<span
+											style={{
+												color: "var(--border-bright)",
+												fontSize: "10px",
+												margin: "0 2px",
+											}}
+										>
+											·
+										</span>
+									)}
+									<Link
+										href={link.href}
+										target={link.external ? "_blank" : undefined}
+										rel={link.external ? "noopener noreferrer" : undefined}
+										style={{
+											position: "relative",
+											padding: "8px 14px",
+											fontSize: "14px",
+											fontFamily: "var(--font-body)",
+											color: active ? "var(--text-primary)" : "var(--text-secondary)",
+											textDecoration: "none",
+											transition: "color 120ms ease",
+										}}
+										onMouseEnter={(e) =>
+											(e.currentTarget.style.color = "var(--text-primary)")
+										}
+										onMouseLeave={(e) =>
+											(e.currentTarget.style.color = active
+												? "var(--text-primary)"
+												: "var(--text-secondary)")
+										}
+									>
+										{link.label}
+										{active && (
+											<motion.div
+												layoutId="nav-active-line"
+												style={{
+													position: "absolute",
+													bottom: "-2px",
+													left: "14px",
+													right: "14px",
+													height: "1.5px",
+													background: "var(--gold)",
+													borderRadius: "1px",
+												}}
+												transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+											/>
+										)}
+									</Link>
+								</div>
+							);
+						})}
 					</div>
 
 					{/* RIGHT — Auth */}
@@ -143,7 +195,7 @@ export function NavbarShell({ user }: NavbarShellProps) {
 							<>
 								{/* Bell */}
 								<button
-									className="hidden cursor-pointer p-1.5 transition-colors duration-150 md:flex"
+									className="hidden cursor-pointer p-1.5 transition-colors duration-[120ms] md:flex"
 									style={{ color: "var(--text-muted)" }}
 									onMouseEnter={(e) =>
 										(e.currentTarget.style.color = "var(--text-primary)")
@@ -152,17 +204,19 @@ export function NavbarShell({ user }: NavbarShellProps) {
 										(e.currentTarget.style.color = "var(--text-muted)")
 									}
 								>
-									<Bell size={18} />
+									<IconBell size={18} stroke={1.5} />
 								</button>
 
 								{/* Avatar + Dropdown */}
 								<div className="relative hidden md:block" ref={dropdownRef}>
 									<button
 										onClick={() => setDropdownOpen(!dropdownOpen)}
-										className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-[var(--radius-md)]"
+										className="flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full"
 										style={{
-											backgroundColor: "var(--bg-overlay)",
-											border: "1px solid var(--border)",
+											backgroundColor: user.image
+												? "transparent"
+												: "var(--gold-subtle)",
+											border: `1px solid ${user.image ? "var(--border)" : "var(--border-gold)"}`,
 										}}
 									>
 										{user.image ? (
@@ -173,8 +227,8 @@ export function NavbarShell({ user }: NavbarShellProps) {
 											/>
 										) : (
 											<span
-												className="text-[11px] font-semibold"
-												style={{ color: "var(--text-secondary)" }}
+												className="font-mono text-[11px] font-medium"
+												style={{ color: "var(--gold)" }}
 											>
 												{initials}
 											</span>
@@ -184,11 +238,14 @@ export function NavbarShell({ user }: NavbarShellProps) {
 									<AnimatePresence>
 										{dropdownOpen && (
 											<motion.div
-												initial={{ opacity: 0, scale: 0.97, y: -4 }}
+												initial={{ opacity: 0, scale: 0.97, y: -8 }}
 												animate={{ opacity: 1, scale: 1, y: 0 }}
-												exit={{ opacity: 0, scale: 0.97, y: -4 }}
-												transition={{ duration: 0.15 }}
-												className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-[var(--radius-lg)]"
+												exit={{ opacity: 0, scale: 0.97, y: -8 }}
+												transition={{
+													duration: 0.15,
+													ease: [0.16, 1, 0.3, 1],
+												}}
+												className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-[var(--radius-lg)] p-1.5"
 												style={{
 													backgroundColor: "var(--bg-overlay)",
 													border: "1px solid var(--border)",
@@ -196,77 +253,65 @@ export function NavbarShell({ user }: NavbarShellProps) {
 											>
 												{/* User info */}
 												<div
-													className="px-4 py-3"
+													className="px-3 py-2.5 mb-1"
 													style={{
-														borderBottom:
-															"1px solid var(--border)",
+														borderBottom: "1px solid var(--border-dim)",
 													}}
 												>
 													<p
 														className="truncate text-[13px] font-medium"
-														style={{
-															color: "var(--text-primary)",
-														}}
+														style={{ color: "var(--text-primary)" }}
 													>
 														{user.name || "User"}
 													</p>
 													<p
-														className="truncate text-[11px]"
-														style={{
-															color: "var(--text-muted)",
-														}}
+														className="truncate text-[11px] mt-0.5"
+														style={{ color: "var(--text-muted)" }}
 													>
 														{user.email}
 													</p>
 												</div>
 
-												{/* Links */}
-												<div className="py-1">
+												{/* Links group 1 */}
+												<div className="py-0.5">
 													<DropdownLink
 														href="/profile"
-														icon={<User size={14} />}
+														icon={<IconUser size={14} stroke={1.5} />}
 													>
 														Profile
 													</DropdownLink>
 													<DropdownLink
 														href="/my/registrations"
-														icon={<Ticket size={14} />}
+														icon={<IconTicket size={14} stroke={1.5} />}
 													>
 														My Tickets
 													</DropdownLink>
 													<DropdownLink
 														href="/my/orders"
-														icon={<ShoppingBag size={14} />}
+														icon={<IconShoppingBag size={14} stroke={1.5} />}
 													>
 														My Orders
 													</DropdownLink>
 												</div>
 
-												<div
-													style={{
-														borderTop:
-															"1px solid var(--border)",
-													}}
+												<hr
+													className="my-1 border-0 h-px"
+													style={{ background: "var(--border-dim)" }}
 												/>
 
-												<div className="py-1">
+												{/* Links group 2 */}
+												<div className="py-0.5">
 													{isOrganizer ? (
 														<DropdownLink
 															href="/organizer/dashboard"
-															icon={
-																<LayoutDashboard
-																	size={14}
-																/>
-															}
+															icon={<IconLayoutDashboard size={14} stroke={1.5} />}
 														>
 															Organizer Dashboard
 														</DropdownLink>
 													) : (
 														<DropdownLink
 															href="/become-organizer"
-															icon={
-																<Briefcase size={14} />
-															}
+															icon={<IconBriefcase size={14} stroke={1.5} />}
 														>
 															Become Organizer
 														</DropdownLink>
@@ -274,41 +319,36 @@ export function NavbarShell({ user }: NavbarShellProps) {
 													{isAdmin && (
 														<DropdownLink
 															href="/admin"
-															icon={<Shield size={14} />}
+															icon={<IconShield size={14} stroke={1.5} />}
 														>
 															Admin Panel
 														</DropdownLink>
 													)}
 												</div>
 
-												<div
-													style={{
-														borderTop:
-															"1px solid var(--border)",
-													}}
+												<hr
+													className="my-1 border-0 h-px"
+													style={{ background: "var(--border-dim)" }}
 												/>
 
-												<div className="py-1">
+												{/* Sign out */}
+												<div className="py-0.5">
 													<button
 														onClick={() =>
-															signOut({
-																callbackUrl: "/",
-															})
+															signOut({ callbackUrl: "/" })
 														}
-														className="flex w-full cursor-pointer items-center gap-2.5 px-4 py-2 text-[13px] transition-colors duration-150"
-														style={{
-															color: "var(--text-secondary)",
+														className="flex w-full cursor-pointer items-center gap-2.5 rounded-[var(--radius-md)] px-3 h-[34px] text-[13px] transition-colors duration-[120ms]"
+														style={{ color: "var(--text-secondary)" }}
+														onMouseEnter={(e) => {
+															e.currentTarget.style.color = "var(--red)";
+															e.currentTarget.style.backgroundColor = "var(--bg-elevated)";
 														}}
-														onMouseEnter={(e) =>
-															(e.currentTarget.style.color =
-																"var(--text-primary)")
-														}
-														onMouseLeave={(e) =>
-															(e.currentTarget.style.color =
-																"var(--text-secondary)")
-														}
+														onMouseLeave={(e) => {
+															e.currentTarget.style.color = "var(--text-secondary)";
+															e.currentTarget.style.backgroundColor = "transparent";
+														}}
 													>
-														<LogOut size={14} />
+														<IconLogout size={14} stroke={1.5} />
 														Sign out
 													</button>
 												</div>
@@ -324,9 +364,13 @@ export function NavbarShell({ user }: NavbarShellProps) {
 										Sign in
 									</Button>
 								</Link>
-								<Link href="/signup">
-									<Button variant="primary" size="sm">
-										Get Started
+								<Link href="/become-organizer">
+									<Button
+										variant="primary"
+										size="sm"
+										className="glow-gold-sm"
+									>
+										List an Event
 									</Button>
 								</Link>
 							</div>
@@ -338,16 +382,21 @@ export function NavbarShell({ user }: NavbarShellProps) {
 							className="cursor-pointer p-1.5 md:hidden"
 							style={{ color: "var(--text-primary)" }}
 						>
-							{menuOpen ? <X size={20} /> : <Menu size={20} />}
+							{menuOpen ? (
+								<IconX size={20} stroke={1.5} />
+							) : (
+								<IconMenu2 size={20} stroke={1.5} />
+							)}
 						</button>
 					</div>
 				</nav>
 			</header>
 
-			{/* Mobile drawer */}
+			{/* ── Mobile Drawer ── */}
 			<AnimatePresence>
 				{menuOpen && (
 					<>
+						{/* Backdrop */}
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
@@ -355,40 +404,78 @@ export function NavbarShell({ user }: NavbarShellProps) {
 							className="fixed inset-0 z-40 bg-black/60 md:hidden"
 							onClick={() => setMenuOpen(false)}
 						/>
+
+						{/* Drawer */}
 						<motion.div
 							initial={{ x: "100%" }}
 							animate={{ x: 0 }}
 							exit={{ x: "100%" }}
-							transition={{ type: "tween", duration: 0.25 }}
-							className="fixed top-0 right-0 bottom-0 z-50 flex w-72 flex-col md:hidden"
+							transition={{
+								type: "tween",
+								duration: 0.3,
+								ease: [0.16, 1, 0.3, 1],
+							}}
+							className="fixed inset-0 z-50 flex flex-col md:hidden"
 							style={{
-								backgroundColor: "var(--bg-elevated)",
-								borderLeft: "1px solid var(--border)",
+								backgroundColor: "var(--bg-void)",
+								borderLeft: "1px solid var(--border-dim)",
 							}}
 						>
-							{/* Close */}
-							<div className="flex h-14 items-center justify-end px-5">
+							{/* Header */}
+							<div className="flex h-[58px] items-center justify-between px-5">
+								<Link
+									href="/"
+									className="flex items-center no-underline"
+									onClick={() => setMenuOpen(false)}
+								>
+									<span
+										style={{
+											fontFamily: "var(--font-display)",
+											fontSize: 22,
+											fontWeight: 600,
+											color: "var(--text-primary)",
+										}}
+									>
+										Dev
+									</span>
+									<em
+										style={{
+											fontFamily: "var(--font-display)",
+											fontSize: 22,
+											fontWeight: 600,
+											fontStyle: "italic",
+											color: "var(--gold)",
+										}}
+									>
+										Event
+									</em>
+								</Link>
 								<button
 									onClick={() => setMenuOpen(false)}
 									className="cursor-pointer p-1.5"
 									style={{ color: "var(--text-primary)" }}
 								>
-									<X size={20} />
+									<IconX size={20} stroke={1.5} />
 								</button>
 							</div>
 
 							{/* Nav links */}
-							<div className="flex flex-col gap-1 px-4">
+							<div className="flex flex-col px-5 mt-4">
 								{NAV_LINKS.map((link) => (
 									<Link
 										key={link.href}
 										href={link.href}
-										className="rounded-[var(--radius-md)] px-3 py-2.5 text-[15px] font-medium no-underline transition-colors duration-150"
+										target={link.external ? "_blank" : undefined}
+										rel={link.external ? "noopener noreferrer" : undefined}
+										className="no-underline py-4"
 										style={{
-											color:
-												pathname === link.href
-													? "var(--text-primary)"
-													: "var(--text-secondary)",
+											fontFamily: "var(--font-display)",
+											fontSize: 22,
+											fontWeight: 500,
+											color: isActive(link.href)
+												? "var(--text-primary)"
+												: "var(--text-secondary)",
+											borderBottom: "1px solid var(--border-dim)",
 										}}
 									>
 										{link.label}
@@ -396,62 +483,39 @@ export function NavbarShell({ user }: NavbarShellProps) {
 								))}
 							</div>
 
-							<div
-								className="mx-4 my-3"
-								style={{
-									borderTop: "1px solid var(--border)",
-								}}
-							/>
-
-							{/* Auth */}
-							<div className="flex flex-col gap-2 px-4">
+							{/* Auth section */}
+							<div className="mt-auto flex flex-col gap-3 p-5">
 								{user ? (
 									<>
-										<div className="mb-2 px-3">
+										<div className="mb-2">
 											<p
-												className="text-[13px] font-medium"
-												style={{
-													color: "var(--text-primary)",
-												}}
+												className="text-[14px] font-medium"
+												style={{ color: "var(--text-primary)" }}
 											>
 												{user.name || "User"}
 											</p>
 											<p
-												className="text-[11px]"
-												style={{
-													color: "var(--text-muted)",
-												}}
+												className="text-[12px] mt-0.5"
+												style={{ color: "var(--text-muted)" }}
 											>
 												{user.email}
 											</p>
 										</div>
-										<MobileLink href="/profile">
-											Profile
-										</MobileLink>
-										<MobileLink href="/my/registrations">
-											My Tickets
-										</MobileLink>
-										<MobileLink href="/my/orders">
-											My Orders
-										</MobileLink>
+										<MobileLink href="/profile">Profile</MobileLink>
+										<MobileLink href="/my/registrations">My Tickets</MobileLink>
+										<MobileLink href="/my/orders">My Orders</MobileLink>
 										{isOrganizer && (
 											<MobileLink href="/organizer/dashboard">
 												Organizer Dashboard
 											</MobileLink>
 										)}
 										{isAdmin && (
-											<MobileLink href="/admin">
-												Admin Panel
-											</MobileLink>
+											<MobileLink href="/admin">Admin Panel</MobileLink>
 										)}
 										<button
-											onClick={() =>
-												signOut({ callbackUrl: "/" })
-											}
-											className="mt-2 w-full cursor-pointer rounded-[var(--radius-md)] px-3 py-2.5 text-left text-[15px] transition-colors duration-150"
-											style={{
-												color: "var(--error)",
-											}}
+											onClick={() => signOut({ callbackUrl: "/" })}
+											className="mt-2 w-full cursor-pointer text-left text-[15px] py-2 transition-colors duration-[120ms]"
+											style={{ color: "var(--red)" }}
 										>
 											Sign out
 										</button>
@@ -461,19 +525,19 @@ export function NavbarShell({ user }: NavbarShellProps) {
 										<Link href="/login" className="w-full">
 											<Button
 												variant="secondary"
-												size="md"
+												size="lg"
 												className="w-full"
 											>
 												Sign in
 											</Button>
 										</Link>
-										<Link href="/signup" className="w-full">
+										<Link href="/become-organizer" className="w-full">
 											<Button
 												variant="primary"
-												size="md"
+												size="lg"
 												className="w-full"
 											>
-												Get Started
+												List an Event
 											</Button>
 										</Link>
 									</>
@@ -485,7 +549,7 @@ export function NavbarShell({ user }: NavbarShellProps) {
 			</AnimatePresence>
 
 			{/* Spacer for fixed header */}
-			<div className="h-14" />
+			<div className="h-[58px]" />
 		</>
 	);
 }
@@ -503,14 +567,16 @@ function DropdownLink({
 	return (
 		<Link
 			href={href}
-			className="flex items-center gap-2.5 px-4 py-2 text-[13px] no-underline transition-colors duration-150"
+			className="flex items-center gap-2.5 rounded-[var(--radius-md)] px-3 h-[34px] text-[13px] no-underline transition-colors duration-[120ms]"
 			style={{ color: "var(--text-secondary)" }}
-			onMouseEnter={(e) =>
-				(e.currentTarget.style.color = "var(--text-primary)")
-			}
-			onMouseLeave={(e) =>
-				(e.currentTarget.style.color = "var(--text-secondary)")
-			}
+			onMouseEnter={(e) => {
+				e.currentTarget.style.color = "var(--text-primary)";
+				e.currentTarget.style.backgroundColor = "var(--bg-elevated)";
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.color = "var(--text-secondary)";
+				e.currentTarget.style.backgroundColor = "transparent";
+			}}
 		>
 			{icon}
 			{children}
@@ -529,7 +595,7 @@ function MobileLink({
 	return (
 		<Link
 			href={href}
-			className="rounded-[var(--radius-md)] px-3 py-2.5 text-[15px] no-underline transition-colors duration-150"
+			className="text-[15px] py-2 no-underline transition-colors duration-[120ms]"
 			style={{ color: "var(--text-secondary)" }}
 		>
 			{children}
