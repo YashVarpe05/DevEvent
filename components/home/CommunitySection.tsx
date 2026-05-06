@@ -9,13 +9,13 @@ const communities = [
 	"AWS UG",
 	"Devfolio",
 	"MLH",
-	"CNCF"
+	"CNCF",
 ];
 
 export function CommunitySection() {
 	// Map the strings into styled span nodes
 	const logoNodes = communities.map((name, index) => (
-		<span key={name} className="flex items-center">
+		<span key={name} className="flex items-center 	">
 			<span
 				className="transition-colors duration-300 hover:opacity-100 cursor-default"
 				style={{
@@ -37,16 +37,15 @@ export function CommunitySection() {
 				{name}
 			</span>
 			{/* Separator */}
-			<span
+			<div
+				className="rounded-full mx-[20px]"
 				style={{
-					color: "var(--gold)",
+					backgroundColor: "var(--gold)",
 					opacity: 0.4,
-					margin: "0 20px",
-					fontSize: "10px",
+					width: "3px",
+					height: "3px",
 				}}
-			>
-				·
-			</span>
+			/>
 		</span>
 	));
 
@@ -55,7 +54,10 @@ export function CommunitySection() {
 			className="relative py-12 md:py-20 overflow-hidden"
 			style={{ backgroundColor: "var(--bg-base)" }}
 		>
-			<div className="mx-auto max-w-7xl px-5 sm:px-6 text-center" style={{ marginBottom: "20px" }}>
+			<div
+				className="mx-auto max-w-7xl px-5 sm:px-6 text-center"
+				style={{ marginBottom: "20px" }}
+			>
 				<p
 					style={{
 						fontSize: "10px",
@@ -68,8 +70,11 @@ export function CommunitySection() {
 					Trusted by leading developer communities
 				</p>
 			</div>
-			
-			<div className="w-full relative flex items-center" style={{ height: "44px" }}>
+
+			<div
+				className="w-full relative flex items-center"
+				style={{ height: "44px" }}
+			>
 				<LogoSlider
 					logos={logoNodes}
 					speed={40}
