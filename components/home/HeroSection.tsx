@@ -61,10 +61,11 @@ export function HeroSection() {
 					initial="initial"
 					animate="animate"
 					transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-					className="mx-auto mb-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
+					className="mx-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
 					style={{
 						border: "1px solid var(--border-gold)",
 						backgroundColor: "var(--gold-subtle)",
+						marginBottom: "20px"
 					}}
 				>
 					<IconSparkles size={12} style={{ color: "var(--gold)" }} />
@@ -87,7 +88,7 @@ export function HeroSection() {
 						ease: [0.16, 1, 0.3, 1],
 					}}
 					className="text-display-xl"
-					style={{ color: "var(--text-primary)" }}
+					style={{ color: "var(--text-primary)", marginBottom: "16px" }}
 				>
 					Where Builders
 					<br />
@@ -111,8 +112,8 @@ export function HeroSection() {
 						delay: 0.2,
 						ease: [0.16, 1, 0.3, 1],
 					}}
-					className="mx-auto mt-5 max-w-xl text-[17px] leading-[1.6]"
-					style={{ color: "var(--text-secondary)" }}
+					className="mx-auto max-w-xl text-[17px] leading-[1.6]"
+					style={{ color: "var(--text-secondary)", marginBottom: "20px" }}
 				>
 					Discover hackathons, meetups, and tech workshops handpicked for
 					developers who ship. Book your spot in seconds.
@@ -128,41 +129,56 @@ export function HeroSection() {
 						delay: 0.25,
 						ease: [0.16, 1, 0.3, 1],
 					}}
-					className="mt-4 flex flex-row items-center justify-center"
-					style={{ gap: "12px" }}
+					style={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						gap: "10px",
+						marginTop: "8px",
+						marginBottom: "28px"
+					}}
 				>
-					<span
-						style={{
-							fontSize: "12px",
-							color: "var(--text-muted)",
-							fontFamily: "var(--font-body)",
-							textTransform: "uppercase",
-							letterSpacing: "0.08em",
-							whiteSpace: "nowrap",
-						}}
-					>
+					{/* "Trending:" label */}
+					<span style={{
+						fontFamily: "var(--font-body)",
+						fontSize: "11px",
+						fontWeight: 500,
+						letterSpacing: "0.12em",
+						textTransform: "uppercase",
+						color: "var(--text-muted)",
+						whiteSpace: "nowrap",
+					}}>
 						Trending:
 					</span>
-					<div
-						style={{
-							overflow: "hidden",
-							height: "24px",
-							display: "inline-flex",
-							alignItems: "center",
-							fontSize: "14px",
-							fontFamily: "var(--font-body)",
-						}}
-					>
+
+					{/* Separator dot */}
+					<span style={{ 
+						color: "var(--gold)", 
+						opacity: 0.5, 
+						fontSize: "8px" 
+					}}>●</span>
+
+					{/* FlipFadeText — properly constrained */}
+					<div style={{
+						overflow: "hidden",
+						height: "20px",
+						display: "flex",
+						alignItems: "center",
+					}}>
 						<FlipFadeText
 							words={[
 								"Hackathons",
 								"Meetups",
 								"Workshops",
-								"Conferences",
 								"Open Source Days",
+								"Conferences",
 							]}
-							textClassName="text-[var(--text-primary)]"
-							className="text-[var(--text-primary)] font-medium"
+							interval={2200}
+							letterDuration={0.25}
+							staggerDelay={0.03}
+							exitStaggerDelay={0.02}
+							className="min-h-0 h-auto flex items-center justify-start p-0 m-0"
+							textClassName="text-[14px] font-normal normal-case tracking-normal text-[#EDEAE1] gap-[0.05em] font-body"
 						/>
 					</div>
 				</motion.div>
@@ -177,7 +193,8 @@ export function HeroSection() {
 						delay: 0.35,
 						ease: [0.16, 1, 0.3, 1],
 					}}
-					className="mt-8 flex flex-wrap items-center justify-center gap-3"
+					className="flex flex-wrap items-center justify-center gap-3"
+					style={{ marginBottom: "20px" }}
 				>
 					<Link href="/events">
 						<Button variant="primary" size="lg" className="glow-gold-sm">
