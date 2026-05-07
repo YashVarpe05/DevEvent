@@ -3,6 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
 
+function getCurrencySymbol(currency: string): string {
+  const symbols: Record<string, string> = {
+    INR: "₹",
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+  }
+  return symbols[currency?.toUpperCase()] 
+    ?? currency?.toUpperCase() ?? "$"
+}
+
 interface TicketSelectorProps {
 	eventId: string;
 	currency: string;
@@ -189,13 +200,13 @@ export default function TicketSelector({
 	if (loading)
 		return (
 			<div className="flex justify-center p-4">
-				<Loader2 className="animate-spin text-zinc-500" />
+				<Loader2 className="animate-spin text-[var(--gold)]" />
 			</div>
 		);
 
 	if (tickets.length === 0)
 		return (
-			<p className="text-zinc-500 italic text-center py-4">
+			<p style={{ color: "var(--text-muted)", fontStyle: "italic", textAlign: "center", padding: "16px 0", fontSize: "14px" }}>
 				No tickets available.
 			</p>
 		);
@@ -210,25 +221,30 @@ export default function TicketSelector({
 					return (
 						<div
 							key={ticket._id}
-							className={`p-3 rounded-lg border ${qty > 0 ? "border-primary-500 bg-primary-500/5" : "border-zinc-800 bg-zinc-900/50"} transition-all`}
+							className="transition-all"
+							style={{
+								padding: "12px",
+								borderRadius: "var(--radius-md, 8px)",
+								border: qty > 0 ? "1px solid var(--border-gold)" : "1px solid var(--border-dim)",
+								backgroundColor: qty > 0 ? "var(--gold-subtle)" : "var(--bg-overlay)",
+							}}
 						>
 							<div className="flex justify-between items-start mb-2">
 								<div>
-									<h4 className="font-semibold text-white">{ticket.name}</h4>
-									<p className="text-sm text-zinc-400">
-										${(ticket.price / 100).toFixed(2)}{" "}
-										{(ticket.currency || currency).toUpperCase()}
+									<h4 style={{ fontFamily: "var(--font-display)", fontWeight: 600, color: "var(--text-primary)", fontSize: "15px" }}>{ticket.name}</h4>
+									<p style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--text-secondary)", marginTop: "2px" }}>
+										{getCurrencySymbol(ticket.currency || currency)}{(ticket.price / 100).toFixed(2)}
 									</p>
 								</div>
-								<div className="flex items-center gap-3 bg-zinc-800 px-2 py-1 rounded-lg">
+								<div className="flex items-center gap-3 px-2 py-1" style={{ backgroundColor: "rgba(18,18,20,0.5)", borderRadius: "var(--radius-sm, 6px)", border: "1px solid var(--border-dim)" }}>
 									<button
 										onClick={() => updateQuantity(ticket._id, -1, 10)}
 										disabled={qty === 0 || isSoldOut}
-										className="p-1 text-zinc-400 hover:text-white disabled:opacity-30"
+										className="p-1 hover:text-[var(--gold)] transition-colors disabled:opacity-30 text-[var(--text-muted)]"
 									>
 										<Minus size={14} />
 									</button>
-									<span className="text-sm font-bold min-w-[1.2rem] text-center text-white">
+									<span style={{ fontFamily: "var(--font-mono)", fontSize: "14px", fontWeight: 700, minWidth: "1.2rem", textAlign: "center", color: "var(--text-primary)" }}>
 										{isSoldOut ? 0 : qty}
 									</span>
 									<button
@@ -243,14 +259,14 @@ export default function TicketSelector({
 											)
 										}
 										disabled={isSoldOut || qty >= 10}
-										className="p-1 text-zinc-400 hover:text-white disabled:opacity-30"
+										className="p-1 hover:text-[var(--gold)] transition-colors disabled:opacity-30 text-[var(--text-muted)]"
 									>
 										<Plus size={14} />
 									</button>
 								</div>
 							</div>
 							{isSoldOut && (
-								<p className="text-[10px] text-red-500 font-bold uppercase tracking-wider">
+								<p style={{ fontSize: "10px", color: "#EF4444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
 									Sold Out
 								</p>
 							)}
@@ -260,16 +276,17 @@ export default function TicketSelector({
 			</div>
 
 			{totalItems > 0 && (
-				<div className="pt-4 border-t border-zinc-800">
+				<div style={{ paddingTop: "16px", borderTop: "1px solid var(--border-dim)" }}>
 					{appliedPromo ? (
-						<div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">
-							<div className="flex items-center gap-2 text-emerald-400">
-								<span className="font-semibold uppercase">{appliedPromo}</span>
-								<span className="text-sm">applied</span>
+						<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", padding: "12px", borderRadius: "var(--radius-sm, 6px)" }}>
+							<div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#10B981" }}>
+								<span style={{ fontWeight: 600, textTransform: "uppercase", fontSize: "13px", letterSpacing: "0.05em" }}>{appliedPromo}</span>
+								<span style={{ fontSize: "13px" }}>applied</span>
 							</div>
 							<button
 								onClick={handleRemovePromo}
-								className="text-zinc-400 hover:text-white text-sm"
+								className="hover:text-white transition-colors"
+								style={{ fontSize: "13px", color: "var(--text-muted)" }}
 							>
 								Remove
 							</button>
@@ -282,22 +299,42 @@ export default function TicketSelector({
 									placeholder="Promo Code"
 									value={promoCodeInput}
 									onChange={(e) => setPromoCodeInput(e.target.value)}
-									className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
+									className="flex-1 focus:outline-none transition-colors"
+									style={{
+										backgroundColor: "var(--bg-overlay)",
+										border: "1px solid var(--border-dim)",
+										borderRadius: "var(--radius-sm, 6px)",
+										padding: "8px 16px",
+										color: "var(--text-primary)",
+										fontSize: "14px",
+										fontFamily: "var(--font-mono)"
+									}}
 								/>
 								<button
 									onClick={handleApplyPromo}
 									disabled={!promoCodeInput.trim() || isValidatingPromo}
-									className="bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-xl transition-colors flex items-center justify-center min-w-[80px]"
+									className="hover:opacity-80 transition-opacity disabled:opacity-50 flex items-center justify-center min-w-[80px]"
+									style={{
+										backgroundColor: "var(--bg-surface)",
+										border: "1px solid var(--border-dim)",
+										borderRadius: "var(--radius-sm, 6px)",
+										color: "var(--text-primary)",
+										fontWeight: 600,
+										padding: "8px 16px",
+										fontSize: "13px",
+										letterSpacing: "0.05em",
+										textTransform: "uppercase"
+									}}
 								>
 									{isValidatingPromo ? (
-										<Loader2 className="animate-spin w-5 h-5" />
+										<Loader2 className="animate-spin w-4 h-4" />
 									) : (
 										"Apply"
 									)}
 								</button>
 							</div>
 							{promoError && (
-								<p className="text-red-500 text-xs mt-2 ml-1">{promoError}</p>
+								<p style={{ color: "#EF4444", fontSize: "12px", marginTop: "8px", marginLeft: "4px" }}>{promoError}</p>
 							)}
 						</div>
 					)}
@@ -305,7 +342,7 @@ export default function TicketSelector({
 			)}
 
 			{error && (
-				<p className="text-xs text-red-500 bg-red-500/10 p-2 rounded border border-red-500/20">
+				<p style={{ fontSize: "12px", color: "#EF4444", backgroundColor: "rgba(239,68,68,0.1)", padding: "8px", borderRadius: "4px", border: "1px solid rgba(239,68,68,0.2)" }}>
 					{error}
 				</p>
 			)}
@@ -313,7 +350,21 @@ export default function TicketSelector({
 			<button
 				onClick={handleCheckout}
 				disabled={totalItems === 0 || isCheckingOut}
-				className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:bg-zinc-800 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 group"
+				className="w-full flex items-center justify-center gap-2 group hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+				style={{
+					backgroundColor: 'var(--gold)',
+					color: 'var(--bg-void)',
+					fontFamily: 'var(--font-mono)',
+					fontSize: '13px',
+					fontWeight: 600,
+					textTransform: 'uppercase',
+					letterSpacing: '0.05em',
+					padding: '16px 24px',
+					borderRadius: 'var(--radius-sm, 6px)',
+					border: 'none',
+					transition: 'all 0.2s ease',
+					marginTop: "8px"
+				}}
 			>
 				{isCheckingOut ? (
 					<Loader2 className="animate-spin w-5 h-5" />
@@ -321,7 +372,7 @@ export default function TicketSelector({
 					<>
 						<span>Proceed to Checkout</span>
 						<ArrowRight
-							size={18}
+							size={16}
 							className="group-hover:translate-x-1 transition-transform"
 						/>
 					</>
@@ -329,30 +380,30 @@ export default function TicketSelector({
 			</button>
 
 			{totalItems > 0 && (
-				<div className="text-center pt-2">
-					<p className="text-sm text-zinc-400">
+				<div style={{ textAlign: "center", paddingTop: "8px" }}>
+					<p style={{ fontSize: "13px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
 						Subtotal:{" "}
-						<span className="text-white font-bold">
-							${(totalPrice / 100).toFixed(2)}
+						<span style={{ color: "var(--text-primary)", fontWeight: 700 }}>
+							{getCurrencySymbol(currency)}{(totalPrice / 100).toFixed(2)}
 						</span>
 					</p>
 					{pricing && (
 						<>
 							{pricing.discountAmount > 0 && (
-								<p className="text-sm text-emerald-400 mt-1">
+								<p style={{ fontSize: "13px", color: "#10B981", marginTop: "4px", fontFamily: "var(--font-mono)" }}>
 									Discount:{" "}
-									<span className="font-bold">
-										-${(pricing.discountAmount / 100).toFixed(2)}
+									<span style={{ fontWeight: 700 }}>
+										-{getCurrencySymbol(currency)}{(pricing.discountAmount / 100).toFixed(2)}
 									</span>
 								</p>
 							)}
-							<p className="text-xs text-zinc-500 mt-1">
-								Platform fee: ${(pricing.platformFeeAmount / 100).toFixed(2)}
+							<p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>
+								Platform fee: {getCurrencySymbol(currency)}{(pricing.platformFeeAmount / 100).toFixed(2)}
 							</p>
-							<p className="text-sm text-zinc-300 mt-1">
+							<p style={{ fontSize: "14px", color: "var(--text-secondary)", marginTop: "4px", fontFamily: "var(--font-mono)" }}>
 								Total payable:{" "}
-								<span className="text-white font-bold">
-									${(pricing.totalBuyerPayable / 100).toFixed(2)}
+								<span style={{ color: "var(--gold)", fontWeight: 700 }}>
+									{getCurrencySymbol(currency)}{(pricing.totalBuyerPayable / 100).toFixed(2)}
 								</span>
 							</p>
 						</>

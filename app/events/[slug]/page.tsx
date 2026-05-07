@@ -5,6 +5,7 @@ import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
 import Registration from "@/database/registration.model";
+import "@/database/organizer-profile.model"; // Added to register the schema for populate
 import BookEvent from "@/components/BookEvent";
 import TicketSelector from "@/components/events/TicketSelector";
 import { CalendarDays, MapPin, Video, ExternalLink, Globe } from "lucide-react";
@@ -13,6 +14,34 @@ import { FollowOrganizerButton } from "@/components/events/FollowOrganizerButton
 import { ShareEventActions } from "@/components/events/ShareEventActions";
 import { ReferralTracker } from "@/components/events/ReferralTracker";
 import type { Metadata } from "next";
+
+function getCurrencySymbol(currency: string): string {
+  const symbols: Record<string, string> = {
+    INR: "₹",
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+  }
+  return symbols[currency?.toUpperCase()] 
+    ?? currency?.toUpperCase() ?? "$"
+}
+
+function formatEventDate(date: Date | string): string {
+  const d = new Date(date)
+  const day = d.toLocaleDateString("en-IN", { 
+    weekday: "short" 
+  }).toUpperCase()
+  const dayNum = d.getDate()
+  const month = d.toLocaleDateString("en-IN", { 
+    month: "short" 
+  }).toUpperCase()
+  const time = d.toLocaleTimeString("en-IN", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).toUpperCase()
+  return `${day} · ${dayNum} ${month} · ${time}`
+}
 
 type Props = {
 	params: Promise<{ slug: string }>;
@@ -280,7 +309,7 @@ export default async function EventDetailPage({ params }: Props) {
 	};
 
 	return (
-		<main className="min-h-screen bg-gray-50 pb-20">
+		<main className="min-h-screen pb-20" style={{ backgroundColor: "var(--bg-base)" }}>
 			<ReferralTracker eventId={event._id.toString()} />
 			<script
 				type="application/ld+json"
@@ -288,325 +317,837 @@ export default async function EventDetailPage({ params }: Props) {
 					__html: JSON.stringify(eventStructuredData),
 				}}
 			/>
-			{/* Hero Header Context */}
-			<div className="bg-white border-b border-gray-200">
-				<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-					<div className="flex flex-col md:flex-row gap-8 lg:gap-16">
-						<div className="flex-1">
-							<div className="flex flex-wrap gap-2 mb-4">
-								{event.category && (
-									<span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-										{event.category}
-									</span>
-								)}
-								<span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1.5">
-									{getTypeIcon()}
-									{getFormatString()}
+
+			{/* SECTION 1 — HERO */}
+			<section
+				className="w-full relative overflow-hidden flex flex-col justify-end min-h-[280px] md:min-h-[420px]"
+			>
+				{event.coverImageUrl ? (
+					<>
+						<img
+							src={event.coverImageUrl}
+							alt={event.title}
+							className="absolute inset-0 w-full h-full object-cover"
+						/>
+						<div
+							className="absolute inset-0"
+							style={{
+								background:
+									"linear-gradient(to bottom, rgba(5,5,7,0.3) 0%, rgba(5,5,7,0.6) 50%, rgba(5,5,7,0.95) 100%)",
+							}}
+						/>
+					</>
+				) : (
+					<div
+						className="absolute inset-0"
+						style={{
+							backgroundColor: "var(--bg-void)",
+							backgroundImage:
+								"radial-gradient(ellipse 60% 50% at 50% 100%, rgba(201,168,76,0.04), transparent)",
+						}}
+					/>
+				)}
+
+				<div
+					className="relative w-full max-w-[1200px] mx-auto z-10"
+					style={{ padding: "0 24px 40px 24px" }}
+				>
+					{/* ROW 1 — Badges */}
+					<div className="flex flex-row items-center gap-2 mb-4 flex-wrap">
+						{event.category && (
+							<span
+								style={{
+									padding: "3px 10px",
+									fontSize: "11px",
+									fontWeight: 500,
+									letterSpacing: "0.08em",
+									textTransform: "uppercase",
+									border: "1px solid rgba(201,168,76,0.3)",
+									borderRadius: "var(--radius-xs, 4px)",
+									color: "var(--gold)",
+									backgroundColor: "var(--gold-subtle)",
+								}}
+							>
+								{event.category}
+							</span>
+						)}
+						<span
+							style={{
+								padding: "3px 10px",
+								fontSize: "11px",
+								fontWeight: 500,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								border: "1px solid var(--border-bright)",
+								borderRadius: "var(--radius-xs, 4px)",
+								color: "var(--text-secondary)",
+								backgroundColor: "rgba(18,18,20,0.8)",
+							}}
+						>
+							{getFormatString()}
+						</span>
+
+						{availableSpots === 0 ? (
+							<span
+								style={{
+									padding: "3px 10px",
+									fontSize: "11px",
+									fontWeight: 500,
+									letterSpacing: "0.08em",
+									textTransform: "uppercase",
+									border: "1px solid rgba(239,68,68,0.3)",
+									borderRadius: "var(--radius-xs, 4px)",
+									color: "#EF4444",
+									backgroundColor: "rgba(239,68,68,0.1)",
+								}}
+							>
+								Sold Out
+							</span>
+						) : availableSpots !== undefined && availableSpots <= 10 && availableSpots > 0 ? (
+							<span
+								style={{
+									padding: "3px 10px",
+									fontSize: "11px",
+									fontWeight: 500,
+									letterSpacing: "0.08em",
+									textTransform: "uppercase",
+									border: "1px solid rgba(201,168,76,0.5)",
+									borderRadius: "var(--radius-xs, 4px)",
+									color: "var(--gold-bright)",
+									backgroundColor: "var(--gold-subtle)",
+								}}
+							>
+								Only {availableSpots} spots left
+							</span>
+						) : null}
+					</div>
+
+					{/* ROW 2 — Event title */}
+					<h1
+						style={{
+							fontFamily: "var(--font-display)",
+							fontSize: "clamp(28px, 4vw, 52px)",
+							fontWeight: 700,
+							lineHeight: 1.05,
+							letterSpacing: "-0.025em",
+							color: "var(--text-primary)",
+							maxWidth: "760px",
+							marginBottom: "16px",
+							textShadow: "0 2px 20px rgba(0,0,0,0.5)",
+						}}
+					>
+						{event.title}
+					</h1>
+
+					{/* ROW 3 — Short description */}
+					<p
+						style={{
+							fontSize: "16px",
+							color: "rgba(237,234,225,0.75)",
+							maxWidth: "600px",
+							lineHeight: 1.6,
+							marginBottom: "20px",
+							fontFamily: "var(--font-body)",
+						}}
+					>
+						{event.shortDescription}
+					</p>
+
+					{/* ROW 4 — Organizer row */}
+					<div className="flex items-center gap-3 flex-wrap">
+						<div
+							className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden shrink-0"
+							style={{
+								backgroundColor: "var(--gold-subtle)",
+								border: "1px solid rgba(201,168,76,0.2)",
+							}}
+						>
+							{event.organizerProfileId?.logoUrl ? (
+								<img
+									src={event.organizerProfileId.logoUrl}
+									alt="Organizer"
+									className="w-full h-full object-cover"
+								/>
+							) : (
+								<span
+									style={{
+										fontFamily: "var(--font-mono)",
+										color: "var(--gold)",
+										fontSize: "14px",
+										fontWeight: 600,
+									}}
+								>
+									{event.organizerProfileId?.organizationName?.substring(0, 1) || "O"}
 								</span>
-							</div>
+							)}
+						</div>
+						<div className="flex flex-col">
+							<span
+								style={{
+									fontSize: "11px",
+									color: "var(--text-muted)",
+									textTransform: "uppercase",
+									letterSpacing: "0.05em",
+									lineHeight: 1,
+									marginBottom: "2px",
+								}}
+							>
+								Hosted by
+							</span>
+							<span
+								style={{
+									fontSize: "14px",
+									color: "var(--text-primary)",
+									fontWeight: 500,
+									lineHeight: 1,
+								}}
+							>
+								{event.organizerProfileId?.organizationName || "DevEvent Organizer"}
+							</span>
+						</div>
 
-							<h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-4">
-								{event.title}
-							</h1>
+						<span style={{ color: "var(--text-muted)", margin: "0 4px" }}>·</span>
 
-							<p className="text-xl text-gray-600 mb-8 max-w-3xl">
-								{event.shortDescription}
-							</p>
+						{event.organizerProfileId?.userId && (
+							<FollowOrganizerButton
+								organizerId={event.organizerProfileId.userId.toString()}
+							/>
+						)}
 
-							<div className="inline-flex flex-wrap items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-								<div className="w-12 h-12 bg-white border border-gray-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+						<span style={{ color: "var(--text-muted)", margin: "0 4px" }}>·</span>
+
+						<ShareEventActions
+							eventId={event._id.toString()}
+							title={event.title}
+							canonicalUrl={canonicalUrl}
+						/>
+					</div>
+				</div>
+			</section>
+
+			{/* SECTION 2 — MAIN CONTENT + SIDEBAR */}
+			<section
+				className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-12"
+				style={{ padding: "48px 24px" }}
+			>
+				{/* LEFT — MAIN CONTENT */}
+				<div>
+					{/* BLOCK 1 — About This Event */}
+					<div className="mb-10">
+						<span
+							style={{
+								fontSize: "11px",
+								fontWeight: 500,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								color: "var(--gold)",
+							}}
+						>
+							About This Event
+						</span>
+						<div
+							style={{
+								fontSize: "15px",
+								lineHeight: 1.8,
+								color: "var(--text-secondary)",
+								fontFamily: "var(--font-body)",
+								whiteSpace: "pre-wrap",
+								marginTop: "16px",
+							}}
+						>
+							{event.description ? (
+								event.description
+							) : (
+								<span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>
+									No additional details provided.
+								</span>
+							)}
+						</div>
+					</div>
+
+					<div style={{ borderBottom: "1px solid var(--border-dim)", margin: "40px 0" }} />
+
+					{/* BLOCK 2 — Organizer Section */}
+					{(event.organizerProfileId?.bio || event.organizerProfileId?.websiteUrl) && (
+						<div
+							style={{
+								backgroundColor: "var(--bg-surface)",
+								border: "1px solid var(--border-dim)",
+								borderRadius: "var(--radius-lg, 12px)",
+								padding: "24px",
+								marginBottom: "40px",
+							}}
+						>
+							<span
+								style={{
+									fontSize: "11px",
+									fontWeight: 500,
+									letterSpacing: "0.08em",
+									textTransform: "uppercase",
+									color: "var(--gold)",
+								}}
+							>
+								About the Organizer
+							</span>
+							<div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+								<div
+									style={{
+										width: "56px",
+										height: "56px",
+										borderRadius: "50%",
+										overflow: "hidden",
+										flexShrink: 0,
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										backgroundColor: "var(--gold-subtle)",
+										border: "1px solid var(--border-gold, rgba(201,168,76,0.3))",
+									}}
+								>
 									{event.organizerProfileId?.logoUrl ? (
 										<img
 											src={event.organizerProfileId.logoUrl}
-											alt="Organizer logo"
+											alt="Logo"
 											className="w-full h-full object-cover"
 										/>
 									) : (
-										<span className="text-xl font-bold text-gray-400">
-											{event.organizerProfileId?.organizationName?.substring(
-												0,
-												1,
-											) || "O"}
+										<span
+											style={{
+												fontFamily: "var(--font-mono)",
+												color: "var(--gold)",
+												fontSize: "20px",
+											}}
+										>
+											{event.organizerProfileId?.organizationName?.substring(0, 1) || "O"}
 										</span>
 									)}
 								</div>
 								<div>
-									<p className="text-sm text-gray-500 font-medium leading-none mb-1">
-										Hosted by
-									</p>
-									<p className="text-base text-gray-900 font-bold leading-none">
-										{event.organizerProfileId?.organizationName ||
-											"DevEvent Organizer"}
-									</p>
-								</div>
-								{event.organizerProfileId?.userId ? (
-									<FollowOrganizerButton
-										organizerId={event.organizerProfileId.userId.toString()}
-									/>
-								) : null}
-								<ShareEventActions
-									eventId={event._id.toString()}
-									title={event.title}
-									canonicalUrl={canonicalUrl}
-								/>
-							</div>
-						</div>
-
-						{/* Quick Actions / Register Card (Desktop) */}
-						<div className="hidden md:block w-full max-w-sm">
-							<div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-6 sticky top-24">
-								<div className="mb-6 pb-6 border-b border-gray-100">
-									<p className="text-sm font-medium text-gray-500 mb-1">
-										Access
-									</p>
-									<p className="text-3xl font-bold text-gray-900">
-										{event.isPaid
-											? `${event.currency === "USD" ? "$" : event.currency}${event.basePrice}`
-											: "Free"}
-									</p>
-								</div>
-
-								{event.isPaid ? (
-									<TicketSelector
-										eventId={event._id.toString()}
-										currency={event.currency || "USD"}
-									/>
-								) : (
-						<BookEvent
-							eventId={event._id.toString()}
-							isLoggedIn={!!session?.user}
-							isRegistered={isRegistered}
-							isPaid={event.isPaid}
-							basePrice={event.basePrice ?? null}
-							currency={event.currency || "USD"}
-							capacity={event.capacity}
-							availableSpots={availableSpots}
-									/>
-								)}
-
-								{!session?.user && !event.isPaid && (
-									<p className="text-sm text-center text-gray-500 mt-4">
-										Sign in required to register for free events.
-									</p>
-								)}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-				<div className="flex flex-col md:flex-row gap-8 lg:gap-16">
-					<div className="flex-1 space-y-12">
-						{/* Visual Cover (if exists) */}
-						{event.coverImageUrl && (
-							<div className="w-full aspect-21/9 bg-gray-200 rounded-2xl overflow-hidden border border-gray-200 shadow-sm relative">
-								<img
-									src={event.coverImageUrl}
-									alt={event.title}
-									className="object-cover w-full h-full"
-								/>
-							</div>
-						)}
-
-						{/* Main Content Area */}
-						<section>
-							<h2 className="text-2xl font-bold text-gray-900 mb-6">
-								About This Event
-							</h2>
-							<div className="prose prose-lg prose-blue max-w-none text-gray-700 whitespace-pre-wrap">
-								{event.description ? (
-									event.description
-								) : (
-									<span className="text-gray-400 italic">
-										No additional details provided.
-									</span>
-								)}
-							</div>
-						</section>
-
-						{/* Organizer Section */}
-						{(event.organizerProfileId?.bio ||
-							event.organizerProfileId?.websiteUrl) && (
-							<section className="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-								<h2 className="text-xl font-bold text-gray-900 mb-4">
-									About the Organizer
-								</h2>
-								<div className="flex gap-6 items-start">
-									<div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-										{event.organizerProfileId?.logoUrl ? (
-											<img
-												src={event.organizerProfileId.logoUrl}
-												alt="Logo"
-												className="w-full h-full object-cover"
-											/>
-										) : (
-											<span className="text-2xl font-bold text-gray-400">
-												{event.organizerProfileId?.organizationName?.substring(
-													0,
-													1,
-												) || "O"}
-											</span>
-										)}
+									<div
+										style={{
+											fontFamily: "var(--font-display)",
+											fontSize: "18px",
+											fontWeight: 600,
+											color: "var(--text-primary)",
+											marginBottom: "6px",
+										}}
+									>
+										{event.organizerProfileId?.organizationName || "DevEvent Organizer"}
 									</div>
-									<div>
-										<h3 className="text-lg font-bold text-gray-900 mb-2">
-											{event.organizerProfileId?.organizationName ||
-												"DevEvent Organizer"}
-										</h3>
-										<p className="text-gray-600 mb-4">
-											{event.organizerProfileId?.bio}
-										</p>
+									{event.organizerProfileId?.bio && (
+										<div
+											style={{
+												fontFamily: "var(--font-body)",
+												fontSize: "14px",
+												color: "var(--text-secondary)",
+												lineHeight: 1.7,
+												marginBottom: "12px",
+											}}
+										>
+											{event.organizerProfileId.bio}
+										</div>
+									)}
+									<div style={{ display: "flex", gap: "16px" }}>
 										{event.organizerProfileId?.websiteUrl && (
 											<a
 												href={event.organizerProfileId.websiteUrl}
 												target="_blank"
 												rel="noreferrer"
-												className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline text-sm"
+												style={{
+													fontSize: "13px",
+													color: "var(--gold)",
+													display: "inline-flex",
+													alignItems: "center",
+													gap: "4px",
+													textDecoration: "none",
+												}}
+												className="hover:text-[var(--gold-bright)] transition-colors"
 											>
-												Visit Website <ExternalLink className="w-4 h-4" />
+												Visit Website ↗
 											</a>
 										)}
-										{event.organizerProfileId?.slug ? (
+										{event.organizerProfileId?.slug && (
 											<Link
 												href={`/organizers/${event.organizerProfileId.slug}`}
-												className="ml-4 inline-flex items-center gap-1.5 text-primary font-medium hover:underline text-sm"
+												style={{
+													fontSize: "13px",
+													color: "var(--gold)",
+													display: "inline-flex",
+													alignItems: "center",
+													gap: "4px",
+													textDecoration: "none",
+												}}
+												className="hover:text-[var(--gold-bright)] transition-colors"
 											>
-												View organizer page
+												View Profile →
 											</Link>
-										) : null}
+										)}
 									</div>
-								</div>
-							</section>
-						)}
-
-						{relatedEvents.length > 0 && (
-							<section>
-								<h2 className="text-2xl font-bold text-gray-900 mb-4">
-									Related Events
-								</h2>
-								<ul className="grid gap-4 md:grid-cols-2">
-									{relatedEvents.map((related) => (
-										<li key={related._id.toString()}>
-											<Link
-												href={`/events/${related.slug}`}
-												className="block rounded-xl border border-gray-200 bg-white p-4 hover:border-gray-300"
-											>
-												<p className="text-xs uppercase text-gray-500">
-													{related.category || "Event"}
-												</p>
-												<h3 className="mt-1 text-lg font-semibold text-gray-900">
-													{related.title}
-												</h3>
-												<p className="mt-2 text-sm text-gray-600">
-													{new Date(related.startAt).toLocaleString()}
-												</p>
-											</Link>
-										</li>
-									))}
-								</ul>
-							</section>
-						)}
-					</div>
-
-					{/* Logistics Sidebar */}
-					<div className="w-full md:max-w-sm space-y-6">
-						<div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
-							<h3 className="text-lg font-bold text-gray-900">Date & Time</h3>
-							<div className="flex gap-4">
-								<div className="bg-blue-50 text-blue-600 p-3 rounded-xl shrink-0">
-									<CalendarDays className="w-6 h-6" />
-								</div>
-								<div>
-									<p className="font-medium text-gray-900">{dateString}</p>
-									<p className="text-gray-600 mt-0.5">
-										{event.isAllDay
-											? "All Day"
-											: `${startTimeString} to ${endTimeString}`}
-									</p>
-									<p className="text-sm text-gray-500 mt-0.5">
-										{event.timezone}
-									</p>
 								</div>
 							</div>
+						</div>
+					)}
 
-							<h3 className="text-lg font-bold text-gray-900 pt-4 border-t border-gray-100">
-								Location
-							</h3>
+					{/* BLOCK 3 — Related Events */}
+					{relatedEvents.length > 0 && (
+						<div>
+							<span
+								style={{
+									fontSize: "11px",
+									fontWeight: 500,
+									letterSpacing: "0.08em",
+									textTransform: "uppercase",
+									color: "var(--gold)",
+								}}
+							>
+								You Might Also Like
+							</span>
+							<div
+								className="grid grid-cols-1 md:grid-cols-2 gap-3"
+								style={{ marginTop: "16px" }}
+							>
+								{relatedEvents.map((related) => (
+									<Link
+										href={`/events/${related.slug}`}
+										key={related._id.toString()}
+										className="group transition-all duration-200 block"
+										style={{
+											backgroundColor: "var(--bg-surface)",
+											border: "1px solid var(--border-dim)",
+											borderRadius: "var(--radius-lg, 12px)",
+											padding: "16px",
+										}}
+									>
+										<p
+											style={{
+												fontSize: "11px",
+												color: "var(--gold)",
+												textTransform: "uppercase",
+												letterSpacing: "0.08em",
+												marginBottom: "6px",
+											}}
+										>
+											{related.category || "Event"}
+										</p>
+										<h3
+											className="line-clamp-2"
+											style={{
+												fontFamily: "var(--font-display)",
+												fontSize: "15px",
+												fontWeight: 600,
+												color: "var(--text-primary)",
+											}}
+										>
+											{related.title}
+										</h3>
+										<span style={{
+											fontFamily: "var(--font-mono)",
+											fontSize: "11px",
+											color: "var(--text-muted)",
+											marginTop: "6px",
+											display: "block",
+										}}>
+											{formatEventDate(related.startAt)}
+										</span>
+									</Link>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
 
-							{/* Offline Location details */}
-							{(event.eventType === "offline" ||
-								event.eventType === "hybrid") &&
-								event.location && (
-									<div className="flex gap-4">
-										<div className="bg-red-50 text-red-600 p-3 rounded-xl shrink-0">
-											<MapPin className="w-6 h-6" />
-										</div>
-										<div>
-											<p className="font-medium text-gray-900">
-												{event.location.venueName || "Venue"}
-											</p>
-											<p className="text-gray-600 mt-0.5">
-												{event.location.addressLine1}
-											</p>
-											{event.location.addressLine2 && (
-												<p className="text-gray-600">
-													{event.location.addressLine2}
-												</p>
-											)}
-											<p className="text-gray-600">
-												{event.location.city}, {event.location.country}
-											</p>
-											<Link
-												href={`https://maps.google.com/?q=${encodeURIComponent(`${event.location.addressLine1} ${event.location.city} ${event.location.country}`)}`}
-												target="_blank"
-												className="text-primary text-sm font-medium mt-2 inline-block hover:underline"
-											>
-												Show on Maps
-											</Link>
-										</div>
+				{/* RIGHT — STICKY SIDEBAR */}
+				<div style={{ position: "sticky", top: "80px", alignSelf: "flex-start" }}>
+					{/* CARD 1 — BOOKING CARD */}
+					<div
+						style={{
+							backgroundColor: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderRadius: "var(--radius-lg, 12px)",
+							overflow: "hidden",
+							marginBottom: "16px",
+						}}
+					>
+						<div
+							style={{
+								padding: "20px",
+								borderBottom: "1px solid var(--border-dim)",
+							}}
+						>
+							<div className="flex justify-between items-center">
+								<span
+									style={{
+										fontSize: "11px",
+										fontWeight: 500,
+										letterSpacing: "0.08em",
+										textTransform: "uppercase",
+										color: "var(--gold)",
+									}}
+								>
+									Access
+								</span>
+								<span
+									style={{
+										fontFamily: "var(--font-mono)",
+										fontSize: "28px",
+										fontWeight: 600,
+										color: event.isPaid ? "var(--text-primary)" : "var(--gold)",
+									}}
+								>
+									{event.isPaid
+										? `${getCurrencySymbol(event.currency || "USD")}${event.basePrice}`
+										: "Free"}
+								</span>
+							</div>
+
+							{availableSpots !== undefined && (
+								<div style={{ marginTop: "12px" }}>
+									<div
+										style={{
+											height: "4px",
+											backgroundColor: "var(--border-dim)",
+											borderRadius: "2px",
+											overflow: "hidden",
+										}}
+									>
+										<div
+											style={{
+												height: "100%",
+												backgroundColor: "var(--gold)",
+												width: `${Math.min(
+													100,
+													((event.capacity! - availableSpots) / event.capacity!) * 100
+												)}%`,
+												transition: "width 600ms ease",
+											}}
+										/>
 									</div>
-								)}
-
-							{/* Online Location details */}
-							{(event.eventType === "online" || event.eventType === "hybrid") &&
-								event.online && (
-									<div className="flex gap-4">
-										<div className="bg-purple-50 text-purple-600 p-3 rounded-xl shrink-0">
-											<Video className="w-6 h-6" />
-										</div>
-										<div>
-											<p className="font-medium text-gray-900">
-												{event.online.platform || "Online Streaming"}
-											</p>
-											<p className="text-sm text-gray-600 mt-1 pb-1">
-												Link will be available to registered attendees.
-											</p>
-										</div>
+									<div style={{ marginTop: "6px" }}>
+										{availableSpots > 10 ? (
+											<span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+												{availableSpots} spots remaining
+											</span>
+										) : availableSpots > 0 ? (
+											<span style={{ color: "var(--gold)", fontSize: "12px" }}>
+												Only {availableSpots} spots left!
+											</span>
+										) : (
+											<span style={{ color: "#EF4444", fontSize: "12px" }}>
+												This event is sold out
+											</span>
+										)}
 									</div>
-								)}
+								</div>
+							)}
+						</div>
 
-							<div className="pt-6 border-t border-gray-100">
-								<ShareEventActions
+						<div style={{ padding: "20px" }}>
+							{event.isPaid ? (
+								<TicketSelector
 									eventId={event._id.toString()}
-									title={event.title}
-									canonicalUrl={canonicalUrl}
+									currency={event.currency || "USD"}
 								/>
+							) : (
+								<BookEvent
+									eventId={event._id.toString()}
+									isLoggedIn={!!session?.user}
+									isRegistered={isRegistered}
+									isPaid={event.isPaid}
+									basePrice={event.basePrice ?? null}
+									currency={event.currency || "USD"}
+									capacity={event.capacity}
+									availableSpots={availableSpots}
+								/>
+							)}
+
+							{!session?.user && !event.isPaid && (
+								<p
+									style={{
+										fontSize: "12px",
+										color: "var(--text-muted)",
+										textAlign: "center",
+										marginTop: "12px",
+									}}
+								>
+									Sign in required to register.
+								</p>
+							)}
+						</div>
+					</div>
+
+					{/* CARD 2 — DATE & TIME */}
+					<div
+						style={{
+							backgroundColor: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderRadius: "var(--radius-lg, 12px)",
+							padding: "20px",
+							marginBottom: "16px",
+						}}
+					>
+						<span
+							style={{
+								fontSize: "11px",
+								fontWeight: 500,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								color: "var(--gold)",
+							}}
+						>
+							Date & Time
+						</span>
+						<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
+							<div
+								style={{
+									width: "36px",
+									height: "36px",
+									backgroundColor: "var(--gold-subtle)",
+									border: "1px solid rgba(201,168,76,0.15)",
+									borderRadius: "var(--radius-sm, 6px)",
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									flexShrink: 0,
+								}}
+							>
+								<CalendarDays size={16} color="var(--gold)" />
+							</div>
+							<div>
+								<div
+									style={{
+										fontFamily: "var(--font-body)",
+										fontSize: "14px",
+										color: "var(--text-primary)",
+										fontWeight: 500,
+									}}
+								>
+									{dateString}
+								</div>
+								<div
+									style={{
+										fontFamily: "var(--font-mono)",
+										fontSize: "13px",
+										color: "var(--text-muted)",
+										marginTop: "3px",
+									}}
+								>
+									{event.isAllDay ? "All Day" : `${startTimeString} to ${endTimeString}`}
+								</div>
+								<div
+									style={{
+										fontFamily: "var(--font-body)",
+										fontSize: "12px",
+										color: "var(--text-muted)",
+										marginTop: "2px",
+									}}
+								>
+									{event.timezone}
+								</div>
+								<a
+									href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${new Date(event.startAt).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(event.endAt).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=${encodeURIComponent(event.shortDescription)}`}
+									target="_blank"
+									rel="noreferrer"
+									style={{
+										marginTop: "12px",
+										fontSize: "12px",
+										color: "var(--gold)",
+										display: "flex",
+										alignItems: "center",
+										gap: "4px",
+										textDecoration: "none",
+									}}
+								>
+									Add to Calendar +
+								</a>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
 
-			{/* Mobile Sticky CTA */}
-			<div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-40">
-				<div className="flex justify-between items-center mb-3">
-					<p className="text-sm font-medium text-gray-500">Access</p>
-					<p className="text-2xl font-bold text-gray-900">
+					{/* CARD 3 — LOCATION */}
+					<div
+						style={{
+							backgroundColor: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderRadius: "var(--radius-lg, 12px)",
+							padding: "20px",
+							marginBottom: "16px",
+						}}
+					>
+						<span
+							style={{
+								fontSize: "11px",
+								fontWeight: 500,
+								letterSpacing: "0.08em",
+								textTransform: "uppercase",
+								color: "var(--gold)",
+							}}
+						>
+							Location
+						</span>
+
+						{(event.eventType === "offline" || event.eventType === "hybrid") && event.location && (
+							<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
+								<div
+									style={{
+										width: "36px",
+										height: "36px",
+										backgroundColor: "var(--gold-subtle)",
+										border: "1px solid rgba(201,168,76,0.15)",
+										borderRadius: "var(--radius-sm, 6px)",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										flexShrink: 0,
+									}}
+								>
+									<MapPin size={16} color="var(--gold)" />
+								</div>
+								<div>
+									<div
+										style={{
+											fontSize: "14px",
+											color: "var(--text-primary)",
+											fontWeight: 500,
+										}}
+									>
+										{event.location.venueName || "Venue"}
+									</div>
+									<div
+										style={{
+											fontSize: "13px",
+											color: "var(--text-secondary)",
+											marginTop: "3px",
+										}}
+									>
+										{event.location.addressLine1}
+									</div>
+									{event.location.addressLine2 && (
+										<div
+											style={{
+												fontSize: "13px",
+												color: "var(--text-secondary)",
+											}}
+										>
+											{event.location.addressLine2}
+										</div>
+									)}
+									<div
+										style={{
+											fontSize: "13px",
+											color: "var(--text-muted)",
+										}}
+									>
+										{event.location.city}, {event.location.country}
+									</div>
+									<a
+										href={`https://maps.google.com/?q=${encodeURIComponent(`${event.location.addressLine1} ${event.location.city} ${event.location.country}`)}`}
+										target="_blank"
+										rel="noreferrer"
+										style={{
+											marginTop: "10px",
+											fontSize: "12px",
+											color: "var(--gold)",
+											display: "inline-block",
+											textDecoration: "none",
+										}}
+										className="hover:underline"
+									>
+										View on Maps →
+									</a>
+								</div>
+							</div>
+						)}
+
+						{event.eventType === "hybrid" && (
+							<div
+								style={{
+									borderTop: "1px solid var(--border-dim)",
+									margin: "16px 0",
+								}}
+							/>
+						)}
+
+						{(event.eventType === "online" || event.eventType === "hybrid") && event.online && (
+							<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
+								<div
+									style={{
+										width: "36px",
+										height: "36px",
+										backgroundColor: "var(--gold-subtle)",
+										border: "1px solid rgba(201,168,76,0.15)",
+										borderRadius: "var(--radius-sm, 6px)",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										flexShrink: 0,
+									}}
+								>
+									<Video size={16} color="var(--gold)" />
+								</div>
+								<div>
+									<div
+										style={{
+											fontSize: "14px",
+											color: "var(--text-primary)",
+										}}
+									>
+										{event.online.platform || "Online Streaming"}
+									</div>
+									<div
+										style={{
+											fontSize: "12px",
+											color: "var(--text-muted)",
+											fontStyle: "italic",
+										}}
+									>
+										Link shared with registered attendees
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			</section>
+
+			{/* SECTION 3 — MOBILE STICKY CTA */}
+			<div
+				className="md:hidden block"
+				style={{
+					position: "fixed",
+					bottom: 0,
+					left: 0,
+					right: 0,
+					zIndex: 50,
+					backgroundColor: "rgba(8,8,9,0.95)",
+					backdropFilter: "blur(20px)",
+					borderTop: "1px solid var(--border-dim)",
+					padding: "12px 16px 20px",
+				}}
+			>
+				<div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+					<span
+						style={{
+							fontSize: "11px",
+							fontWeight: 500,
+							letterSpacing: "0.08em",
+							textTransform: "uppercase",
+							color: "var(--gold)",
+						}}
+					>
+						Access
+					</span>
+					<span
+						style={{
+							fontFamily: "var(--font-mono)",
+							fontSize: "20px",
+							fontWeight: 600,
+							color: event.isPaid ? "var(--text-primary)" : "var(--gold)",
+						}}
+					>
 						{event.isPaid
-							? `${event.currency === "USD" ? "$" : event.currency}${event.basePrice}`
+							? `${getCurrencySymbol(event.currency || "USD")}${event.basePrice}`
 							: "Free"}
-					</p>
+					</span>
 				</div>
 				{event.isPaid ? (
 					<TicketSelector
