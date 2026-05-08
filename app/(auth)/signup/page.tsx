@@ -35,7 +35,6 @@ export default function SignupPage() {
 
 	const handleChange = (field: string, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
-		// Clear field-specific errors on change
 		if (errors[field]) {
 			setErrors((prev) => {
 				const next = { ...prev };
@@ -78,19 +77,42 @@ export default function SignupPage() {
 
 	if (success) {
 		return (
-			<div className="text-center py-4">
-				<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-					<CheckCircle className="h-8 w-8 text-primary" />
+			<div style={{ textAlign: "center", padding: "16px 0" }}>
+				<div
+					style={{
+						margin: "0 auto 16px auto",
+						width: "56px",
+						height: "56px",
+						background: "var(--gold-subtle)",
+						border: "1px solid rgba(201,168,76,0.2)",
+						borderRadius: "50%",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					<CheckCircle style={{ color: "var(--gold)", width: "24px", height: "24px" }} />
 				</div>
-				<h2 className="text-2xl font-bold text-white mb-2">Check your email</h2>
-				<p className="text-light-200 text-sm mb-6">
+				<h2 style={{ fontFamily: "var(--font-display)", fontSize: "22px", color: "var(--text-primary)", marginBottom: "8px" }}>
+					Check your email
+				</h2>
+				<p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
 					We&apos;ve sent a verification link to{" "}
-					<span className="text-white font-medium">{formData.email}</span>.
+					<span style={{ color: "var(--text-primary)", fontWeight: 500 }}>{formData.email}</span>.
 					Click the link to activate your account.
 				</p>
 				<Link
 					href="/login"
-					className="inline-block rounded-lg bg-primary px-8 py-2.5 font-semibold text-black transition-all hover:bg-primary/90"
+					className="hover:bg-[var(--gold-bright)] transition-colors duration-160"
+					style={{
+						display: "inline-block",
+						background: "var(--gold)",
+						color: "var(--text-inverse)",
+						fontWeight: 600,
+						fontSize: "14px",
+						padding: "12px 32px",
+						borderRadius: "var(--radius-md)",
+					}}
 				>
 					Go to Login
 				</Link>
@@ -100,25 +122,27 @@ export default function SignupPage() {
 
 	return (
 		<div>
-			<h2 className="text-2xl font-bold text-white mb-1">Create an account</h2>
-			<p className="text-light-200 text-sm mb-6">
+			<h2 style={{ fontFamily: "var(--font-display)", fontSize: "26px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "6px" }}>
+				Create an account
+			</h2>
+			<p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
 				Join DevEvent and never miss a great event
 			</p>
 
 			{globalError && (
-				<div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+				<div style={{ border: "1px solid rgba(204,70,70,0.3)", background: "rgba(204,70,70,0.06)", color: "#CC4646", borderRadius: "var(--radius-md)", padding: "10px 14px", fontSize: "13px", marginBottom: "16px" }}>
 					{globalError}
 				</div>
 			)}
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				{/* Name */}
-				<div className="space-y-1.5">
-					<label htmlFor="signup-name" className="text-sm text-light-100">
+				<div style={{ display: "flex", flexDirection: "column" }}>
+					<label htmlFor="signup-name" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-secondary)", letterSpacing: "0.02em", marginBottom: "6px" }}>
 						Full Name
 					</label>
 					<div className="relative">
-						<User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-200" />
+						<User className="absolute left-[12px] top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)", width: "15px", height: "15px" }} />
 						<input
 							id="signup-name"
 							type="text"
@@ -126,21 +150,22 @@ export default function SignupPage() {
 							onChange={(e) => handleChange("name", e.target.value)}
 							placeholder="John Doe"
 							required
-							className="w-full rounded-lg border border-dark-200 bg-dark-200 py-2.5 pl-10 pr-4 text-white placeholder:text-light-200/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							style={{ height: "44px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", paddingLeft: "40px", paddingRight: "14px", color: "var(--text-primary)" }}
 						/>
 					</div>
 					{errors.name && (
-						<p className="text-xs text-red-400">{errors.name[0]}</p>
+						<p style={{ fontSize: "12px", color: "#CC4646", marginTop: "4px" }}>{errors.name[0]}</p>
 					)}
 				</div>
 
 				{/* Email */}
-				<div className="space-y-1.5">
-					<label htmlFor="signup-email" className="text-sm text-light-100">
+				<div style={{ display: "flex", flexDirection: "column" }}>
+					<label htmlFor="signup-email" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-secondary)", letterSpacing: "0.02em", marginBottom: "6px" }}>
 						Email
 					</label>
 					<div className="relative">
-						<Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-200" />
+						<Mail className="absolute left-[12px] top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)", width: "15px", height: "15px" }} />
 						<input
 							id="signup-email"
 							type="email"
@@ -148,21 +173,22 @@ export default function SignupPage() {
 							onChange={(e) => handleChange("email", e.target.value)}
 							placeholder="you@example.com"
 							required
-							className="w-full rounded-lg border border-dark-200 bg-dark-200 py-2.5 pl-10 pr-4 text-white placeholder:text-light-200/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							style={{ height: "44px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", paddingLeft: "40px", paddingRight: "14px", color: "var(--text-primary)" }}
 						/>
 					</div>
 					{errors.email && (
-						<p className="text-xs text-red-400">{errors.email[0]}</p>
+						<p style={{ fontSize: "12px", color: "#CC4646", marginTop: "4px" }}>{errors.email[0]}</p>
 					)}
 				</div>
 
 				{/* Password */}
-				<div className="space-y-1.5">
-					<label htmlFor="signup-password" className="text-sm text-light-100">
+				<div style={{ display: "flex", flexDirection: "column" }}>
+					<label htmlFor="signup-password" style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-secondary)", letterSpacing: "0.02em", marginBottom: "6px" }}>
 						Password
 					</label>
 					<div className="relative">
-						<Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-200" />
+						<Lock className="absolute left-[12px] top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)", width: "15px", height: "15px" }} />
 						<input
 							id="signup-password"
 							type={showPassword ? "text" : "password"}
@@ -170,12 +196,14 @@ export default function SignupPage() {
 							onChange={(e) => handleChange("password", e.target.value)}
 							placeholder="Create a strong password"
 							required
-							className="w-full rounded-lg border border-dark-200 bg-dark-200 py-2.5 pl-10 pr-10 text-white placeholder:text-light-200/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							style={{ height: "44px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", paddingLeft: "40px", paddingRight: "40px", color: "var(--text-primary)" }}
 						/>
 						<button
 							type="button"
 							onClick={() => setShowPassword(!showPassword)}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-light-200 hover:text-white transition-colors"
+							className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:text-[var(--text-primary)]"
+							style={{ color: "var(--text-muted)" }}
 							aria-label={showPassword ? "Hide password" : "Show password"}
 						>
 							{showPassword ? (
@@ -186,23 +214,30 @@ export default function SignupPage() {
 						</button>
 					</div>
 					{errors.password && (
-						<p className="text-xs text-red-400">{errors.password[0]}</p>
+						<p style={{ fontSize: "12px", color: "#CC4646", marginTop: "4px" }}>{errors.password[0]}</p>
 					)}
 
 					{/* Password strength */}
 					{formData.password && (
-						<div className="mt-2 grid grid-cols-2 gap-1">
+						<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", marginTop: "10px" }}>
 							{passwordChecks.map((check) => (
 								<div
 									key={check.label}
-									className={`flex items-center gap-1.5 text-xs ${
-										check.test ? "text-primary" : "text-light-200/60"
-									}`}
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: "6px",
+										fontSize: "12px",
+										color: check.test ? "var(--gold)" : "var(--text-muted)",
+									}}
 								>
 									<div
-										className={`h-1 w-1 rounded-full ${
-											check.test ? "bg-primary" : "bg-light-200/30"
-										}`}
+										style={{
+											height: "4px",
+											width: "4px",
+											borderRadius: "50%",
+											background: check.test ? "var(--gold)" : "var(--border)",
+										}}
 									/>
 									{check.label}
 								</div>
@@ -212,15 +247,15 @@ export default function SignupPage() {
 				</div>
 
 				{/* Confirm Password */}
-				<div className="space-y-1.5">
+				<div style={{ display: "flex", flexDirection: "column" }}>
 					<label
 						htmlFor="signup-confirm-password"
-						className="text-sm text-light-100"
+						style={{ fontSize: "12px", fontWeight: 500, color: "var(--text-secondary)", letterSpacing: "0.02em", marginBottom: "6px" }}
 					>
 						Confirm Password
 					</label>
 					<div className="relative">
-						<Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-light-200" />
+						<Lock className="absolute left-[12px] top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)", width: "15px", height: "15px" }} />
 						<input
 							id="signup-confirm-password"
 							type="password"
@@ -230,11 +265,12 @@ export default function SignupPage() {
 							}
 							placeholder="Confirm your password"
 							required
-							className="w-full rounded-lg border border-dark-200 bg-dark-200 py-2.5 pl-10 pr-4 text-white placeholder:text-light-200/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							style={{ height: "44px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", paddingLeft: "40px", paddingRight: "14px", color: "var(--text-primary)" }}
 						/>
 					</div>
 					{errors.confirmPassword && (
-						<p className="text-xs text-red-400">
+						<p style={{ fontSize: "12px", color: "#CC4646", marginTop: "4px" }}>
 							{errors.confirmPassword[0]}
 						</p>
 					)}
@@ -243,11 +279,12 @@ export default function SignupPage() {
 				<button
 					type="submit"
 					disabled={loading}
-					className="w-full rounded-lg bg-primary py-2.5 font-semibold text-black transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+					className="w-full flex items-center justify-center gap-2 transition-colors duration-160 hover:bg-[var(--gold-bright)] disabled:opacity-50 disabled:cursor-not-allowed"
+					style={{ height: "44px", background: "var(--gold)", color: "var(--text-inverse)", fontWeight: 600, fontSize: "14px", borderRadius: "var(--radius-md)", border: "none", cursor: loading ? "not-allowed" : "pointer" }}
 				>
 					{loading ? (
 						<>
-							<Loader2 className="h-4 w-4 animate-spin" />
+							<Loader2 className="animate-spin" style={{ width: "16px", height: "16px", color: "var(--text-inverse)" }} />
 							Creating account...
 						</>
 					) : (
@@ -260,10 +297,10 @@ export default function SignupPage() {
 			<div className="mt-5">
 				<div className="relative mb-5">
 					<div className="absolute inset-0 flex items-center">
-						<div className="w-full border-t border-dark-200" />
+						<div className="w-full" style={{ borderTop: "1px solid var(--border-dim)" }} />
 					</div>
 					<div className="relative flex justify-center text-xs">
-						<span className="bg-dark-100 px-3 text-light-200">
+						<span style={{ background: "var(--bg-surface)", padding: "0 12px", color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
 							or continue with
 						</span>
 					</div>
@@ -275,10 +312,11 @@ export default function SignupPage() {
 						signIn("google", { callbackUrl: "/" });
 					}}
 					disabled={googleLoading}
-					className="w-full rounded-lg border border-dark-200 bg-dark-200/50 py-2.5 font-medium text-white transition-all hover:bg-dark-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+					className="w-full flex items-center justify-center gap-3 transition-all duration-160 hover:bg-[var(--bg-overlay)] hover:border-[var(--border-bright)] disabled:opacity-50 disabled:cursor-not-allowed"
+					style={{ height: "44px", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", fontSize: "14px", fontWeight: 500 }}
 				>
 					{googleLoading ? (
-						<Loader2 className="h-4 w-4 animate-spin" />
+						<Loader2 className="animate-spin" style={{ width: "16px", height: "16px" }} />
 					) : (
 						<svg className="h-5 w-5" viewBox="0 0 24 24">
 							<path
@@ -303,11 +341,12 @@ export default function SignupPage() {
 				</button>
 			</div>
 
-			<p className="mt-6 text-center text-sm text-light-200">
+			<p style={{ marginTop: "24px", textAlign: "center", fontSize: "13px", color: "var(--text-muted)" }}>
 				Already have an account?{" "}
 				<Link
 					href="/login"
-					className="text-primary hover:text-primary/80 font-medium transition-colors"
+					className="hover:text-[var(--gold-bright)] transition-colors"
+					style={{ color: "var(--gold)" }}
 				>
 					Sign in
 				</Link>
