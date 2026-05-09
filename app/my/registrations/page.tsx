@@ -28,6 +28,14 @@ export const metadata = {
   title: "My Registrations | DevEvent",
 };
 
+function formatDateCompact(date: Date) {
+  const weekday = date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+  const day = date.getDate();
+  const month = date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return `${weekday} · ${day} ${month} · ${time}`;
+}
+
 export default async function MyRegistrationsPage() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -49,80 +57,165 @@ export default async function MyRegistrationsPage() {
     return new Date(reg.eventId.endAt) < now;
   });
 
+  const StatusBadge = ({ status }: { status: string }) => {
+    const styles: Record<string, { bg: string; border: string; color: string; label: string }> = {
+      confirmed: {
+        bg: "rgba(42,157,111,0.08)",
+        border: "rgba(42,157,111,0.25)",
+        color: "var(--green)",
+        label: "Confirmed",
+      },
+      cancelled: {
+        bg: "rgba(204,70,70,0.08)",
+        border: "rgba(204,70,70,0.25)",
+        color: "var(--red)",
+        label: "Cancelled",
+      },
+    };
+    const s = styles[status] || {
+      bg: "var(--bg-elevated)",
+      border: "var(--border-dim)",
+      color: "var(--text-muted)",
+      label: status,
+    };
+    return (
+      <span
+        style={{
+          background: s.bg,
+          border: `1px solid ${s.border}`,
+          color: s.color,
+          fontFamily: "var(--font-mono)",
+          fontSize: "10px",
+          fontWeight: 600,
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          padding: "2px 10px",
+          borderRadius: "var(--radius-sm)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {s.label}
+      </span>
+    );
+  };
+
   const RegistrationCard = ({ reg }: { reg: any }) => {
     const event = reg.eventId;
     if (!event) return null;
 
     const startDate = new Date(event.startAt);
-    
+    const isCancelled = reg.status === "cancelled";
+    const locationText =
+      event.eventType === "online"
+        ? "Online"
+        : event.location?.venueName || event.location?.city || "In-Person";
+
     return (
-      <Link 
+      <Link
         href={`/my/registrations/${reg._id}`}
-        className="block bg-white border border-gray-200 rounded-2xl p-4 md:p-6 hover:shadow-lg hover:border-primary/30 transition-all group"
+        style={{
+          display: "block",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-dim)",
+          borderRadius: "var(--radius-lg)",
+          padding: "20px",
+          marginBottom: "12px",
+          cursor: "pointer",
+          transition: "all 200ms ease",
+          opacity: isCancelled ? 0.6 : 1,
+          textDecoration: "none",
+        }}
+        className="group hover:translate-y-[-1px]"
+        onMouseEnter={undefined}
       >
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Visual Thumbnail */}
-          <div className="w-full md:w-48 aspect-video md:aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden shrink-0">
-            {event.coverImageUrl ? (
-              <img src={event.coverImageUrl} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <Ticket className="w-8 h-8 opacity-50" />
+        <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
+          {/* Left side */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Row 1 — Status badge */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <StatusBadge status={reg.status} />
+              {event.eventType && (
+                <span
+                  style={{
+                    border: "1px solid var(--border-dim)",
+                    color: "var(--text-muted)",
+                    fontSize: "10px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    padding: "2px 8px",
+                    borderRadius: "var(--radius-sm)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {event.eventType}
+                </span>
+              )}
+            </div>
+
+            {/* Row 2 — Event title */}
+            <h3
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "17px",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                marginTop: "6px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {event.title}
+            </h3>
+
+            {/* Row 3 — Date and location */}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <CalendarDays style={{ width: "13px", height: "13px", color: "var(--text-muted)" }} />
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--text-muted)" }}>
+                  {formatDateCompact(startDate)}
+                </span>
               </div>
-            )}
-          </div>
-          
-          {/* Content */}
-          <div className="flex-1 flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-start gap-4 mb-2">
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors">
-                  {event.title}
-                </h3>
-                {reg.status === "cancelled" ? (
-                  <span className="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
-                    Cancelled
-                  </span>
-                ) : reg.status === "confirmed" ? (
-                   <span className="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
-                    Confirmed
-                  </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {event.eventType === "online" ? (
+                  <Video style={{ width: "13px", height: "13px", color: "var(--text-muted)" }} />
                 ) : (
-                   <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
-                    {reg.status}
-                  </span>
+                  <MapPin style={{ width: "13px", height: "13px", color: "var(--text-muted)" }} />
                 )}
-              </div>
-              
-              <div className="space-y-2 mt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CalendarDays className="w-4 h-4 shrink-0 text-gray-400" />
-                  <span>
-                    {startDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {startDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  {event.eventType === "online" ? (
-                    <Video className="w-4 h-4 shrink-0 text-gray-400" />
-                  ) : (
-                    <MapPin className="w-4 h-4 shrink-0 text-gray-400" />
-                  )}
-                  <span className="truncate">
-                    {event.eventType === "online" ? "Online Event" : event.location?.venueName || event.location?.city || "In-Person Event"}
-                  </span>
-                </div>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--text-muted)" }}>
+                  {locationText}
+                </span>
               </div>
             </div>
-            
-            <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-500">
-                Ticket Code: <span className="text-gray-900 font-mono tracking-wider">{reg.ticketCode}</span>
-              </p>
-              <span className="text-primary text-sm font-medium group-hover:underline">
-                View Details &rarr;
-              </span>
-            </div>
+
+            {/* Row 4 — Ticket code */}
+            <p style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-muted)", marginTop: "6px" }}>
+              {reg.ticketCode}
+            </p>
+          </div>
+
+          {/* Right side */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", gap: "8px", flexShrink: 0 }}>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "16px",
+                color: "var(--gold)",
+              }}
+            >
+              Free
+            </span>
+            <span
+              style={{
+                fontSize: "12px",
+                color: "var(--gold)",
+                textAlign: "right",
+                transition: "color 160ms ease",
+              }}
+              className="group-hover:underline"
+            >
+              View Ticket →
+            </span>
           </div>
         </div>
       </Link>
@@ -130,39 +223,104 @@ export default async function MyRegistrationsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="mb-10">
-          <h1 className="text-3xl font-extrabold text-gray-900">My Registrations</h1>
-          <p className="text-gray-600 mt-2">Manage your tickets and upcoming events.</p>
+    <main
+      style={{
+        background: "var(--bg-base)",
+        minHeight: "100dvh",
+        padding: "40px 24px",
+      }}
+    >
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        {/* Page Header */}
+        <div>
+          <span className="text-label">My Account</span>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(24px, 3vw, 36px)",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              marginTop: "6px",
+              marginBottom: "4px",
+            }}
+          >
+            My{" "}
+            <em style={{ color: "var(--gold)", fontStyle: "italic" }}>
+              Registrations
+            </em>
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Your event bookings and tickets
+          </p>
         </div>
 
         {registrations.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-3xl p-12 text-center shadow-sm">
-            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Ticket className="w-8 h-8" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No tickets yet</h2>
-            <p className="text-gray-600 mb-8 max-w-sm mx-auto">
-              You haven't registered for any events. Discover upcoming tech events and secure your spot!
+          <div
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-dim)",
+              borderRadius: "var(--radius-lg)",
+              padding: "48px 24px",
+              textAlign: "center",
+              marginTop: "32px",
+            }}
+          >
+            <Ticket
+              style={{ width: "32px", height: "32px", color: "var(--text-muted)", margin: "0 auto" }}
+            />
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "18px",
+                color: "var(--text-primary)",
+                marginTop: "12px",
+              }}
+            >
+              No registrations yet
+            </h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: "6px" }}>
+              Events you register for will appear here.
             </p>
-            <Link 
+            <Link
               href="/events"
-              className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-xl transition-all shadow-md shadow-primary/20"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                background: "var(--gold)",
+                color: "var(--text-inverse)",
+                fontWeight: 600,
+                fontSize: "14px",
+                padding: "10px 24px",
+                borderRadius: "var(--radius-md)",
+                marginTop: "20px",
+                textDecoration: "none",
+                transition: "background 160ms ease",
+              }}
             >
               Browse Events
             </Link>
           </div>
         ) : (
-          <div className="space-y-12">
+          <div style={{ marginTop: "32px" }}>
             {upcoming.length > 0 && (
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
-                  Upcoming Events
-                </h2>
-                <div className="space-y-4">
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                  <span
+                    style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      background: "var(--green)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span className="text-label" style={{ color: "var(--text-secondary)" }}>
+                    Upcoming
+                  </span>
+                </div>
+                <div>
                   {upcoming.map((reg) => (
                     <RegistrationCard key={reg._id.toString()} reg={reg} />
                   ))}
@@ -171,9 +329,13 @@ export default async function MyRegistrationsPage() {
             )}
 
             {past.length > 0 && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-6 opacity-80">Past Events</h2>
-                <div className="space-y-4 opacity-75">
+              <section style={{ marginTop: "32px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                  <span className="text-label" style={{ color: "var(--text-muted)" }}>
+                    Past Events
+                  </span>
+                </div>
+                <div style={{ opacity: 0.7 }}>
                   {past.map((reg) => (
                     <RegistrationCard key={reg._id.toString()} reg={reg} />
                   ))}
@@ -182,7 +344,6 @@ export default async function MyRegistrationsPage() {
             )}
           </div>
         )}
-
       </div>
     </main>
   );
