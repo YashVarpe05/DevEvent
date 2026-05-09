@@ -5,7 +5,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Registration from "@/database/registration.model";
-import { ArrowLeft, MapPin, CalendarDays, Clock, QrCode, Ticket, ExternalLink, Video } from "lucide-react";
+import { ArrowLeft, MapPin, CalendarDays, Ticket, ExternalLink, Video } from "lucide-react";
 import CancelRegistrationButton from "@/components/CancelRegistrationButton";
 
 async function getRegistrationDetails(id: string, userId: string) {
@@ -37,157 +37,357 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
   const startDate = new Date(event.startAt);
   const isCancelled = registration.status === "cancelled";
 
+  const formatLabel = (label: string) => (
+    <span style={{
+      fontFamily: "var(--font-body)",
+      fontSize: "10px",
+      fontWeight: 500,
+      letterSpacing: "0.14em",
+      textTransform: "uppercase" as const,
+      color: "var(--text-muted)",
+    }}>
+      {label}
+    </span>
+  );
+
+  const formatValue = (value: string) => (
+    <p style={{
+      fontFamily: "var(--font-mono)",
+      fontSize: "13px",
+      color: "var(--text-primary)",
+      marginTop: "3px",
+    }}>
+      {value}
+    </p>
+  );
+
+  const statusConfig = isCancelled
+    ? { bg: "rgba(204,70,70,0.08)", border: "rgba(204,70,70,0.3)", color: "var(--red)", icon: "✕", label: "CANCELLED" }
+    : registration.status === "confirmed"
+    ? { bg: "var(--gold-subtle)", border: "var(--border-gold)", color: "var(--gold)", icon: "✓", label: "CONFIRMED" }
+    : { bg: "var(--bg-elevated)", border: "var(--border-dim)", color: "var(--text-muted)", icon: "⏳", label: registration.status?.toUpperCase() || "PENDING" };
+
+  const locationText = event.eventType === "online"
+    ? "Online"
+    : event.location?.venueName || "Venue TBA";
+
+  const formatType = event.eventType === "online"
+    ? "Online"
+    : event.eventType === "hybrid"
+    ? "Hybrid"
+    : "In-Person";
+
   return (
-    <main className="min-h-screen bg-gray-50 py-10 md:py-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <Link 
+    <main style={{ background: "var(--bg-void)", minHeight: "100dvh", padding: "40px 24px" }}>
+      <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+
+        {/* Back link */}
+        <Link
           href="/my/registrations"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 font-medium mb-8 transition-colors"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            fontSize: "13px",
+            color: "var(--text-muted)",
+            textDecoration: "none",
+            marginBottom: "32px",
+            transition: "color 160ms ease",
+          }}
+          className="hover:!text-text-primary"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to My Tickets
+          <ArrowLeft style={{ width: "14px", height: "14px" }} /> My Tickets
         </Link>
-        
-        {/* Ticket Artifact Card */}
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
-          
-          {/* Top Decorative Header */}
-          <div className={`h-32 relative ${isCancelled ? "bg-gray-300" : "bg-primary"}`}>
-             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent"></div>
-             {event.coverImageUrl && !isCancelled && (
-               <div className="absolute inset-0 opacity-40 mix-blend-overlay">
-                 <img src={event.coverImageUrl} alt="Event cover" className="w-full h-full object-cover grayscale" />
-               </div>
-             )}
-          </div>
-          
-          {/* Avatar / Icon overlap */}
-          <div className="px-8 relative">
-             <div className={`w-20 h-20 rounded-2xl flex items-center justify-center -mt-10 border-4 border-white shadow-md
-               ${isCancelled ? "bg-gray-200 text-gray-500" : "bg-white text-primary"}`}
-             >
-               <Ticket className="w-10 h-10" />
-             </div>
-             
-             {/* Main Content */}
-             <div className="mt-6 mb-8">
-               <div className="flex flex-wrap items-start justify-between gap-4">
-                 <div>
-                   {isCancelled && (
-                     <div className="inline-block bg-red-100 text-red-700 text-sm font-bold px-3 py-1 rounded-full mb-3">
-                       Cancelled Registration
-                     </div>
-                   )}
-                   <h1 className="text-3xl font-extrabold text-gray-900 mb-2 max-w-xl leading-tight">
-                     {event.title}
-                   </h1>
-                   <p className="text-gray-500">
-                     Registered on {new Date(registration.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                   </p>
-                 </div>
-                 
-                 <div className="text-right shrink-0">
-                   <p className="text-sm font-medium text-gray-400 mb-1 uppercase tracking-widest">Ticket Code</p>
-                   <p className={`font-mono text-2xl font-bold tracking-widest ${isCancelled ? "text-gray-400 line-through" : "text-gray-900"}`}>
-                     {registration.ticketCode}
-                   </p>
-                 </div>
-               </div>
-             </div>
-             
-             {/* Divider */}
-             <div className="border-t border-dashed border-gray-300 my-8 relative">
-                {/* Cutouts */}
-                <div className="absolute -left-12 -top-4 w-8 h-8 rounded-full bg-gray-50 border-r border-gray-200"></div>
-                <div className="absolute -right-12 -top-4 w-8 h-8 rounded-full bg-gray-50 border-l border-gray-200"></div>
-             </div>
-             
-             {/* Detail Grid */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-               <div className="space-y-6">
-                 <div>
-                   <p className="text-sm font-medium text-gray-500 mb-1">Date & Time</p>
-                   <div className="flex items-center gap-3 text-gray-900 font-medium">
-                     <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
-                       <CalendarDays className="w-5 h-5" />
-                     </div>
-                     <div>
-                       <p>{startDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" })}</p>
-                       <p className="text-gray-600 font-normal text-sm flex items-center gap-1 mt-0.5">
-                         <Clock className="w-3.5 h-3.5" /> 
-                         {startDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-                       </p>
-                     </div>
-                   </div>
-                 </div>
-                 
-                 <div>
-                   <p className="text-sm font-medium text-gray-500 mb-1">Location</p>
-                   <div className="flex items-start gap-3 text-gray-900 font-medium">
-                     <div className="bg-primary/10 text-primary p-2 rounded-lg mt-0.5 shrink-0">
-                       {event.eventType === "online" ? <Video className="w-5 h-5" /> : <MapPin className="w-5 h-5" />}
-                     </div>
-                     <div>
-                       <p>{event.eventType === "online" ? "Online Platform" : event.location?.venueName || "Venue TBA"}</p>
-                       {(event.eventType === "offline" || event.eventType === "hybrid") && event.location?.addressLine1 && (
-                         <p className="text-gray-600 font-normal text-sm mt-0.5">{event.location.addressLine1}, {event.location.city}</p>
-                       )}
-                       {(event.eventType === "online" || event.eventType === "hybrid") && event.online?.platform && (
-                         <p className="text-gray-600 font-normal text-sm mt-0.5">Via {event.online.platform}</p>
-                       )}
-                     </div>
-                   </div>
-                 </div>
-                 
-                 <div>
-                   <p className="text-sm font-medium text-gray-500 mb-1">Attendee</p>
-                   <p className="font-medium text-gray-900">{session.user.name}</p>
-                   <p className="text-sm text-gray-500">{session.user.email}</p>
-                 </div>
-               </div>
-               
-               {/* QR Mockup Area */}
-               <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                 {!isCancelled ? (
-                   <>
-                     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-4 inline-block">
-                       {/* Mock QR graphic, visually representing the cryptographic payload */}
-                       <div className="w-48 h-48 bg-[url('https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg')] bg-cover opacity-80 mix-blend-multiply"></div>
-                     </div>
-                     <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5">
-                       <QrCode className="w-4 h-4" /> Ready for check-in
-                     </p>
-                     {registration.checkedInAt && (
-                       <div className="mt-3 bg-green-100 text-green-700 font-bold px-4 py-1.5 rounded-full text-sm">
-                         Checked In ✓
-                       </div>
-                     )}
-                   </>
-                 ) : (
-                   <div className="text-center">
-                     <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                       <Ticket className="w-8 h-8 text-gray-400" />
-                     </div>
-                     <p className="text-gray-500 font-medium">Ticket Voided</p>
-                   </div>
-                 )}
-               </div>
-             </div>
-          </div>
-          
-          <div className="bg-gray-50 border-t border-gray-200 p-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Link 
-              href={`/events/${event.slug}`}
-              className="text-primary hover:text-primary/80 font-medium flex items-center gap-1.5 transition-colors"
+
+        {/* Ticket Card — outer wrapper with gold glow */}
+        <div style={{ position: "relative" }}>
+          {/* Gold glow behind card */}
+          {!isCancelled && (
+            <div
+              style={{
+                position: "absolute",
+                inset: "-1px",
+                background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05), transparent 60%)",
+                borderRadius: "calc(var(--radius-xl) + 1px)",
+                filter: "blur(8px)",
+                zIndex: 0,
+              }}
+            />
+          )}
+
+          {/* Card */}
+          <div
+            style={{
+              position: "relative",
+              zIndex: 1,
+              background: "var(--bg-surface)",
+              border: `1px solid ${isCancelled ? "var(--border-dim)" : "rgba(201,168,76,0.2)"}`,
+              borderRadius: "var(--radius-xl)",
+              overflow: "hidden",
+            }}
+          >
+            {/* CARD TOP SECTION */}
+            <div
+              style={{
+                background: isCancelled
+                  ? "var(--bg-elevated)"
+                  : "linear-gradient(135deg, var(--bg-elevated) 0%, var(--gold-subtle) 100%)",
+                padding: "24px 24px 20px",
+                borderBottom: "1px dashed rgba(201,168,76,0.2)",
+                position: "relative",
+              }}
             >
-              Event Page <ExternalLink className="w-4 h-4" />
-            </Link>
-            
-            {!isCancelled && !registration.checkedInAt && (
-              <CancelRegistrationButton registrationId={registration._id.toString()} />
-            )}
+              {/* Decorative pattern */}
+              {!isCancelled && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    width: "120px",
+                    height: "120px",
+                    background: "radial-gradient(circle at top right, rgba(201,168,76,0.06), transparent 70%)",
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+
+              {/* Status badge */}
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  background: statusConfig.bg,
+                  border: `1px solid ${statusConfig.border}`,
+                  color: statusConfig.color,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  padding: "3px 10px",
+                  borderRadius: "var(--radius-sm)",
+                }}
+              >
+                {statusConfig.icon} {statusConfig.label}
+              </span>
+
+              {/* Event title */}
+              <h1
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "22px",
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  marginTop: "12px",
+                  lineHeight: 1.3,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical" as const,
+                  overflow: "hidden",
+                }}
+              >
+                {event.title}
+              </h1>
+
+              {/* Registered on */}
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--text-muted)", marginTop: "6px" }}>
+                Registered on {new Date(registration.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              </p>
+            </div>
+
+            {/* CARD DETAILS SECTION */}
+            <div
+              style={{
+                padding: "20px 24px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "16px",
+                position: "relative",
+              }}
+            >
+              <div>
+                {formatLabel("DATE")}
+                {formatValue(startDate.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).toUpperCase())}
+              </div>
+              <div>
+                {formatLabel("TIME")}
+                {formatValue(startDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }))}
+              </div>
+              <div>
+                {formatLabel("LOCATION")}
+                {formatValue(locationText)}
+              </div>
+              <div>
+                {formatLabel("FORMAT")}
+                {formatValue(formatType)}
+              </div>
+              <div>
+                {formatLabel("TICKET")}
+                {formatValue("General Admission")}
+              </div>
+              <div>
+                {formatLabel("ATTENDEE")}
+                {formatValue(session.user.name || "Attendee")}
+              </div>
+            </div>
+
+            {/* Perforated edge divider */}
+            <div style={{ position: "relative", height: "1px", borderTop: "1px dashed rgba(201,168,76,0.15)" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "-12px",
+                  top: "-12px",
+                  width: "24px",
+                  height: "24px",
+                  background: "var(--bg-void)",
+                  borderRadius: "50%",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  right: "-12px",
+                  top: "-12px",
+                  width: "24px",
+                  height: "24px",
+                  background: "var(--bg-void)",
+                  borderRadius: "50%",
+                }}
+              />
+            </div>
+
+            {/* QR CODE SECTION */}
+            <div
+              style={{
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              {!isCancelled ? (
+                <>
+                  {/* QR container with white bg for visibility */}
+                  <div
+                    style={{
+                      background: "#EDEAE1",
+                      padding: "16px",
+                      borderRadius: "var(--radius-md)",
+                      width: "fit-content",
+                    }}
+                  >
+                    {/* Mock QR graphic, visually representing the cryptographic payload */}
+                    <div
+                      style={{
+                        width: "160px",
+                        height: "160px",
+                        backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg')",
+                        backgroundSize: "cover",
+                      }}
+                    />
+                  </div>
+
+                  {/* Ticket code below QR */}
+                  <p style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "var(--text-muted)",
+                    letterSpacing: "0.12em",
+                  }}>
+                    {registration.ticketCode}
+                  </p>
+
+                  <p style={{
+                    fontSize: "11px",
+                    color: "var(--text-muted)",
+                    textAlign: "center",
+                    maxWidth: "200px",
+                  }}>
+                    Show this QR at the venue for check-in
+                  </p>
+
+                  {registration.checkedInAt && (
+                    <div style={{
+                      background: "rgba(42,157,111,0.08)",
+                      border: "1px solid rgba(42,157,111,0.25)",
+                      color: "var(--green)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      padding: "4px 14px",
+                      borderRadius: "var(--radius-sm)",
+                      marginTop: "4px",
+                    }}>
+                      ✓ Checked In
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ textAlign: "center", padding: "16px 0" }}>
+                  <div
+                    style={{
+                      width: "64px",
+                      height: "64px",
+                      background: "var(--bg-elevated)",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      margin: "0 auto 12px",
+                    }}
+                  >
+                    <Ticket style={{ width: "28px", height: "28px", color: "var(--text-muted)" }} />
+                  </div>
+                  <p style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "13px" }}>
+                    Ticket Voided
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* CARD BOTTOM — Actions */}
+            <div
+              style={{
+                padding: "16px 24px",
+                background: "var(--bg-elevated)",
+                borderTop: "1px solid var(--border-dim)",
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+              }}
+            >
+              <Link
+                href={`/events/${event.slug}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-secondary)",
+                  background: "transparent",
+                  height: "38px",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "13px",
+                  padding: "0 16px",
+                  textDecoration: "none",
+                  transition: "all 160ms ease",
+                }}
+              >
+                View Event <ExternalLink style={{ width: "13px", height: "13px" }} />
+              </Link>
+
+              {!isCancelled && !registration.checkedInAt && (
+                <CancelRegistrationButton registrationId={registration._id.toString()} />
+              )}
+            </div>
           </div>
-          
         </div>
       </div>
     </main>
