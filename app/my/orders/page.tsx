@@ -54,127 +54,234 @@ export default function MyOrdersPage() {
 	const getStatusIcon = (status: string) => {
 		switch (status) {
 			case "paid":
-				return <CheckCircle2 className="text-emerald-500" size={16} />;
+				return <CheckCircle2 style={{ color: "var(--green)" }} size={14} />;
 			case "refunded_full":
-				return <XCircle className="text-orange-400" size={16} />;
+				return <XCircle style={{ color: "var(--red)" }} size={14} />;
 			case "refunded_partial":
-				return <XCircle className="text-amber-500" size={16} />;
+				return <XCircle style={{ color: "var(--gold)" }} size={14} />;
 			case "pending_payment":
-				return <Clock className="text-amber-500" size={16} />;
+				return <Clock style={{ color: "var(--gold)" }} size={14} />;
 			default:
-				return <XCircle className="text-zinc-500" size={16} />;
+				return <XCircle style={{ color: "var(--text-muted)" }} size={14} />;
 		}
 	};
 
 	if (loading)
 		return (
-			<div className="p-8 text-center text-zinc-400">
+			<div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)", minHeight: "100dvh", background: "var(--bg-base)" }}>
 				Loading your history...
 			</div>
 		);
 
 	return (
-		<main className="max-w-5xl mx-auto p-6 md:p-12 space-y-10">
-			<div>
-				<h1 className="text-4xl font-extrabold text-white flex items-center gap-3">
-					<CreditCard className="text-primary-500" /> Order History
-				</h1>
-				<p className="text-zinc-500 mt-2">
-					Manage your purchases and view receipts.
-				</p>
-			</div>
+		<main style={{ background: "var(--bg-base)", minHeight: "100dvh", padding: "40px 24px" }}>
+			<div style={{ maxWidth: "900px", margin: "0 auto" }}>
+				<div>
+					<span className="text-label">My Account</span>
+					<h1
+						style={{
+							fontFamily: "var(--font-display)",
+							fontSize: "clamp(24px, 3vw, 36px)",
+							fontWeight: 600,
+							color: "var(--text-primary)",
+							display: "flex",
+							alignItems: "center",
+							gap: "12px",
+							marginTop: "6px",
+							marginBottom: "4px",
+						}}
+					>
+						<CreditCard style={{ color: "var(--gold)", width: "28px", height: "28px" }} />
+						Order{" "}
+						<em style={{ color: "var(--gold)", fontStyle: "italic" }}>History</em>
+					</h1>
+					<p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+						Your purchases and receipts
+					</p>
+				</div>
 
-			<div className="grid gap-6">
-				{orders.length === 0 ? (
-					<div className="py-20 text-center border border-dashed border-zinc-800 rounded-3xl">
-						<Ticket size={48} className="mx-auto text-zinc-700 mb-4" />
-						<h3 className="text-xl font-bold text-zinc-300">No orders yet</h3>
-						<p className="text-zinc-500 mb-6">
-							Looks like you haven't bought any tickets yet.
-						</p>
-						<Link
-							href="/events"
-							className="text-primary-500 hover:text-primary-400 font-bold border-b border-primary-500 pb-1"
-						>
-							Browse Events
-						</Link>
-					</div>
-				) : (
-					orders.map((order) => (
+				<div style={{ marginTop: "32px", display: "grid", gap: "16px" }}>
+					{orders.length === 0 ? (
 						<div
-							key={order._id}
-							className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 md:p-8 hover:bg-zinc-900 transition-all group"
+							style={{
+								padding: "60px 24px",
+								textAlign: "center",
+								background: "var(--bg-surface)",
+								border: "1px solid var(--border-dim)",
+								borderRadius: "var(--radius-lg)",
+							}}
 						>
-							<div className="flex flex-col md:flex-row justify-between gap-6">
-								<div className="space-y-4 flex-1">
-									<div className="flex items-center gap-3">
-										<span className="px-3 py-1 bg-zinc-800 rounded-full text-[10px] font-mono uppercase tracking-widest text-zinc-400 border border-zinc-700">
-											#{order._id.substring(order._id.length - 8)}
-										</span>
-										<div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-800 rounded-full text-xs font-bold text-white">
-											{getStatusIcon(order.status)}
-											{order.status.replace("_", " ")}
+							<Ticket size={36} style={{ margin: "0 auto", color: "var(--text-muted)", marginBottom: "12px" }} />
+							<h3 style={{ fontFamily: "var(--font-display)", fontSize: "18px", color: "var(--text-primary)" }}>
+								No orders yet
+							</h3>
+							<p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: "6px", marginBottom: "20px" }}>
+								Looks like you haven't bought any tickets yet.
+							</p>
+							<Link
+								href="/events"
+								style={{
+									color: "var(--gold)",
+									fontWeight: 600,
+									fontSize: "14px",
+									textDecoration: "none",
+									borderBottom: "1px solid var(--gold)",
+									paddingBottom: "2px",
+								}}
+							>
+								Browse Events
+							</Link>
+						</div>
+					) : (
+						orders.map((order) => (
+							<div
+								key={order._id}
+								style={{
+									background: "var(--bg-surface)",
+									border: "1px solid var(--border-dim)",
+									borderRadius: "var(--radius-lg)",
+									padding: "24px",
+									transition: "all 200ms ease",
+								}}
+								className="group hover:translate-y-[-1px]"
+							>
+								<div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+									<div style={{ flex: 1 }}>
+										{/* Order ID + Status */}
+										<div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+											<span
+												style={{
+													fontFamily: "var(--font-mono)",
+													fontSize: "10px",
+													textTransform: "uppercase",
+													letterSpacing: "0.08em",
+													color: "var(--text-muted)",
+													border: "1px solid var(--border-dim)",
+													padding: "2px 8px",
+													borderRadius: "var(--radius-sm)",
+												}}
+											>
+												#{order._id.substring(order._id.length - 8)}
+											</span>
+											<span
+												style={{
+													display: "inline-flex",
+													alignItems: "center",
+													gap: "4px",
+													fontFamily: "var(--font-mono)",
+													fontSize: "10px",
+													fontWeight: 600,
+													textTransform: "uppercase",
+													letterSpacing: "0.06em",
+													color: "var(--text-primary)",
+													background: "var(--bg-elevated)",
+													border: "1px solid var(--border-dim)",
+													padding: "2px 8px",
+													borderRadius: "var(--radius-sm)",
+												}}
+											>
+												{getStatusIcon(order.status)}
+												{order.status.replace("_", " ")}
+											</span>
+										</div>
+
+										{/* Event title */}
+										<Link
+											href={`/events/${order.eventId.slug}`}
+											style={{
+												fontFamily: "var(--font-display)",
+												fontSize: "18px",
+												fontWeight: 600,
+												color: "var(--text-primary)",
+												textDecoration: "none",
+												display: "block",
+												marginTop: "8px",
+												transition: "color 160ms ease",
+											}}
+											className="hover:!text-gold"
+										>
+											{order.eventId.title}
+										</Link>
+
+										{/* Line items */}
+										<div style={{ marginTop: "12px" }}>
+											{order.lineItems.map((item: any, i: number) => (
+												<div
+													key={i}
+													style={{
+														display: "flex",
+														justifyContent: "space-between",
+														alignItems: "center",
+														color: "var(--text-muted)",
+														fontSize: "13px",
+														padding: "4px 0",
+													}}
+												>
+													<span style={{ fontFamily: "var(--font-body)" }}>
+														{item.ticketNameSnapshot} × {item.quantity}
+													</span>
+													<span style={{ fontFamily: "var(--font-mono)" }}>
+														${(item.subtotal / 100).toFixed(2)}
+													</span>
+												</div>
+											))}
 										</div>
 									</div>
 
-									<Link
-										href={`/events/${order.eventId.slug}`}
-										className="text-2xl font-bold text-white hover:text-primary-400 transition-colors block"
+									{/* Total + action */}
+									<div
+										style={{
+											display: "flex",
+											justifyContent: "space-between",
+											alignItems: "center",
+											borderTop: "1px solid var(--border-dim)",
+											paddingTop: "16px",
+										}}
 									>
-										{order.eventId.title}
-									</Link>
+										<div>
+											<p style={{ fontFamily: "var(--font-body)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: "2px" }}>
+												Total Paid
+											</p>
+											<p style={{ fontFamily: "var(--font-mono)", fontSize: "22px", fontWeight: 700, color: "var(--text-primary)" }}>
+												<span style={{ color: "var(--text-muted)", fontSize: "16px", fontWeight: 400 }}>$</span>
+												{(
+													(order.lineItems.reduce(
+														(acc: number, item: any) =>
+															acc + (item.subtotal || 0),
+														0,
+													) +
+														(order.pricingSnapshot?.platformFeeAmount || 0)) /
+													100
+												).toFixed(2)}
+											</p>
+										</div>
 
-									<div className="space-y-2">
-										{order.lineItems.map((item: any, i: number) => (
-											<div
-												key={i}
-												className="flex justify-between items-center text-zinc-400 text-sm"
+										{order.status === "paid" && (
+											<Link
+												href={`/my/registrations`}
+												style={{
+													display: "inline-flex",
+													alignItems: "center",
+													gap: "6px",
+													background: "var(--gold)",
+													color: "var(--text-inverse)",
+													fontWeight: 600,
+													fontSize: "13px",
+													padding: "10px 20px",
+													borderRadius: "var(--radius-md)",
+													textDecoration: "none",
+													transition: "background 160ms ease",
+												}}
 											>
-												<span>
-													{item.ticketNameSnapshot} × {item.quantity}
-												</span>
-												<span className="font-mono">
-													${(item.subtotal / 100).toFixed(2)}
-												</span>
-											</div>
-										))}
+												View Tickets <ArrowRight size={15} />
+											</Link>
+										)}
 									</div>
-								</div>
-
-								<div className="flex flex-col justify-between items-start md:items-end gap-6 md:w-64 border-t md:border-t-0 md:border-l border-zinc-800 pt-6 md:pt-0 md:pl-8">
-									<div className="text-right">
-										<p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-											Total Paid
-										</p>
-										<p className="text-3xl font-black text-white">
-											<span className="text-zinc-500 text-xl font-normal">
-												$
-											</span>
-											{(
-												(order.lineItems.reduce(
-													(acc: number, item: any) =>
-														acc + (item.subtotal || 0),
-													0,
-												) +
-													(order.pricingSnapshot?.platformFeeAmount || 0)) /
-												100
-											).toFixed(2)}
-										</p>
-									</div>
-
-									{order.status === "paid" && (
-										<Link
-											href={`/my/registrations`}
-											className="w-full bg-white text-black hover:bg-zinc-200 font-bold py-3 px-6 rounded-2xl transition-colors flex items-center justify-center gap-2 group-hover:scale-[1.02]"
-										>
-											View Tickets <ArrowRight size={18} />
-										</Link>
-									)}
 								</div>
 							</div>
-						</div>
-					))
-				)}
+						))
+					)}
+				</div>
 			</div>
 		</main>
 	);

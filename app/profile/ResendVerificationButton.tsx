@@ -31,8 +31,22 @@ export function ResendVerificationButton() {
 
 	if (sent) {
 		return (
-			<span className="inline-flex items-center gap-2 rounded-lg bg-primary/10 px-5 py-2.5 text-sm font-medium text-primary">
-				<Send className="h-4 w-4" />
+			<span
+				style={{
+					display: "inline-flex",
+					alignItems: "center",
+					gap: "6px",
+					background: "rgba(42,157,111,0.08)",
+					border: "1px solid rgba(42,157,111,0.25)",
+					color: "var(--green)",
+					fontFamily: "var(--font-mono)",
+					fontSize: "12px",
+					fontWeight: 600,
+					padding: "8px 16px",
+					borderRadius: "var(--radius-md)",
+				}}
+			>
+				<Send style={{ width: "14px", height: "14px" }} />
 				Verification email sent!
 			</span>
 		);
@@ -43,21 +57,39 @@ export function ResendVerificationButton() {
 			<button
 				onClick={handleResend}
 				disabled={loading}
-				className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+				style={{
+					display: "inline-flex",
+					alignItems: "center",
+					gap: "6px",
+					background: "var(--gold)",
+					color: "var(--text-inverse)",
+					fontSize: "13px",
+					fontWeight: 600,
+					padding: "8px 16px",
+					borderRadius: "var(--radius-md)",
+					border: "none",
+					cursor: loading ? "not-allowed" : "pointer",
+					opacity: loading ? 0.5 : 1,
+					transition: "all 160ms ease",
+				}}
 			>
 				{loading ? (
 					<>
-						<Loader2 className="h-4 w-4 animate-spin" />
+						<Loader2 style={{ width: "14px", height: "14px", animation: "spin 1s linear infinite" }} />
 						Sending...
 					</>
 				) : (
 					<>
-						<Send className="h-4 w-4" />
+						<Send style={{ width: "14px", height: "14px" }} />
 						Verify Email
 					</>
 				)}
 			</button>
-			{error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+			{error && (
+				<p style={{ fontSize: "12px", color: "var(--red)", marginTop: "4px" }}>
+					{error}
+				</p>
+			)}
 		</div>
 	);
 }
