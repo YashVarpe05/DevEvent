@@ -1,114 +1,162 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import EventCard from "@/components/EventCard";
-import type { EventCardProps } from "@/components/EventCard";
+import { motion } from "framer-motion";
+import EventCard from "../EventCard";
+import { LampContainer } from "../aceternity/lamp";
 
-interface EventsSectionProps {
-	cards: Omit<EventCardProps, "organizerName">[];
+interface Event {
+	_id: string;
+	title: string;
+	slug: string;
+	thumbnail: string;
+	location: string;
+	eventStartDate: string;
+	eventEndDate: string;
+	category?: string;
+	isPaid?: boolean;
+	ticketPrice?: number;
+	currency?: string;
+	organizerProfileId?: { name?: string };
 }
 
-const FILTERS = ["All", "Meetup", "Hackathon", "Workshop", "Conference"];
+interface EventsSectionProps {
+	events: Event[];
+}
 
-export function EventsSection({ cards }: EventsSectionProps) {
-	const [active, setActive] = useState("All");
+function formatDate(dateStr: string) {
+	try {
+		const d = new Date(dateStr);
+		return d.toLocaleDateString("en-IN", {
+			month: "short",
+			day: "numeric",
+		});
+	} catch {
+		return dateStr;
+	}
+}
 
-	const filtered =
-		active === "All"
-			? cards
-			: cards.filter(
-					(c) => c.category?.toLowerCase() === active.toLowerCase(),
-				);
+function formatTime(dateStr: string) {
+	try {
+		const d = new Date(dateStr);
+		return d.toLocaleTimeString("en-IN", {
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: true,
+		});
+	} catch {
+		return "";
+	}
+}
+
+const FILTERS = ["All", "Hackathons", "Meetups", "Workshops"];
+
+export function EventsSection({ events }: EventsSectionProps) {
+	const [activeFilter, setActiveFilter] = useState("All");
+
+	if (!events || events.length === 0) return null;
+
+	const filteredEvents = events.filter((event) => {
+		if (activeFilter === "All") return true;
+		return event.category?.toLowerCase() === activeFilter.toLowerCase();
+	});
 
 	return (
-		<section className="w-full py-20" style={{ backgroundColor: "var(--bg-base)" }}>
-			<div className="mx-auto max-w-6xl px-5 sm:px-8">
-				{/* Header */}
-				<div className="mb-8">
-					<span
-						className="text-[11px] font-medium uppercase tracking-[0.1em]"
-						style={{ color: "var(--text-muted)" }}
-					>
-						UPCOMING EVENTS
-					</span>
-					<h2
-						className="mt-2 font-display text-3xl tracking-tight"
-						style={{ color: "var(--text-primary)" }}
-					>
-						What&apos;s Happening Near You
-					</h2>
-				</div>
+		<section
+			className="relative pb-24 w-full"
+			style={{ backgroundColor: "var(--bg-base)" }}
+		>
+			{/* Lamp Header */}
+			<LampContainer>
+				<motion.h2
+					initial={{ opacity: 0, y: 100 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{
+						delay: 0.3,
+						duration: 0.8,
+						ease: "easeInOut",
+					}}
+					className="mt-8 py-4 text-center text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tight text-white"
+					style={{ fontFamily: "var(--font-display)" }}
+				>
+					Upcoming Events
+				</motion.h2>
+			</LampContainer>
 
-				{/* Filter bar */}
-				<div className="mb-8 flex gap-2 overflow-x-auto pb-1">
-					{FILTERS.map((f) => (
+			<div className="mx-auto max-w-6xl px-5 -mt-20 relative z-10">
+				{/* Filter Bar */}
+				<div className="flex flex-wrap items-center justify-center gap-4 mb-12">
+					{FILTERS.map((filter) => (
 						<button
-							key={f}
-							onClick={() => setActive(f)}
-							className="cursor-pointer whitespace-nowrap px-4 text-[13px] font-medium transition-colors duration-150"
+							key={filter}
+							onClick={() => setActiveFilter(filter)}
+							className="relative px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
 							style={{
-								height: "32px",
-								borderRadius: "var(--radius-md)",
-								border:
-									active === f
-										? "1px solid var(--accent)"
-										: "1px solid var(--border)",
-								color:
-									active === f
-										? "var(--accent)"
-										: "var(--text-muted)",
-								backgroundColor:
-									active === f
-										? "var(--accent-subtle)"
-										: "transparent",
+								color: activeFilter === filter ? "var(--gold)" : "var(--text-secondary)",
 							}}
 						>
-							{f}
+							{filter}
+							{activeFilter === filter && (
+								<motion.div
+									layoutId="activeFilterUnderline"
+									className="absolute left-0 right-0 bottom-0 h-0.5 rounded-full"
+									style={{ backgroundColor: "var(--gold)" }}
+									transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+								/>
+							)}
 						</button>
 					))}
 				</div>
 
-				{/* Grid */}
-				{filtered.length > 0 ? (
-					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-						{filtered.map((card) => (
-							<EventCard key={card.slug} {...card} />
-						))}
-					</div>
-				) : (
-					<div
-						className="flex h-40 items-center justify-center rounded-[var(--radius-lg)]"
-						style={{
-							backgroundColor: "var(--bg-elevated)",
-							border: "1px solid var(--border)",
-						}}
-					>
-						<p
-							className="text-[15px]"
-							style={{ color: "var(--text-muted)" }}
-						>
-							No events in this category yet.
-						</p>
-					</div>
-				)}
-
-				{/* View all */}
-				<div className="mt-8 flex justify-center">
-					<Link
-						href="/events"
-						className="text-[13px] font-medium no-underline transition-colors duration-150"
-						style={{ color: "var(--text-secondary)" }}
-						onMouseEnter={(e) =>
-							(e.currentTarget.style.color = "var(--text-primary)")
-						}
-						onMouseLeave={(e) =>
-							(e.currentTarget.style.color = "var(--text-secondary)")
-						}
-					>
-						View all events →
-					</Link>
+				{/* Event grid */}
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{filteredEvents.slice(0, 6).map((event, index) => (
+						<EventCard
+							key={event._id}
+							title={event.title}
+							image={event.thumbnail}
+							slug={event.slug}
+							location={event.location || "Online"}
+							date={formatDate(event.eventStartDate)}
+							time={formatTime(event.eventStartDate)}
+							category={event.category}
+							isPaid={event.isPaid}
+							price={event.ticketPrice}
+							currency={event.currency}
+							organizerName={event.organizerProfileId?.name}
+							index={index}
+							featured={index === 0 && activeFilter === "All"}
+						/>
+					))}
 				</div>
+
+				{/* View all link */}
+				{events.length > 6 && (
+					<motion.div
+						initial={{ opacity: 0 }}
+						whileInView={{ opacity: 1 }}
+						viewport={{ once: true }}
+						transition={{ delay: 0.4 }}
+						className="mt-12 flex justify-center"
+					>
+						<a
+							href="/events"
+							className="group inline-flex items-center gap-2 text-[14px] font-medium no-underline transition-colors duration-[160ms]"
+							style={{ color: "var(--text-secondary)" }}
+							onMouseEnter={(e) =>
+								(e.currentTarget.style.color = "var(--gold)")
+							}
+							onMouseLeave={(e) =>
+								(e.currentTarget.style.color = "var(--text-secondary)")
+							}
+						>
+							View all events
+							<span className="inline-block transition-transform duration-[160ms] group-hover:translate-x-0.5">
+								→
+							</span>
+						</a>
+					</motion.div>
+				)}
 			</div>
 		</section>
 	);

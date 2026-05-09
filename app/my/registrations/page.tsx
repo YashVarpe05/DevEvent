@@ -31,7 +31,7 @@ export const metadata = {
 export default async function MyRegistrationsPage() {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/auth/login?callbackUrl=/my/registrations");
+    redirect("/login?callbackUrl=/my/registrations");
   }
 
   const registrations = await getMyRegistrations(session.user.id) as any[];

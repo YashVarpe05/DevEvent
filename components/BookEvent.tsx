@@ -80,22 +80,35 @@ export default function BookEvent({
       <button
         onClick={handleAction}
         disabled={isLoading || (capacity !== undefined && availableSpots === 0 && !isRegistered)}
-        className="w-full bg-primary hover:bg-primary/90 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 text-lg"
+        className="w-full flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: 'var(--gold)',
+          color: 'var(--bg-void)',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '13px',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          padding: '16px 24px',
+          borderRadius: 'var(--radius-sm, 6px)',
+          border: 'none',
+          transition: 'all 0.2s ease'
+        }}
       >
-        <Ticket className="w-5 h-5" />
+        <Ticket className="w-4 h-4" />
         {getButtonText()}
       </button>
       
-      {error && <p className="text-sm text-red-500 text-center font-medium">{error}</p>}
+      {error && <p style={{ fontSize: "12px", color: "#EF4444", textAlign: "center", fontWeight: 500 }}>{error}</p>}
       
       {capacity !== undefined && availableSpots !== undefined && !isRegistered && (
-        <p className="text-sm text-center text-gray-500 font-medium pb-1">
+        <p style={{ fontSize: "12px", textAlign: "center", color: "var(--text-muted)", marginTop: "4px" }}>
           {availableSpots > 0 ? (
-            <span className={availableSpots <= 10 ? "text-amber-600" : ""}>
+            <span style={{ color: availableSpots <= 10 ? "var(--gold)" : "inherit" }}>
               {availableSpots} {availableSpots === 1 ? "spot" : "spots"} remaining
             </span>
           ) : (
-            <span className="text-red-500">Sold out</span>
+            <span style={{ color: "#EF4444" }}>Sold out</span>
           )}
         </p>
       )}

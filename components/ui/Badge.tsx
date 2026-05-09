@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
-type BadgeVariant = "default" | "success" | "error" | "warning" | "accent";
+type BadgeVariant = "default" | "gold" | "green" | "red" | "blue";
 
 interface BadgeProps {
 	variant?: BadgeVariant;
@@ -9,24 +10,29 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-	default: "bg-[var(--bg-overlay)] text-[var(--text-secondary)] border-[var(--border)]",
-	success: "bg-[#3ECF8E1a] text-[var(--success)] border-[#3ECF8E33]",
-	error: "bg-[#F044381a] text-[var(--error)] border-[#F0443833]",
-	warning: "bg-[var(--accent-subtle)] text-[var(--accent)] border-[#FFB54733]",
-	accent: "bg-[var(--accent-subtle)] text-[var(--accent)] border-[#FFB54733]",
+	default:
+		"border-[var(--border)] text-[var(--text-secondary)] bg-transparent",
+	gold:
+		"border-[var(--border-gold)] text-[var(--gold)] bg-[var(--gold-subtle)]",
+	green:
+		"border-[rgba(42,157,111,0.25)] text-[var(--green)] bg-[rgba(42,157,111,0.08)]",
+	red:
+		"border-[rgba(204,70,70,0.25)] text-[var(--red)] bg-[rgba(204,70,70,0.08)]",
+	blue:
+		"border-[rgba(58,120,212,0.25)] text-[var(--blue)] bg-[rgba(58,120,212,0.08)]",
 };
 
-function Badge({ variant = "default", children, className = "" }: BadgeProps) {
+function Badge({ variant = "default", children, className }: BadgeProps) {
 	return (
 		<span
-			className={[
+			className={cn(
 				"inline-flex items-center",
-				"px-2 py-[2px]",
-				"text-[11px] font-medium uppercase tracking-[0.08em]",
-				"rounded-[4px] border",
+				"h-5 px-[7px]",
+				"text-[10px] font-medium uppercase tracking-[0.06em]",
+				"rounded-[var(--radius-xs)] border",
 				variantStyles[variant],
 				className,
-			].join(" ")}
+			)}
 		>
 			{children}
 		</span>

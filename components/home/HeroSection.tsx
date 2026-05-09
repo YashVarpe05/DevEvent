@@ -178,7 +178,7 @@ export function HeroSection() {
 							staggerDelay={0.03}
 							exitStaggerDelay={0.02}
 							className="min-h-0 h-auto flex items-center justify-start p-0 m-0"
-							textClassName="text-[14px] font-normal normal-case tracking-normal text-[#EDEAE1] gap-[0.05em] font-body"
+							textClassName="!text-[14px] !font-normal !normal-case !tracking-normal text-[#EDEAE1] gap-[0.05em] font-body"
 						/>
 					</div>
 				</motion.div>

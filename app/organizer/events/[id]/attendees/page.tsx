@@ -57,7 +57,7 @@ export default async function OrganizerAttendeesPage({ params }: { params: Promi
   const session = await auth();
   
   if (!session?.user?.id) {
-    redirect(`/auth/login?callbackUrl=/organizer/events/${id}/attendees`);
+    redirect(`/login?callbackUrl=/organizer/events/${id}/attendees`);
   }
 
   const data = await getEventAndAttendees(id, session.user.id);

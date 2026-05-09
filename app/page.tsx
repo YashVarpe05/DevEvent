@@ -5,12 +5,16 @@ import Event from "@/database/event.model";
 import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
 import type { Metadata } from "next";
+
 import { HeroSection } from "@/components/home/HeroSection";
-import { StatsBar } from "@/components/home/StatsBar";
+import { StatsSection } from "@/components/home/StatsSection";
+import { CommunitySection } from "@/components/home/CommunitySection";
 import { EventsSection } from "@/components/home/EventsSection";
-import { WhySection } from "@/components/home/WhySection";
+import { BentoSection } from "@/components/home/BentoSection";
+import { SocialProofSection } from "@/components/home/SocialProofSection";
 import { CTASection } from "@/components/home/CTASection";
 import { Footer } from "@/components/home/Footer";
+import RevealLoader from "@/components/ui/reveal-loader";
 
 export const metadata: Metadata = {
 	title: "DevEvent | India's Developer Event Platform",
@@ -22,44 +26,15 @@ type HomeEvent = {
 	_id: string;
 	title: string;
 	slug: string;
-	coverImageUrl?: string;
-	location?: { city?: string };
-	startAt: Date;
-	eventType: "online" | "offline" | "hybrid";
+	thumbnail?: string;
+	location?: string;
+	eventStartDate: Date;
+	eventEndDate: Date;
 	category?: string;
 	isPaid?: boolean;
-	basePrice?: number;
+	ticketPrice?: number;
 	currency?: string;
-};
-
-const mapToCard = (event: HomeEvent) => {
-	const date = new Date(event.startAt);
-	return {
-		title: event.title,
-		image:
-			event.coverImageUrl ||
-			"https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=900",
-		slug: event.slug,
-		location:
-			event.eventType === "online"
-				? "Online"
-				: event.location?.city || "TBA",
-		date: date
-			.toLocaleDateString("en-US", {
-				weekday: "short",
-				day: "numeric",
-				month: "short",
-			})
-			.toUpperCase(),
-		time: date.toLocaleTimeString("en-US", {
-			hour: "numeric",
-			minute: "2-digit",
-		}),
-		category: event.category,
-		isPaid: event.isPaid || false,
-		price: event.basePrice,
-		currency: event.currency || "INR",
-	};
+	organizerProfileId?: { name?: string };
 };
 
 export default async function HomePage() {
@@ -70,36 +45,41 @@ export default async function HomePage() {
 		status: "published",
 		visibility: "public",
 		deletedAt: null,
-		endAt: { $gte: new Date() },
+		eventEndDate: { $gte: new Date() },
 	})
-		.sort({ startAt: 1 })
+		.sort({ eventStartDate: 1 })
 		.limit(6)
+		.populate("organizerProfileId", "name")
 		.lean();
 
-	const cards = events.map((event: any) =>
-		mapToCard({
-			_id: event._id.toString(),
-			title: event.title,
-			slug: event.slug,
-			coverImageUrl: event.coverImageUrl,
-			location: event.location,
-			startAt: event.startAt,
-			eventType: event.eventType,
-			category: event.category,
-			isPaid: event.isPaid,
-			basePrice: event.basePrice,
-			currency: event.currency,
-		}),
-	);
+	const mappedEvents = events.map((event: any) => ({
+		_id: event._id.toString(),
+		title: event.title,
+		slug: event.slug,
+		thumbnail: event.thumbnail || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=900",
+		location: event.location,
+		eventStartDate: event.eventStartDate.toISOString(),
+		eventEndDate: event.eventEndDate.toISOString(),
+		category: event.category,
+		isPaid: event.isPaid,
+		ticketPrice: event.ticketPrice,
+		currency: event.currency,
+		organizerProfileId: event.organizerProfileId,
+	}));
 
 	return (
-		<div className="flex flex-col" style={{ marginTop: "-56px" }}>
-			<HeroSection />
-			<StatsBar />
-			<EventsSection cards={cards} />
-			<WhySection />
-			<CTASection />
-			<Footer />
-		</div>
+		<>
+			<RevealLoader />
+			<div className="flex flex-col" style={{ marginTop: "-58px" }}>
+				<HeroSection />
+				<StatsSection />
+				<CommunitySection />
+				<EventsSection events={mappedEvents} />
+				<BentoSection />
+				<SocialProofSection />
+				<CTASection />
+				<Footer />
+			</div>
+		</>
 	);
 }

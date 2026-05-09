@@ -24,7 +24,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
   const session = await auth();
   
   if (!session?.user?.id) {
-    redirect(`/auth/login?callbackUrl=/my/registrations/${id}`);
+    redirect(`/login?callbackUrl=/my/registrations/${id}`);
   }
 
   const registration = await getRegistrationDetails(id, session.user.id) as any;

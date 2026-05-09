@@ -52,22 +52,32 @@ export function FollowOrganizerButton({
 	};
 
 	return (
-		<div>
+		<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 			<button
 				type="button"
 				onClick={handleToggle}
 				disabled={loading}
 				id="organizer-follow-button"
-				className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-					following
-						? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-						: "bg-primary text-white hover:bg-primary/90"
-				}`}
+				className="hover:opacity-80 transition-opacity disabled:opacity-50"
+				style={{
+					backgroundColor: following ? "transparent" : "var(--gold-subtle)",
+					color: following ? "var(--text-secondary)" : "var(--gold)",
+					fontFamily: "var(--font-mono)",
+					fontSize: "11px",
+					fontWeight: 600,
+					textTransform: "uppercase",
+					letterSpacing: "0.05em",
+					padding: "6px 12px",
+					borderRadius: "var(--radius-sm, 6px)",
+					border: following ? "1px solid var(--border-dim)" : "1px solid rgba(201,168,76,0.3)",
+				}}
 			>
-				{loading ? "Updating..." : following ? "Following" : "Follow Organizer"}
+				{loading ? "..." : following ? "Following" : "Follow"}
 			</button>
-			<p className="mt-1 text-xs text-gray-500">{followersCount} followers</p>
-			{error ? <p className="mt-1 text-xs text-red-500">{error}</p> : null}
+			<span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+				{followersCount}
+			</span>
+			{error && <span style={{ fontSize: "11px", color: "#EF4444" }}>{error}</span>}
 		</div>
 	);
 }

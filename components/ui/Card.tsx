@@ -1,52 +1,47 @@
-"use client";
-
 import { type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+type CardVariant = "default" | "interactive" | "gold";
 
 interface CardProps {
 	children: ReactNode;
 	className?: string;
-	interactive?: boolean;
+	variant?: CardVariant;
 	onClick?: () => void;
 }
 
+const baseStyles =
+	"rounded-[var(--radius-lg)] overflow-hidden";
+
+const variantStyles: Record<CardVariant, string> = {
+	default: [
+		"bg-[var(--bg-surface)]",
+		"border border-[var(--border-dim)]",
+	].join(" "),
+	interactive: [
+		"bg-[var(--bg-surface)]",
+		"border border-[var(--border-dim)]",
+		"cursor-pointer",
+		"hover:border-[var(--border-bright)]",
+		"hover:-translate-y-px",
+		"transition-all duration-200 ease-[var(--ease-out)]",
+	].join(" "),
+	gold: [
+		"border border-[var(--border-gold)]",
+		"bg-gradient-to-br from-[var(--bg-surface)] to-[var(--gold-subtle)]",
+	].join(" "),
+};
+
 function Card({
 	children,
-	className = "",
-	interactive = false,
+	className,
+	variant = "default",
 	onClick,
 }: CardProps) {
-	const baseStyles = [
-		"rounded-[var(--radius-lg)]",
-		"border border-[var(--border)]",
-		"bg-[var(--bg-elevated)]",
-		"transition-[border-color] duration-200 ease-in-out",
-	].join(" ");
-
-	if (interactive) {
-		return (
-			<motion.div
-				whileHover={{ scale: 1.005 }}
-				onClick={onClick}
-				className={[
-					baseStyles,
-					"cursor-pointer",
-					"hover:border-[#FFB54766]",
-					className,
-				].join(" ")}
-			>
-				{children}
-			</motion.div>
-		);
-	}
-
 	return (
 		<div
-			className={[
-				baseStyles,
-				"hover:border-[var(--border-strong)]",
-				className,
-			].join(" ")}
+			className={cn(baseStyles, variantStyles[variant], className)}
+			onClick={onClick}
 		>
 			{children}
 		</div>
@@ -54,4 +49,4 @@ function Card({
 }
 
 export { Card };
-export type { CardProps };
+export type { CardProps, CardVariant };

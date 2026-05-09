@@ -58,7 +58,20 @@ export function ShareEventActions({
 				type="button"
 				onClick={handleNativeShare}
 				id="event-share-button"
-				className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+				className="hover:opacity-80 transition-opacity"
+				style={{
+					backgroundColor: "transparent",
+					color: "var(--text-secondary)",
+					fontFamily: "var(--font-mono)",
+					fontSize: "11px",
+					fontWeight: 600,
+					textTransform: "uppercase",
+					letterSpacing: "0.05em",
+					padding: "6px 12px",
+					borderRadius: "var(--radius-sm, 6px)",
+					border: "1px solid var(--border-dim)",
+					transition: "all 0.2s ease",
+				}}
 			>
 				Share
 			</button>
@@ -66,7 +79,20 @@ export function ShareEventActions({
 				type="button"
 				onClick={handleCopy}
 				id="event-copy-link-button"
-				className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+				className="hover:opacity-80 transition-opacity"
+				style={{
+					backgroundColor: "transparent",
+					color: "var(--text-secondary)",
+					fontFamily: "var(--font-mono)",
+					fontSize: "11px",
+					fontWeight: 600,
+					textTransform: "uppercase",
+					letterSpacing: "0.05em",
+					padding: "6px 12px",
+					borderRadius: "var(--radius-sm, 6px)",
+					border: "1px solid var(--border-dim)",
+					transition: "all 0.2s ease",
+				}}
 			>
 				{copied ? "Copied" : "Copy link"}
 			</button>

@@ -1,27 +1,30 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Bebas_Neue, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 import { Providers } from "./providers";
 
-const bebasNeue = Bebas_Neue({
-	weight: "400",
-	variable: "--font-bebas-neue",
+const playfair = Playfair_Display({
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700", "900"],
+	style: ["normal", "italic"],
+	variable: "--font-display",
 	display: "swap",
 });
 
-const dmSans = DM_Sans({
-	variable: "--font-dm-sans",
+const jakarta = Plus_Jakarta_Sans({
 	subsets: ["latin"],
+	weight: ["300", "400", "500", "600"],
+	variable: "--font-body",
 	display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-	variable: "--font-jetbrains-mono",
+const jetbrains = JetBrains_Mono({
 	subsets: ["latin"],
+	weight: ["400", "500"],
+	variable: "--font-mono",
 	display: "swap",
 });
 
@@ -41,7 +44,7 @@ export default function RootLayout({
 			<Providers>
 				<body
 					suppressHydrationWarning
-					className={`${bebasNeue.variable} ${dmSans.variable} ${jetbrainsMono.variable} min-h-screen antialiased`}
+					className={`${playfair.variable} ${jakarta.variable} ${jetbrains.variable} min-h-screen antialiased`}
 				>
 					<Navbar />
 					<Suspense>

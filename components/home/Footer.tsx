@@ -1,154 +1,122 @@
-"use client";
-
 import Link from "next/link";
-import { Github, Twitter, Linkedin } from "lucide-react";
-
-const footerLinks = {
-	Platform: [
-		{ label: "Browse Events", href: "/events" },
-		{ label: "Host an Event", href: "/become-organizer" },
-		{ label: "Pricing", href: "#" },
-		{ label: "Open Source", href: "https://github.com/YashVarpe05/DevEvent" },
-	],
-	Resources: [
-		{ label: "Documentation", href: "#" },
-		{ label: "API", href: "#" },
-		{ label: "Contributing", href: "#" },
-		{ label: "Self Hosting", href: "#" },
-	],
-	Legal: [
-		{ label: "Privacy Policy", href: "#" },
-		{ label: "Terms of Service", href: "#" },
-		{ label: "Cookie Policy", href: "#" },
-	],
-};
+import { IconBrandGithub, IconBrandTwitter, IconBrandLinkedin } from "@tabler/icons-react";
 
 export function Footer() {
 	return (
 		<footer
-			className="w-full"
-			style={{
-				backgroundColor: "var(--bg-base)",
-				borderTop: "1px solid var(--border)",
-			}}
+			className="border-t border-[var(--border-dim)] py-12"
+			style={{ backgroundColor: "var(--bg-base)" }}
 		>
-			<div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-				<div className="grid grid-cols-2 gap-10 md:grid-cols-4">
+			<div className="mx-auto max-w-6xl px-5">
+				<div className="grid grid-cols-1 gap-10 md:grid-cols-4">
 					{/* Brand */}
-					<div className="col-span-2 md:col-span-1">
-						<span
-							className="font-display text-xl tracking-wide"
-							style={{ color: "var(--text-primary)" }}
-						>
-							DEV
-							<span style={{ color: "var(--accent)" }}>·</span>
-							EVENT
-						</span>
-						<p
-							className="mt-3 text-[14px] leading-relaxed"
-							style={{ color: "var(--text-muted)" }}
-						>
-							India&apos;s open-source developer event platform.
+					<div className="col-span-1 md:col-span-1">
+						<Link href="/" className="inline-block no-underline mb-4">
+							<span
+								style={{
+									fontFamily: "var(--font-display)",
+									fontSize: 22,
+									fontWeight: 600,
+									color: "var(--text-primary)",
+								}}
+							>
+								Dev
+							</span>
+							<em
+								style={{
+									fontFamily: "var(--font-display)",
+									fontSize: 22,
+									fontWeight: 600,
+									fontStyle: "italic",
+									color: "var(--gold)",
+								}}
+							>
+								Event
+							</em>
+						</Link>
+						<p className="text-[14px] text-[var(--text-secondary)] mb-6 max-w-xs">
+							India's premier platform for discovering and organizing developer events.
 						</p>
-						<div className="mt-4 flex items-center gap-3">
-							<SocialIcon
-								href="https://github.com/YashVarpe05/DevEvent"
-								icon={<Github size={16} />}
-							/>
-							<SocialIcon href="#" icon={<Twitter size={16} />} />
-							<SocialIcon href="#" icon={<Linkedin size={16} />} />
+						<div className="flex gap-4">
+							<a href="https://github.com/YashVarpe05/DevEvent" target="_blank" rel="noreferrer" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+								<IconBrandGithub size={20} stroke={1.5} />
+							</a>
+							<a href="#" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+								<IconBrandTwitter size={20} stroke={1.5} />
+							</a>
+							<a href="#" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+								<IconBrandLinkedin size={20} stroke={1.5} />
+							</a>
 						</div>
 					</div>
 
-					{/* Link columns */}
-					{Object.entries(footerLinks).map(([title, links]) => (
-						<div key={title}>
-							<h4
-								className="text-[11px] font-medium uppercase tracking-[0.1em]"
-								style={{ color: "var(--text-muted)" }}
-							>
-								{title}
-							</h4>
-							<ul className="mt-4 flex list-none flex-col gap-2.5 p-0">
-								{links.map((link) => (
-									<li key={link.label}>
-										<Link
-											href={link.href}
-											className="text-[14px] no-underline transition-colors duration-150"
-											style={{
-												color: "var(--text-secondary)",
-											}}
-											onMouseEnter={(e) =>
-												(e.currentTarget.style.color =
-													"var(--text-primary)")
-											}
-											onMouseLeave={(e) =>
-												(e.currentTarget.style.color =
-													"var(--text-secondary)")
-											}
-										>
-											{link.label}
-										</Link>
-									</li>
-								))}
-							</ul>
-						</div>
-					))}
+					{/* Links */}
+					<div>
+						<h4 className="font-semibold text-[var(--text-primary)] mb-4 text-[15px]">Platform</h4>
+						<ul className="space-y-3 text-[14px]">
+							<li>
+								<Link href="/events" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Browse Events
+								</Link>
+							</li>
+							<li>
+								<Link href="/become-organizer" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Host an Event
+								</Link>
+							</li>
+							<li>
+								<Link href="/pricing" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Pricing
+								</Link>
+							</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="font-semibold text-[var(--text-primary)] mb-4 text-[15px]">Resources</h4>
+						<ul className="space-y-3 text-[14px]">
+							<li>
+								<Link href="/help" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Help Center
+								</Link>
+							</li>
+							<li>
+								<Link href="/blog" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Blog
+								</Link>
+							</li>
+							<li>
+								<Link href="/guidelines" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Organizer Guidelines
+								</Link>
+							</li>
+						</ul>
+					</div>
+					<div>
+						<h4 className="font-semibold text-[var(--text-primary)] mb-4 text-[15px]">Company</h4>
+						<ul className="space-y-3 text-[14px]">
+							<li>
+								<Link href="/about" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									About Us
+								</Link>
+							</li>
+							<li>
+								<Link href="/contact" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Contact
+								</Link>
+							</li>
+							<li>
+								<Link href="/privacy" className="text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors">
+									Privacy Policy
+								</Link>
+							</li>
+						</ul>
+					</div>
 				</div>
-			</div>
-
-			{/* Bottom bar */}
-			<div
-				className="w-full"
-				style={{ borderTop: "1px solid var(--border)" }}
-			>
-				<div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-5 py-5 sm:flex-row sm:px-8">
-					<p
-						className="text-[13px]"
-						style={{ color: "var(--text-muted)" }}
-					>
-						© 2025 DevEvent. Open source under MIT License.
-					</p>
-					<p
-						className="text-[13px]"
-						style={{ color: "var(--text-muted)" }}
-					>
-						Built in India 🇮🇳
-					</p>
+				<div className="mt-12 border-t border-[var(--border-dim)] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[13px] text-[var(--text-muted)]">
+					<p>© {new Date().getFullYear()} DevEvent. All rights reserved.</p>
+					<p>Built for developers, by developers.</p>
 				</div>
 			</div>
 		</footer>
-	);
-}
-
-function SocialIcon({
-	href,
-	icon,
-}: {
-	href: string;
-	icon: React.ReactNode;
-}) {
-	return (
-		<a
-			href={href}
-			target="_blank"
-			rel="noreferrer"
-			className="flex h-8 w-8 items-center justify-center transition-colors duration-150"
-			style={{
-				color: "var(--text-muted)",
-				borderRadius: "var(--radius-md)",
-				border: "1px solid var(--border)",
-			}}
-			onMouseEnter={(e) => {
-				e.currentTarget.style.color = "var(--text-primary)";
-				e.currentTarget.style.borderColor = "var(--border-strong)";
-			}}
-			onMouseLeave={(e) => {
-				e.currentTarget.style.color = "var(--text-muted)";
-				e.currentTarget.style.borderColor = "var(--border)";
-			}}
-		>
-			{icon}
-		</a>
 	);
 }
