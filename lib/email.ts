@@ -4,7 +4,9 @@ const resend = process.env.RESEND_API_KEY
 	? new Resend(process.env.RESEND_API_KEY)
 	: null;
 
-const FROM_EMAIL = "DevEvent <onboarding@resend.dev>";
+const FROM_NAME = process.env.RESEND_FROM_NAME || "DevEvent";
+const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+const FROM_EMAIL = `${FROM_NAME} <${FROM_ADDRESS}>`;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 function logEmailFallback(kind: string): void {

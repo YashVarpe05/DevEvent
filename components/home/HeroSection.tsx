@@ -7,6 +7,8 @@ import { IconArrowRight, IconSparkles } from "@tabler/icons-react";
 import { Button } from "../ui/Button";
 import { FlipFadeText } from "../ui/flip-fade-text";
 
+const ease = [0.16, 1, 0.3, 1] as const;
+
 const fadeUp = {
 	initial: { opacity: 0, y: 24 },
 	animate: { opacity: 1, y: 0 },
@@ -60,7 +62,7 @@ export function HeroSection() {
 					variants={fadeUp}
 					initial="initial"
 					animate="animate"
-					transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+					transition={{ duration: 0.5, ease }}
 					className="mx-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
 					style={{
 						border: "1px solid var(--border-gold)",
@@ -85,7 +87,7 @@ export function HeroSection() {
 					transition={{
 						duration: 0.6,
 						delay: 0.1,
-						ease: [0.16, 1, 0.3, 1],
+						ease,
 					}}
 					className="text-display-xl"
 					style={{ color: "var(--text-primary)", marginBottom: "16px" }}
@@ -110,7 +112,7 @@ export function HeroSection() {
 					transition={{
 						duration: 0.5,
 						delay: 0.2,
-						ease: [0.16, 1, 0.3, 1],
+						ease,
 					}}
 					className="mx-auto max-w-xl text-[17px] leading-[1.6]"
 					style={{ color: "var(--text-secondary)", marginBottom: "20px" }}
@@ -127,7 +129,7 @@ export function HeroSection() {
 					transition={{
 						duration: 0.5,
 						delay: 0.25,
-						ease: [0.16, 1, 0.3, 1],
+						ease,
 					}}
 					style={{
 						display: "flex",
@@ -191,7 +193,7 @@ export function HeroSection() {
 					transition={{
 						duration: 0.5,
 						delay: 0.35,
-						ease: [0.16, 1, 0.3, 1],
+						ease,
 					}}
 					className="flex flex-wrap items-center justify-center gap-3"
 					style={{ marginBottom: "20px" }}
