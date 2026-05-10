@@ -18,7 +18,11 @@ export default function BecomeOrganizerForm() {
 	useEffect(() => {
 		fetch("/api/organizer/application/me")
 			.then((res) => {
-				if (res.ok) {
+				if (res.ok) return res.json();
+				return null;
+			})
+			.then((data) => {
+				if (data?.application) {
 					router.push("/organizer/application-status");
 				}
 			})

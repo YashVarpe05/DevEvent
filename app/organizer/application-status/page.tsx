@@ -30,10 +30,25 @@ export default function ApplicationStatusPage() {
 					throw new Error("Failed to fetch application status");
 				}
 				const data = await res.json();
-				setApplication(data);
+				
+				if (data.application) {
+					setApplication({
+						status: data.application.status,
+						createdAt: data.application.createdAt,
+						adminNotes: data.application.rejectionReason,
+					});
+				} else if (data.status === "approved") {
+					setApplication({
+						status: "approved",
+						createdAt: new Date().toISOString(),
+					});
+				} else {
+					router.push("/become-organizer");
+					return;
+				}
 
 				// If approved, trigger a session update to refresh organizerStatus in JWT
-				if (data.status === "approved") {
+				if (data.status === "approved" || data.application?.status === "approved") {
 					await update();
 				}
 			} catch (err) {
@@ -48,24 +63,24 @@ export default function ApplicationStatusPage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-gray-50 flex items-center justify-center">
-				<div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+			<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-base)" }}>
+				<div style={{ width: "32px", height: "32px", border: "4px solid var(--border-dim)", borderTopColor: "var(--gold)", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
 			</div>
 		);
 	}
 
 	if (error || !application) {
 		return (
-			<div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-				<div className="bg-white p-8 rounded-xl shadow-sm text-center max-w-md w-full border border-gray-100">
-					<div className="text-red-500 mb-4">
-						<svg className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-base)", padding: "24px" }}>
+				<div style={{ background: "var(--bg-surface)", padding: "32px", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", textAlign: "center", maxWidth: "400px", width: "100%" }}>
+					<div style={{ color: "var(--red)", marginBottom: "16px" }}>
+						<svg style={{ width: "48px", height: "48px", margin: "0 auto" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 						</svg>
 					</div>
-					<h2 className="text-xl font-bold mb-2">Error</h2>
-					<p className="text-gray-600 mb-6">{error || "Application not found"}</p>
-					<Link href="/become-organizer" className="text-primary hover:underline font-medium">
+					<h2 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px", fontFamily: "var(--font-display)" }}>Error</h2>
+					<p style={{ color: "var(--text-secondary)", marginBottom: "24px", fontSize: "15px" }}>{error || "Application not found"}</p>
+					<Link href="/become-organizer" style={{ color: "var(--gold)", textDecoration: "none", fontWeight: 500 }}>
 						Return to Application Form
 					</Link>
 				</div>
@@ -77,24 +92,24 @@ export default function ApplicationStatusPage() {
 		switch (application.status) {
 			case "approved":
 				return (
-					<div className="text-center">
-						<div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div style={{ textAlign: "center" }}>
+						<div style={{ width: "80px", height: "80px", background: "rgba(16, 185, 129, 0.1)", color: "var(--green)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px auto", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
+							<svg style={{ width: "40px", height: "40px" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 							</svg>
 						</div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-2">You're Approved!</h2>
-						<p className="text-gray-600 mb-8">
+						<h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px", fontFamily: "var(--font-display)" }}>You're Approved!</h2>
+						<p style={{ color: "var(--text-secondary)", marginBottom: "32px", fontSize: "15px" }}>
 							Welcome to the DevEvent Organizer community. You now have access to host and manage events.
 						</p>
-						<div className="space-y-3">
+						<div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 							<button
 								onClick={() => router.push("/organizer/dashboard")}
-								className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary/90 transition-colors font-medium"
+								style={{ width: "100%", background: "var(--gold)", color: "#000", padding: "12px", borderRadius: "var(--radius-md)", fontWeight: 600, border: "none", cursor: "pointer", transition: "all 0.2s" }}
 							>
 								Go to Organizer Dashboard
 							</button>
-							<p className="text-sm text-gray-500">
+							<p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
 								Note: You may need to log out and log back in if you don't see your new dashboard right away.
 							</p>
 						</div>
@@ -103,23 +118,23 @@ export default function ApplicationStatusPage() {
 
 			case "rejected":
 				return (
-					<div className="text-center">
-						<div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div style={{ textAlign: "center" }}>
+						<div style={{ width: "80px", height: "80px", background: "rgba(239, 68, 68, 0.1)", color: "var(--red)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px auto", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
+							<svg style={{ width: "40px", height: "40px" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-2">Application Not Approved</h2>
-						<p className="text-gray-600 mb-6">
+						<h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px", fontFamily: "var(--font-display)" }}>Application Not Approved</h2>
+						<p style={{ color: "var(--text-secondary)", marginBottom: "24px", fontSize: "15px" }}>
 							Thank you for applying to be an organizer. Unfortunately, we cannot approve your application at this time.
 						</p>
 						{application.adminNotes && (
-							<div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6 text-left">
-								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Reason provided</span>
-								<p className="text-gray-800 text-sm">{application.adminNotes}</p>
+							<div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", padding: "16px", marginBottom: "24px", textAlign: "left" }}>
+								<span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px", display: "block" }}>Reason provided</span>
+								<p style={{ color: "var(--text-secondary)", fontSize: "14px", margin: 0 }}>{application.adminNotes}</p>
 							</div>
 						)}
-						<Link href="/" className="inline-block border border-gray-300 bg-white text-gray-700 py-2 px-6 rounded-md hover:bg-gray-50 transition-colors font-medium">
+						<Link href="/" style={{ display: "inline-block", background: "var(--bg-elevated)", border: "1px solid var(--border-dim)", color: "var(--text-primary)", padding: "10px 24px", borderRadius: "var(--radius-md)", fontWeight: 500, textDecoration: "none" }}>
 							Return Home
 						</Link>
 					</div>
@@ -129,32 +144,31 @@ export default function ApplicationStatusPage() {
 			case "under_review":
 			default:
 				return (
-					<div className="text-center">
-						<div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-							<svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<div style={{ textAlign: "center" }}>
+						<div style={{ width: "80px", height: "80px", background: "rgba(59, 130, 246, 0.1)", color: "#3b82f6", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px auto", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
+							<svg style={{ width: "40px", height: "40px" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
 							</svg>
 						</div>
-						<h2 className="text-2xl font-bold text-gray-900 mb-2">Application Under Review</h2>
-						<p className="text-gray-600 mb-8">
+						<h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px", fontFamily: "var(--font-display)" }}>Application Under Review</h2>
+						<p style={{ color: "var(--text-secondary)", marginBottom: "32px", fontSize: "15px" }}>
 							We've received your application and our team is currently reviewing it. This usually takes 24-48 hours.
 						</p>
 
-						<div className="relative pt-4 text-left">
-							<div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-100">
+						<div style={{ position: "relative", paddingTop: "16px", textAlign: "left" }}>
+							<div style={{ overflow: "hidden", height: "8px", marginBottom: "16px", display: "flex", borderRadius: "4px", background: "var(--border-dim)" }}>
 								<div 
-									style={{ width: application.status === "under_review" ? "66%" : "33%" }} 
-									className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500 transition-all duration-500"
+									style={{ width: application.status === "under_review" ? "66%" : "33%", background: "#3b82f6", transition: "width 0.5s ease" }} 
 								></div>
 							</div>
-							<div className="flex justify-between text-xs text-gray-500 font-medium">
-								<span className="text-blue-600">Submitted</span>
-								<span className={application.status === "under_review" ? "text-blue-600" : ""}>In Review</span>
+							<div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 500, color: "var(--text-muted)" }}>
+								<span style={{ color: "#3b82f6" }}>Submitted</span>
+								<span style={application.status === "under_review" ? { color: "#3b82f6" } : {}}>In Review</span>
 								<span>Decision</span>
 							</div>
 						</div>
 						
-						<p className="text-sm text-gray-500 mt-8">
+						<p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "32px" }}>
 							Applied on {new Date(application.createdAt).toLocaleDateString()}
 						</p>
 					</div>
@@ -163,8 +177,8 @@ export default function ApplicationStatusPage() {
 	};
 
 	return (
-		<main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-start justify-center">
-			<div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-100 p-8 mt-12">
+		<main style={{ minHeight: "100vh", background: "var(--bg-base)", padding: "48px 16px", display: "flex", alignItems: "flex-start", justifyContent: "center" }}>
+			<div style={{ width: "100%", maxWidth: "440px", background: "var(--bg-surface)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", padding: "32px", marginTop: "48px" }}>
 				{renderStatusCard()}
 			</div>
 		</main>
