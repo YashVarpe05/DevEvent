@@ -109,8 +109,8 @@ const socialProofStyles = `
 	.social-proof {
 		width: 100%;
 		padding: 96px 0;
-		background: #111113;
-		border-bottom: 1px solid #1F1F23;
+		background: var(--bg-surface, #111113);
+		border-bottom: 1px solid var(--border-dim, #1F1F23);
 	}
 
 	.social-proof__inner {
@@ -136,12 +136,12 @@ const socialProofStyles = `
 
 	.social-proof__stat {
 		padding-top: 24px;
-		border-top: 2px solid #FF6B35;
+		border-top: 2px solid var(--gold, #FF6B35);
 	}
 
 	.social-proof__stat-number {
 		margin-bottom: 12px;
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 		font-family: var(--font-mono);
 		font-size: clamp(48px, 5vw, 64px);
 		font-weight: 700;
@@ -151,7 +151,7 @@ const socialProofStyles = `
 	}
 
 	.social-proof__stat-label {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-body);
 		font-size: 16px;
 		line-height: 1.55;
@@ -166,7 +166,7 @@ const socialProofStyles = `
 	.social-proof__headline {
 		max-width: 760px;
 		margin: 0;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 		font-family: var(--font-display);
 		font-size: clamp(32px, 4vw, 48px);
 		font-weight: 700;
@@ -177,7 +177,7 @@ const socialProofStyles = `
 	.social-proof__copy {
 		max-width: 720px;
 		margin: 16px 0 0;
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-body);
 		font-size: 18px;
 		line-height: 1.65;
@@ -197,22 +197,22 @@ const socialProofStyles = `
 		overflow: hidden;
 		flex-direction: column;
 		justify-content: space-between;
-		border: 1px solid #1F1F23;
+		border: 1px solid var(--border-dim, #1F1F23);
 		border-radius: 0;
-		background: #111113;
+		background: var(--bg-surface, #111113);
 		padding: 32px;
 		transition: border-color 180ms ease;
 	}
 
 	.social-proof__testimonial:hover {
-		border-color: #FF6B35;
+		border-color: var(--gold, #FF6B35);
 	}
 
 	.social-proof__quote-mark {
 		position: absolute;
 		top: -20px;
 		left: -10px;
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 		font-family: var(--font-display);
 		font-size: 160px;
 		line-height: 1;
@@ -225,7 +225,7 @@ const socialProofStyles = `
 		position: relative;
 		z-index: 1;
 		margin: 0 0 32px;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 		font-family: var(--font-display);
 		font-size: clamp(18px, 2vw, 22px);
 		font-style: italic;
@@ -245,13 +245,13 @@ const socialProofStyles = `
 		width: 40px;
 		height: 40px;
 		flex: 0 0 40px;
-		border: 1px solid #1F1F23;
-		background: #111113;
+		border: 1px solid var(--border-dim, #1F1F23);
+		background: var(--bg-surface, #111113);
 	}
 
 	.social-proof__author {
 		margin: 0 0 4px;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 		font-family: var(--font-mono);
 		font-size: 14px;
 		font-weight: 700;
@@ -260,7 +260,7 @@ const socialProofStyles = `
 
 	.social-proof__role {
 		margin: 0;
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		letter-spacing: 0.08em;
