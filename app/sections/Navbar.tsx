@@ -84,7 +84,7 @@ const navbarStyles = `
 	}
 
 	.home-navbar.is-scrolled {
-		border-color: #1F1F23;
+		border-color: var(--border-dim, #1F1F23);
 		background: rgba(10, 10, 11, 0.95);
 	}
 
@@ -101,7 +101,7 @@ const navbarStyles = `
 	.home-navbar-logo {
 		display: flex;
 		align-items: center;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 	}
 
 	.home-navbar-logo span {
@@ -109,12 +109,12 @@ const navbarStyles = `
 		font-size: 20px;
 		font-weight: 700;
 		line-height: 1;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 	}
 
 	.home-navbar-logo em {
 		font-style: italic;
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 	}
 
 	.home-navbar-center {
@@ -134,12 +134,12 @@ const navbarStyles = `
 
 	.home-navbar-link {
 		position: relative;
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		transition: color 180ms ease;
 	}
 
 	.home-navbar-link:hover {
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 	}
 
 	.home-navbar-link span {
@@ -148,7 +148,7 @@ const navbarStyles = `
 		bottom: -3px;
 		width: 0;
 		height: 1px;
-		background: #FF6B35;
+		background: var(--gold, #FF6B35);
 		transition: width 300ms ease;
 	}
 
@@ -163,20 +163,20 @@ const navbarStyles = `
 	}
 
 	.home-navbar-signin {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		transition: color 180ms ease;
 	}
 
 	.home-navbar-signin:hover {
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 	}
 
 	.home-navbar-cta {
 		padding: 10px 20px;
 		border-radius: 0;
-		background: #FF6B35;
+		background: var(--gold, #FF6B35);
 		font-weight: 700;
-		color: #0A0A0B;
+		color: var(--bg-base, #0A0A0B);
 		transition: background-color 180ms ease;
 	}
 

@@ -50,8 +50,8 @@ const communityMarqueeStyles = `
 	.community-marquee {
 		width: 100%;
 		padding: 64px 0;
-		background: #0A0A0B;
-		border-bottom: 1px solid #1F1F23;
+		background: var(--bg-base, #0A0A0B);
+		border-bottom: 1px solid var(--border-dim, #1F1F23);
 		overflow: hidden;
 	}
 
@@ -62,7 +62,7 @@ const communityMarqueeStyles = `
 	}
 
 	.community-marquee__label {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 500;
@@ -111,7 +111,7 @@ const communityMarqueeStyles = `
 	}
 
 	.community-marquee__name {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 13px;
 		font-weight: 500;
@@ -123,11 +123,11 @@ const communityMarqueeStyles = `
 	}
 
 	.community-marquee__item:hover .community-marquee__name {
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 	}
 
 	.community-marquee__dot {
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 		font-size: 8px;
 		line-height: 1;
 	}
