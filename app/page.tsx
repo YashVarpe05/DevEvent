@@ -1,7 +1,7 @@
+"use client";
+
 import type { CSSProperties } from "react";
-import type { Metadata } from "next";
-import Navbar from "@/components/Navbar";
-import { getAllEvents } from "@/lib/actions/event.actions";
+import Navbar from "./sections/Navbar";
 import Hero from "./sections/Hero";
 import StatsBar from "./sections/StatsBar";
 import CommunityMarquee from "./sections/CommunityMarquee";
@@ -10,24 +10,6 @@ import FeaturesBento from "./sections/FeaturesBento";
 import SocialProof from "./sections/SocialProof";
 import CTABottom from "./sections/CTABottom";
 import Footer from "./sections/Footer";
-
-export const metadata: Metadata = {
-	title: "DevEvent — Discover Developer Events Across India",
-	description:
-		"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India. 100% open source.",
-	openGraph: {
-		title: "DevEvent — Discover Developer Events Across India",
-		description:
-			"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India.",
-		type: "website",
-	},
-	twitter: {
-		card: "summary_large_image",
-		title: "DevEvent — Discover Developer Events Across India",
-		description:
-			"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India.",
-	},
-};
 
 const homeTheme = {
 	"--home-bg": "#0A0A0B",
@@ -47,10 +29,7 @@ const homeTheme = {
 	"--home-on-secondary": "#00382B",
 } as CSSProperties;
 
-export default async function HomePage() {
-	const result = await getAllEvents();
-	const events = result.success && result.data ? JSON.parse(JSON.stringify(result.data)) : [];
-
+export default function HomePage() {
 	return (
 		<div
 			style={homeTheme}
@@ -61,7 +40,7 @@ export default async function HomePage() {
 				<Hero />
 				<StatsBar />
 				<CommunityMarquee />
-				<EventsDiscovery events={events} />
+				<EventsDiscovery />
 				<FeaturesBento />
 				<SocialProof />
 				<CTABottom />

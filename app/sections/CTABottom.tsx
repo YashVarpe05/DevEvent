@@ -17,7 +17,11 @@ export default function CTABottom() {
 			<style>{ctaBottomStyles}</style>
 			<motion.div
 				aria-hidden="true"
-				initial={reduceMotion ? { opacity: 0.12, scale: 1 } : { opacity: 0, scale: 0.8 }}
+				initial={
+					reduceMotion
+						? { opacity: 0.12, scale: 1 }
+						: { opacity: 0, scale: 0.8 }
+				}
 				animate={isInView ? { opacity: 1, scale: 1 } : {}}
 				transition={{ duration: 1 }}
 				className="cta-bottom__glow"
@@ -58,14 +62,20 @@ export default function CTABottom() {
 					className="cta-bottom__actions"
 				>
 					<MagneticButton strength={15}>
-						<Link href="/become-organizer" className="cta-bottom__button cta-bottom__button--primary">
+						<Link
+							href="/become-organizer"
+							className="cta-bottom__button cta-bottom__button--primary"
+						>
 							List an Event
 							<ArrowRight aria-hidden="true" size={16} />
 						</Link>
 					</MagneticButton>
 
 					<MagneticButton strength={10}>
-						<Link href="/events" className="cta-bottom__button cta-bottom__button--secondary">
+						<Link
+							href="/events"
+							className="cta-bottom__button cta-bottom__button--secondary"
+						>
 							Browse Events
 						</Link>
 					</MagneticButton>
@@ -85,8 +95,8 @@ const ctaBottomStyles = `
 		align-items: center;
 		justify-content: center;
 		padding: 128px 24px;
-		background: var(--bg-base, #0A0A0B);
-		border-top: 1px solid var(--border-dim, #1F1F23);
+		background: #0A0A0B;
+		border-top: 1px solid #1F1F23;
 		text-align: center;
 	}
 
@@ -117,7 +127,7 @@ const ctaBottomStyles = `
 
 	.cta-bottom__label {
 		margin-bottom: 32px;
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		font-weight: 500;
@@ -128,7 +138,7 @@ const ctaBottomStyles = `
 
 	.cta-bottom__headline {
 		margin: 0 0 24px;
-		color: var(--text-primary, #E8E6E3);
+		color: #E8E6E3;
 		font-family: var(--font-display);
 		font-size: clamp(40px, 6vw, 64px);
 		font-weight: 700;
@@ -137,13 +147,13 @@ const ctaBottomStyles = `
 	}
 
 	.cta-bottom__headline span {
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-style: italic;
 	}
 
 	.cta-bottom__subtext {
 		margin: 0 0 40px;
-		color: var(--text-muted, #6B6B74);
+		color: #6B6B74;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		letter-spacing: 0.1em;
@@ -177,22 +187,22 @@ const ctaBottomStyles = `
 	}
 
 	.cta-bottom__button--primary {
-		background: var(--gold, #FF6B35);
-		color: var(--bg-base, #0A0A0B);
+		background: #FF6B35;
+		color: #0A0A0B;
 	}
 
 	.cta-bottom__button--primary:hover {
-		background: var(--gold-hover, #FF8555);
+		background: #FF8555;
 	}
 
 	.cta-bottom__button--secondary {
-		border: 1px solid var(--border-dim, #1F1F23);
-		color: var(--text-primary, #E8E6E3);
+		border: 1px solid #1F1F23;
+		color: #E8E6E3;
 	}
 
 	.cta-bottom__button--secondary:hover {
-		border-color: var(--gold, #FF6B35);
-		color: var(--gold, #FF6B35);
+		border-color: #FF6B35;
+		color: #FF6B35;
 	}
 
 	@keyframes cta-glow-pulse {

@@ -4,31 +4,87 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import EventCard from "@/components/EventCard";
 import ScrollReveal from "../components/ScrollReveal";
 
-const filters = ["All", "Meetup", "Hackathon", "Workshop", "Conference"] as const;
+const filters = [
+	"All",
+	"Meetup",
+	"Hackathon",
+	"Workshop",
+	"Conference",
+] as const;
+
+const events = [
+	{
+		category: "Meetup",
+		date: "DEC 15 · MUMBAI",
+		featured: true,
+		location: "Mumbai",
+		organizer: "ReactJS India",
+		price: "FREE",
+		spots: "24 spots left",
+		title: "React Mumbai Meetup",
+	},
+	{
+		category: "Hackathon",
+		date: "NOV 02 · MUMBAI",
+		featured: false,
+		location: "Mumbai",
+		organizer: "ETHIndia",
+		price: "₹500",
+		spots: "12 spots left",
+		title: "Web3 Buildathon",
+	},
+	{
+		category: "Workshop",
+		date: "JAN 10 · PUNE",
+		featured: false,
+		location: "Pune",
+		organizer: "GopherCon India",
+		price: "₹1,999",
+		spots: "8 spots left",
+		title: "GoLang Workshop",
+	},
+	{
+		category: "Conference",
+		date: "DEC 12 · DELHI",
+		featured: false,
+		location: "Delhi NCR",
+		organizer: "JSConf",
+		price: "₹2,499",
+		spots: "Sold Out",
+		title: "JSConf India 2024",
+	},
+	{
+		category: "Meetup",
+		date: "NOV 18 · BANGALORE",
+		featured: false,
+		location: "Bangalore",
+		organizer: "TFUG",
+		price: "FREE",
+		spots: "45 spots left",
+		title: "AI Saturday",
+	},
+	{
+		category: "Conference",
+		date: "FEB 20 · HYDERABAD",
+		featured: false,
+		location: "Hyderabad",
+		organizer: "AWS UG",
+		price: "₹3,499",
+		spots: "Early Bird",
+		title: "DevOps Summit",
+	},
+] as const;
 
 type EventCategory = (typeof filters)[number];
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-interface EventsDiscoveryProps {
-	events: any[];
-}
-
-export default function EventsDiscovery({ events }: EventsDiscoveryProps) {
+export default function EventsDiscovery() {
 	const [activeFilter, setActiveFilter] = useState<EventCategory>("All");
-
 	const filteredEvents =
 		activeFilter === "All"
 			? events
-			: events.filter(
-					(event) =>
-						event.category?.toLowerCase() === activeFilter.toLowerCase(),
-				);
-
-	// Limit to 6 events on the home page
-	const displayEvents = filteredEvents.slice(0, 6);
+			: events.filter((event) => event.category === activeFilter);
 
 	return (
 		<section className="events-discovery">
@@ -40,7 +96,8 @@ export default function EventsDiscovery({ events }: EventsDiscoveryProps) {
 						Find Your Next <span>Event</span>
 					</h2>
 					<p className="events-discovery__copy">
-						Handpicked hackathons, meetups, and workshops happening across India.
+						Handpicked hackathons, meetups, and workshops happening across
+						India.
 					</p>
 				</ScrollReveal>
 
@@ -63,66 +120,62 @@ export default function EventsDiscovery({ events }: EventsDiscoveryProps) {
 
 				<motion.div layout className="events-discovery__grid">
 					<AnimatePresence mode="popLayout">
-						{displayEvents.length > 0 ? (
-							displayEvents.map((event, index) => {
-								const dateStr = event.startAt
-									? new Date(event.startAt).toLocaleDateString("en-IN", {
-											month: "short",
-											day: "numeric",
-											year: "numeric",
-										})
-									: "";
-								const timeStr = event.startAt
-									? new Date(event.startAt).toLocaleTimeString("en-IN", {
-											hour: "2-digit",
-											minute: "2-digit",
-										})
-									: "";
-								const locationStr =
-									event.location?.city ||
-									event.location?.venueName ||
-									(event.eventType === "online" ? "Online" : "TBA");
-
-								return (
-									<motion.div
-										key={event._id || event.slug || index}
-										layout
-										initial={{ opacity: 0, y: 20 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={{ opacity: 0, y: 16, scale: 0.98 }}
-										transition={{ duration: 0.4, delay: index * 0.06 }}
-										className="events-discovery__card-wrap"
-									>
-										<EventCard
-											title={event.title}
-											image={event.coverImageUrl || "/placeholder-event.jpg"}
-											slug={event.slug}
-											location={locationStr}
-											date={dateStr}
-											time={timeStr}
-											category={event.category}
-											isPaid={event.isPaid}
-											price={event.basePrice}
-											currency={event.currency || "INR"}
-											organizerName={event.organizerName}
-											index={index}
-											featured={event.isFeatured}
-										/>
-									</motion.div>
-								);
-							})
-						) : (
+						{filteredEvents.map((event, index) => (
 							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								className="events-discovery__empty"
+								key={event.title}
+								layout
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: 16, scale: 0.98 }}
+								transition={{ duration: 0.4, delay: index * 0.06 }}
+								className="events-discovery__card-wrap"
 							>
-								<p>No events found for this category.</p>
-								<Link href="/events" className="events-discovery__view-link">
-									Browse All Events <ArrowRight aria-hidden="true" size={16} />
+								<Link
+									href="/events"
+									className="events-discovery-card"
+									data-featured={event.featured}
+								>
+									<div className="events-discovery-card__cover">
+										<div className="events-discovery-card__surface" />
+										<div className="events-discovery-card__mark">&lt;/&gt;</div>
+										<div className="events-discovery-card__badge">
+											{event.category}
+										</div>
+										<div
+											className="events-discovery-card__price"
+											data-free={event.price === "FREE"}
+										>
+											{event.price}
+										</div>
+										<div className="events-discovery-card__hover" />
+									</div>
+
+									<div className="events-discovery-card__body">
+										<div className="events-discovery-card__date">
+											{event.date}
+										</div>
+										<h3 className="events-discovery-card__title">
+											{event.title}
+										</h3>
+										<div className="events-discovery-card__meta">
+											<div className="events-discovery-card__organizer">
+												<div className="events-discovery-card__avatar" />
+												<span>{event.organizer}</span>
+											</div>
+											<span
+												className="events-discovery-card__spots"
+												data-status={event.spots}
+											>
+												{event.spots}
+											</span>
+										</div>
+										<span className="events-discovery-card__location">
+											{event.location}
+										</span>
+									</div>
 								</Link>
 							</motion.div>
-						)}
+						))}
 					</AnimatePresence>
 				</motion.div>
 
@@ -142,8 +195,8 @@ const eventsDiscoveryStyles = `
 	.events-discovery {
 		width: 100%;
 		padding: 96px 0;
-		background: var(--bg-base, #0A0A0B);
-		border-bottom: 1px solid var(--border-dim, #1F1F23);
+		background: #0A0A0B;
+		border-bottom: 1px solid #1F1F23;
 	}
 
 	.events-discovery__inner {
@@ -154,7 +207,7 @@ const eventsDiscoveryStyles = `
 
 	.events-discovery__label {
 		margin-bottom: 16px;
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		letter-spacing: 0.1em;
@@ -165,7 +218,7 @@ const eventsDiscoveryStyles = `
 	.events-discovery__headline {
 		max-width: 720px;
 		margin: 0 0 16px;
-		color: var(--text-primary, #E8E6E3);
+		color: #E8E6E3;
 		font-family: var(--font-display);
 		font-size: clamp(40px, 5vw, 56px);
 		font-weight: 700;
@@ -174,14 +227,14 @@ const eventsDiscoveryStyles = `
 	}
 
 	.events-discovery__headline span {
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-style: italic;
 	}
 
 	.events-discovery__copy {
 		max-width: 500px;
 		margin: 0 0 32px;
-		color: var(--text-muted, #6B6B74);
+		color: #6B6B74;
 		font-family: var(--font-body);
 		font-size: 16px;
 		line-height: 1.65;
@@ -196,10 +249,10 @@ const eventsDiscoveryStyles = `
 
 	.events-discovery__filter {
 		appearance: none;
-		border: 1px solid var(--border-dim, #1F1F23);
+		border: 1px solid #1F1F23;
 		border-radius: 4px;
 		background: transparent;
-		color: var(--text-muted, #6B6B74);
+		color: #6B6B74;
 		cursor: pointer;
 		font-family: var(--font-mono);
 		font-size: 11px;
@@ -212,14 +265,14 @@ const eventsDiscoveryStyles = `
 	}
 
 	.events-discovery__filter:hover {
-		border-color: var(--text-muted, #6B6B74);
-		color: var(--text-primary, #E8E6E3);
+		border-color: #6B6B74;
+		color: #E8E6E3;
 	}
 
 	.events-discovery__filter[data-active="true"] {
-		border-color: var(--gold, #FF6B35);
-		background: var(--gold, #FF6B35);
-		color: var(--bg-base, #0A0A0B);
+		border-color: #FF6B35;
+		background: #FF6B35;
+		color: #0A0A0B;
 		font-weight: 700;
 	}
 
@@ -233,17 +286,187 @@ const eventsDiscoveryStyles = `
 		min-width: 0;
 	}
 
-	.events-discovery__empty {
-		grid-column: 1 / -1;
+	.events-discovery-card {
+		display: block;
+		height: 100%;
+		overflow: hidden;
+		background: #111113;
+		border: 1px solid #1F1F23;
+		border-radius: 0;
+		color: inherit;
+		cursor: pointer;
+		text-decoration: none;
+		transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+	}
+
+	.events-discovery-card:hover {
+		border-color: #FF6B35;
+		transform: translateY(-4px);
+	}
+
+	.events-discovery-card[data-featured="true"] {
+		border-color: #FF6B35;
+		box-shadow: 0 0 20px rgba(255, 107, 53, 0.1);
+	}
+
+	.events-discovery-card__cover {
+		position: relative;
+		height: 176px;
+		overflow: hidden;
+		background: #111113;
+		border-bottom: 1px solid #1F1F23;
+	}
+
+	.events-discovery-card__surface {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(135deg, #1A1B22 0%, #111113 100%);
+		transition: filter 240ms ease, transform 240ms ease;
+	}
+
+	.events-discovery-card[data-featured="true"] .events-discovery-card__surface {
+		background: linear-gradient(135deg, #1A1B22 0%, #111113 100%);
+	}
+
+	.events-discovery-card:hover .events-discovery-card__surface {
+		filter: saturate(1.25);
+		transform: scale(1.02);
+	}
+
+	.events-discovery-card__mark {
+		position: absolute;
+		inset: 0;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
-		gap: 16px;
-		padding: 64px 24px;
-		color: var(--text-muted, #6B6B74);
-		font-family: var(--font-body);
-		font-size: 16px;
-		text-align: center;
+		justify-content: center;
+		color: #1F1F23;
+		font-family: var(--font-mono);
+		font-size: 40px;
+		font-weight: 700;
+	}
+
+	.events-discovery-card__badge {
+		position: absolute;
+		top: 12px;
+		left: 12px;
+		border: 1px solid #1F1F23;
+		background: #111113;
+		color: #E8E6E3;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.08em;
+		line-height: 1;
+		padding: 6px 8px;
+		text-transform: uppercase;
+	}
+
+	.events-discovery-card__price {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		color: #FF6B35;
+		font-family: var(--font-mono);
+		font-size: 12px;
+		font-weight: 700;
+		line-height: 1;
+		text-transform: uppercase;
+	}
+
+	.events-discovery-card__price[data-free="true"] {
+		color: #00D4AA;
+	}
+
+	.events-discovery-card__hover {
+		position: absolute;
+		inset: 0;
+		background: rgba(255, 107, 53, 0);
+		transition: background-color 180ms ease;
+	}
+
+	.events-discovery-card:hover .events-discovery-card__hover {
+		background: rgba(255, 107, 53, 0.05);
+	}
+
+	.events-discovery-card__body {
+		padding: 16px;
+	}
+
+	.events-discovery-card__date {
+		margin-bottom: 8px;
+		color: #6B6B74;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.08em;
+		line-height: 1.3;
+		text-transform: uppercase;
+	}
+
+	.events-discovery-card__title {
+		min-height: 46px;
+		margin: 0 0 12px;
+		color: #E8E6E3;
+		font-family: var(--font-display);
+		font-size: 20px;
+		font-weight: 700;
+		letter-spacing: 0;
+		line-height: 1.12;
+	}
+
+	.events-discovery-card__meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding-top: 12px;
+		border-top: 1px solid #1F1F23;
+	}
+
+	.events-discovery-card__organizer {
+		display: flex;
+		min-width: 0;
+		align-items: center;
+		gap: 8px;
+		color: #6B6B74;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		line-height: 1.2;
+	}
+
+	.events-discovery-card__organizer span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.events-discovery-card__avatar {
+		width: 20px;
+		height: 20px;
+		flex: 0 0 20px;
+		background: #1F1F23;
+	}
+
+	.events-discovery-card__spots {
+		flex: 0 0 auto;
+		color: #6B6B74;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		line-height: 1.2;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	.events-discovery-card__spots[data-status="Early Bird"] {
+		color: #FF6B35;
+	}
+
+	.events-discovery-card__location {
+		display: block;
+		margin-top: 10px;
+		color: #45454D;
+		font-family: var(--font-mono);
+		font-size: 10px;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 	}
 
 	.events-discovery__view-all {
@@ -256,7 +479,7 @@ const eventsDiscoveryStyles = `
 		display: inline-flex;
 		align-items: center;
 		gap: 8px;
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		font-weight: 500;

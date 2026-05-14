@@ -16,7 +16,11 @@ export default function StatsBar() {
 	const isInView = useInView(ref, { once: true, margin: "-100px" });
 
 	return (
-		<section ref={ref} className="stats-bar" aria-label="DevEvent platform stats">
+		<section
+			ref={ref}
+			className="stats-bar"
+			aria-label="DevEvent platform stats"
+		>
 			<style>{statsBarStyles}</style>
 			<div className="stats-bar__inner">
 				<div className="stats-bar__grid">
@@ -48,8 +52,8 @@ export default function StatsBar() {
 const statsBarStyles = `
 	.stats-bar {
 		width: 100%;
-		background: var(--bg-surface, #111113);
-		border-bottom: 1px solid var(--border-dim, #1F1F23);
+		background: #111113;
+		border-bottom: 1px solid #1F1F23;
 	}
 
 	.stats-bar__inner {
@@ -75,7 +79,7 @@ const statsBarStyles = `
 
 	.stats-bar__number {
 		margin-bottom: 8px;
-		color: var(--gold, #FF6B35);
+		color: #FF6B35;
 		font-family: var(--font-mono);
 		font-size: 32px;
 		font-weight: 700;
@@ -84,7 +88,7 @@ const statsBarStyles = `
 	}
 
 	.stats-bar__label {
-		color: var(--text-muted, #6B6B74);
+		color: #6B6B74;
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 500;
@@ -100,7 +104,7 @@ const statsBarStyles = `
 		}
 
 		.stats-bar__item:not(:last-child) {
-			border-right: 1px solid var(--border-dim, #1F1F23);
+			border-right: 1px solid #1F1F23;
 		}
 
 		.stats-bar__number {
@@ -114,4 +118,3 @@ const statsBarStyles = `
 		}
 	}
 `;
-
