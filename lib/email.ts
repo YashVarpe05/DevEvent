@@ -7,7 +7,7 @@ const resend = process.env.RESEND_API_KEY
 const FROM_NAME = process.env.RESEND_FROM_NAME || "DevEvent";
 const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 const FROM_EMAIL = `${FROM_NAME} <${FROM_ADDRESS}>`;
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://devevents.dev";
 
 function logEmailFallback(kind: string): void {
 	// [FIXED]: Do not log recipient addresses, tokens, reset URLs, or ticket codes.
@@ -171,7 +171,7 @@ export async function sendVerificationEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: "Verify your DevEvent account",
 			html: verificationEmailHtml(verifyUrl),
@@ -197,7 +197,7 @@ export async function sendPasswordResetEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: "Reset your DevEvent password",
 			html: resetPasswordEmailHtml(resetUrl),
@@ -221,7 +221,7 @@ export async function sendApplicationSubmittedEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: "Your DevEvent Organizer Application is Under Review",
 			html: `<p>Hi ${name},</p><p>We have received your application to become an organizer on DevEvent. Our team will review it within 1-2 business days and notify you of our decision.</p>`,
@@ -244,7 +244,7 @@ export async function sendApplicationApprovedEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: "Welcome to DevEvent Organizers!",
 			html: `<p>Hi ${name},</p><p>Congratulations! Your application has been approved. You now have access to the Organizer Dashboard and can start hosting events.</p>`,
@@ -268,7 +268,7 @@ export async function sendApplicationRejectedEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: "Update on your DevEvent Organizer Application",
 			html: `<p>Hi ${name},</p><p>Thank you for applying. Unfortunately, your application to become an organizer has been declined at this time.</p>${reason ? `<p>Reason: ${reason}</p>` : ""}`,
@@ -293,7 +293,7 @@ export async function sendRegistrationEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: `Confirmed: Your Ticket for ${eventTitle}`,
 			html: registrationConfirmedHtml(userName, eventTitle, ticketCode),
@@ -317,7 +317,7 @@ export async function sendCancellationEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: `Canceled: Your Registration for ${eventTitle}`,
 			html: registrationCanceledHtml(userName, eventTitle),
@@ -343,7 +343,7 @@ export async function sendEventReminderEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: `Reminder: ${eventTitle} is coming up!`,
 			html: eventReminderHtml(userName, eventTitle, eventDate, locationStr),
@@ -369,7 +369,7 @@ export async function sendOrganizerPayoutSummaryEmail(
 
 	try {
 		await resend.emails.send({
-			from: FROM_EMAIL,
+			from: "DevEvent <noreply@devevents.dev>",
 			to: email,
 			subject: `Event Summary: ${eventTitle}`,
 			html: organizerPayoutSummaryHtml(organizerName, eventTitle, ticketCount, revenue),

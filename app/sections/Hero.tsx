@@ -137,7 +137,7 @@ function EventStackCard({
 }) {
 	const isFront = index === 2;
 	const gradientFrom =
-		index === 0 ? "#1a1a1e" : index === 1 ? "#1e1e24" : "#24242a";
+		index === 0 ? "#1A1B22" : index === 1 ? "#1E1F27" : "#34343C";
 
 	return (
 		<motion.div
@@ -151,7 +151,7 @@ function EventStackCard({
 				<div
 					className="home-event-gradient"
 					style={{
-						background: `linear-gradient(135deg, ${gradientFrom}, #0D0D0F)`,
+						background: `linear-gradient(135deg, ${gradientFrom}, #111113)`,
 					}}
 				/>
 				<div className={`home-event-symbol ${isFront ? "is-front" : ""}`}>
@@ -181,7 +181,7 @@ const heroStyles = `
 		align-items: stretch;
 		overflow: hidden;
 		border-bottom: 1px solid #1F1F23;
-		background: #080809;
+		background: #0A0A0B;
 	}
 
 	.home-hero-left {
@@ -211,7 +211,7 @@ const heroStyles = `
 		line-height: 0.85;
 		letter-spacing: -0.03em;
 		text-transform: uppercase;
-		color: #EDEAE1;
+		color: #E8E6E3;
 	}
 
 	.home-hero-title span {
@@ -241,7 +241,7 @@ const heroStyles = `
 		align-items: center;
 		gap: 8px;
 		padding: 14px 28px;
-		border-radius: 4px;
+		border-radius: 0;
 		font-family: var(--font-mono);
 		font-size: 12px;
 		font-weight: 700;
@@ -252,7 +252,7 @@ const heroStyles = `
 
 	.home-hero-primary {
 		background: #FF6B35;
-		color: #080809;
+		color: #0A0A0B;
 	}
 
 	.home-hero-primary:hover {
@@ -261,7 +261,7 @@ const heroStyles = `
 
 	.home-hero-secondary {
 		border: 1px solid #1F1F23;
-		color: #EDEAE1;
+		color: #E8E6E3;
 	}
 
 	.home-hero-secondary:hover {
@@ -316,7 +316,7 @@ const heroStyles = `
 		justify-content: center;
 		border-left: 1px solid #1F1F23;
 		border-right: 1px solid #1F1F23;
-		background: #080809;
+		background: #0A0A0B;
 	}
 
 	.home-hero-strip-text {
@@ -337,7 +337,7 @@ const heroStyles = `
 		width: 100%;
 		min-height: 500px;
 		overflow: hidden;
-		background: #080809;
+		background: #0A0A0B;
 	}
 
 	.home-card-stage {
@@ -354,7 +354,7 @@ const heroStyles = `
 		padding: 16px;
 		border: 1px solid #1F1F23;
 		border-radius: 0;
-		background: #0D0D0F;
+		background: #111113;
 		pointer-events: auto;
 		transition: opacity 180ms ease, border-color 180ms ease;
 	}
@@ -380,7 +380,7 @@ const heroStyles = `
 		font-weight: 700;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: #080809;
+		color: #0A0A0B;
 	}
 
 	.home-event-art {
@@ -427,7 +427,7 @@ const heroStyles = `
 		font-size: 18px;
 		font-weight: 700;
 		line-height: 1.2;
-		color: #EDEAE1;
+		color: #E8E6E3;
 	}
 
 	.home-event-description {

@@ -1,85 +1,68 @@
-export const dynamic = "force-dynamic";
-import Link from "next/link";
-import EventCard from "@/components/EventCard";
-import Event from "@/database/event.model";
-import connectDB from "@/lib/mongodb";
-import { auth } from "@/lib/auth";
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-
-import { HeroSection } from "@/components/home/HeroSection";
-import { StatsSection } from "@/components/home/StatsSection";
-import { CommunitySection } from "@/components/home/CommunitySection";
-import { EventsSection } from "@/components/home/EventsSection";
-import { BentoSection } from "@/components/home/BentoSection";
-import { SocialProofSection } from "@/components/home/SocialProofSection";
-import { CTASection } from "@/components/home/CTASection";
-import { Footer } from "@/components/home/Footer";
-import RevealLoader from "@/components/ui/reveal-loader";
+import Navbar from "@/components/Navbar";
+import Hero from "./sections/Hero";
+import StatsBar from "./sections/StatsBar";
+import CommunityMarquee from "./sections/CommunityMarquee";
+import EventsDiscovery from "./sections/EventsDiscovery";
+import FeaturesBento from "./sections/FeaturesBento";
+import SocialProof from "./sections/SocialProof";
+import CTABottom from "./sections/CTABottom";
+import Footer from "./sections/Footer";
 
 export const metadata: Metadata = {
-	title: "DevEvent | India's Developer Event Platform",
+	title: "DevEvent — Discover Developer Events Across India",
 	description:
-		"Discover tech meetups, hackathons, and workshops across India. Book your spot in seconds.",
+		"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India. 100% open source.",
+	openGraph: {
+		title: "DevEvent — Discover Developer Events Across India",
+		description:
+			"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India.",
+		type: "website",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "DevEvent — Discover Developer Events Across India",
+		description:
+			"Find and attend the best hackathons, meetups, conferences, and workshops for developers across India.",
+	},
 };
 
-type HomeEvent = {
-	_id: string;
-	title: string;
-	slug: string;
-	thumbnail?: string;
-	location?: string;
-	eventStartDate: Date;
-	eventEndDate: Date;
-	category?: string;
-	isPaid?: boolean;
-	ticketPrice?: number;
-	currency?: string;
-	organizerProfileId?: { name?: string };
-};
+const homeTheme = {
+	"--home-bg": "#0A0A0B",
+	"--home-bg-deep": "#0A0A0B",
+	"--home-surface": "#111113",
+	"--home-surface-low": "#1A1B22",
+	"--home-border": "#1F1F23",
+	"--home-border-bright": "#383941",
+	"--home-text": "#E8E6E3",
+	"--home-text-soft": "#E8E6E3",
+	"--home-muted": "#6B6B74",
+	"--home-copy": "#A7A1A0",
+	"--home-primary": "#FF6B35",
+	"--home-primary-hover": "#FFB59D",
+	"--home-on-primary": "#0A0A0B",
+	"--home-secondary": "#00D4AA",
+	"--home-on-secondary": "#00382B",
+} as CSSProperties;
 
-export default async function HomePage() {
-	await connectDB();
-	const session = await auth();
-
-	const events = await Event.find({
-		status: "published",
-		visibility: "public",
-		deletedAt: null,
-		eventEndDate: { $gte: new Date() },
-	})
-		.sort({ eventStartDate: 1 })
-		.limit(6)
-		.populate("organizerProfileId", "name")
-		.lean();
-
-	const mappedEvents = events.map((event: any) => ({
-		_id: event._id.toString(),
-		title: event.title,
-		slug: event.slug,
-		thumbnail: event.thumbnail || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=900",
-		location: event.location,
-		eventStartDate: event.eventStartDate.toISOString(),
-		eventEndDate: event.eventEndDate.toISOString(),
-		category: event.category,
-		isPaid: event.isPaid,
-		ticketPrice: event.ticketPrice,
-		currency: event.currency,
-		organizerProfileId: event.organizerProfileId,
-	}));
-
+export default function HomePage() {
 	return (
-		<>
-			<RevealLoader />
-			<div className="flex flex-col" style={{ marginTop: "-58px" }}>
-				<HeroSection />
-				<StatsSection />
-				<CommunitySection />
-				<EventsSection events={mappedEvents} />
-				<BentoSection />
-				<SocialProofSection />
-				<CTASection />
-				<Footer />
-			</div>
-		</>
+		<div
+			style={homeTheme}
+			className="min-h-screen bg-[#0A0A0B] text-[#E8E6E3]"
+		>
+			<Navbar />
+			<main>
+				<Hero />
+				<StatsBar />
+				<CommunityMarquee />
+				<EventsDiscovery />
+				<FeaturesBento />
+				<SocialProof />
+				<CTABottom />
+			</main>
+			<Footer />
+		</div>
 	);
 }

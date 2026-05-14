@@ -35,169 +35,236 @@ export default async function OrganizerEventsPage({
 	const events = await Event.find(query).sort({ createdAt: -1 }).lean() as IEvent[];
 
 	return (
-		<main className="min-h-screen bg-gray-50">
-			<div className="bg-white border-b border-gray-200">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-					<div className="flex justify-between items-center flex-wrap gap-4">
-						<div>
-							<h1 className="text-2xl font-bold text-gray-900">My Events</h1>
-							<p className="text-gray-500 text-sm mt-1">
-								Manage your drafts and published events
-							</p>
-						</div>
-						<div className="flex gap-4">
-							<Link
-								href="/organizer/dashboard"
-								className="text-gray-600 hover:text-gray-900 font-medium py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-							>
-								Dashboard
-							</Link>
-							<Link
-								href="/organizer/events/new"
-								className="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition-colors flex items-center gap-2"
-							>
-								<Plus className="w-4 h-4" />
-								Create Event
-							</Link>
-						</div>
-					</div>
+		<div style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto" }}>
+			<div className="flex justify-between items-center flex-wrap gap-4 mb-8">
+				<div>
+					<h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 600, color: "var(--text-primary)" }}>My Events</h1>
+					<p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "4px" }}>
+						Manage your drafts and published events
+					</p>
+				</div>
+				<div className="flex gap-4">
+					<Link
+						href="/organizer/events/new"
+						style={{
+							padding: "8px 16px",
+							background: "var(--gold)",
+							color: "#000",
+							border: "none",
+							borderRadius: "var(--radius-md)",
+							fontSize: "14px",
+							fontWeight: 600,
+							textDecoration: "none",
+							display: "flex",
+							alignItems: "center",
+							gap: "8px",
+							boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.5)"}
+						onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.3)"}
+					>
+						<Plus className="w-4 h-4" />
+						Create Event
+					</Link>
 				</div>
 			</div>
 
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				<div className="mb-6 border-b border-gray-200">
-					<nav className="-mb-px flex space-x-8">
-						<Link
-							href="/organizer/events"
-							className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-								currentStatus === "all"
-									? "border-primary text-primary"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							All Events
-						</Link>
-						<Link
-							href="/organizer/events?status=draft"
-							className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-								currentStatus === "draft"
-									? "border-primary text-primary"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							Drafts
-						</Link>
-						<Link
-							href="/organizer/events?status=published"
-							className={`whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-								currentStatus === "published"
-									? "border-primary text-primary"
-									: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-							}`}
-						>
-							Published
-						</Link>
-					</nav>
-				</div>
+			<div className="mb-6" style={{ borderBottom: "1px solid var(--border-dim)" }}>
+				<nav className="flex space-x-8">
+					<Link
+						href="/organizer/events"
+						style={{
+							paddingBottom: "16px",
+							fontSize: "14px",
+							fontWeight: 500,
+							color: currentStatus === "all" ? "var(--gold)" : "var(--text-muted)",
+							borderBottom: currentStatus === "all" ? "2px solid var(--gold)" : "2px solid transparent",
+							textDecoration: "none",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => { if (currentStatus !== "all") e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { if (currentStatus !== "all") e.currentTarget.style.color = "var(--text-muted)"; }}
+					>
+						All Events
+					</Link>
+					<Link
+						href="/organizer/events?status=draft"
+						style={{
+							paddingBottom: "16px",
+							fontSize: "14px",
+							fontWeight: 500,
+							color: currentStatus === "draft" ? "var(--gold)" : "var(--text-muted)",
+							borderBottom: currentStatus === "draft" ? "2px solid var(--gold)" : "2px solid transparent",
+							textDecoration: "none",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => { if (currentStatus !== "draft") e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { if (currentStatus !== "draft") e.currentTarget.style.color = "var(--text-muted)"; }}
+					>
+						Drafts
+					</Link>
+					<Link
+						href="/organizer/events?status=published"
+						style={{
+							paddingBottom: "16px",
+							fontSize: "14px",
+							fontWeight: 500,
+							color: currentStatus === "published" ? "var(--gold)" : "var(--text-muted)",
+							borderBottom: currentStatus === "published" ? "2px solid var(--gold)" : "2px solid transparent",
+							textDecoration: "none",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => { if (currentStatus !== "published") e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { if (currentStatus !== "published") e.currentTarget.style.color = "var(--text-muted)"; }}
+					>
+						Published
+					</Link>
+				</nav>
+			</div>
 
-				{events.length === 0 ? (
-					<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-						<div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-							<Calendar className="w-8 h-8" />
-						</div>
-						<h3 className="text-lg font-bold text-gray-900 mb-2">No events found</h3>
-						<p className="text-gray-500 max-w-sm mx-auto mb-6">
-							{currentStatus === "all" 
-								? "You haven't created any events yet." 
-								: `You don't have any events with status '${currentStatus}'.`}
-						</p>
-						<Link
-							href="/organizer/events/new"
-							className="inline-block bg-primary text-white font-medium py-2 px-6 rounded-md hover:bg-primary/90 transition-colors"
-						>
-							Create Event
-						</Link>
+			{events.length === 0 ? (
+				<div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "48px", textAlign: "center" }}>
+					<div style={{ width: "64px", height: "64px", background: "var(--bg-elevated)", color: "var(--gold)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+						<Calendar className="w-8 h-8" />
 					</div>
-				) : (
-					<div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-						<ul className="divide-y divide-gray-200">
-							{events.map((event) => (
-								<li key={event._id?.toString()} className="hover:bg-gray-50 transition-colors">
-									<div className="px-6 py-5 flex items-center justify-between">
-										<div className="flex-1 min-w-0 pr-4">
-											<div className="flex items-center gap-3 mb-1">
-												<h3 className="text-lg font-semibold text-gray-900 truncate">
-													{event.title}
-												</h3>
-												<span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-													event.status === 'published' 
-														? 'bg-green-50 text-green-700 border-green-200' 
-														: event.status === 'draft'
-														? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-														: 'bg-gray-50 text-gray-700 border-gray-200'
-												}`}>
-													{event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-												</span>
-												<span className="px-2.5 py-0.5 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 capitalize">
-													{event.eventType}
-												</span>
-											</div>
-											
-											<div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
-												{event.startAt && (
-													<div className="flex items-center gap-1.5">
-														<Clock className="w-4 h-4 text-gray-400" />
-														{new Date(event.startAt).toLocaleDateString()}
-													</div>
-												)}
-												
-												{event.eventType === 'offline' || event.eventType === 'hybrid' ? (
-													<div className="flex items-center gap-1.5">
-														<MapPin className="w-4 h-4 text-gray-400" />
-														<span className="truncate max-w-[200px]">
-															{event.location?.city ? `${event.location.city}, ${event.location.country}` : 'Location TBD'}
-														</span>
-													</div>
-												) : null}
-
-												<div className="flex items-center gap-1.5">
-													<div className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center text-[10px] text-gray-500 font-bold">
-														{event.currency === 'USD' ? '$' : event.currency}
-													</div>
-													{event.isPaid ? (event.basePrice || 0) : 'Free'}
-												</div>
-											</div>
+					<h3 style={{ fontSize: "18px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px" }}>No events found</h3>
+					<p style={{ color: "var(--text-secondary)", maxWidth: "380px", margin: "0 auto 24px", fontSize: "14px" }}>
+						{currentStatus === "all" 
+							? "You haven't created any events yet." 
+							: `You don't have any events with status '${currentStatus}'.`}
+					</p>
+					<Link
+						href="/organizer/events/new"
+						style={{
+							padding: "10px 20px",
+							background: "var(--gold)",
+							color: "#000",
+							border: "none",
+							borderRadius: "var(--radius-md)",
+							fontSize: "14px",
+							fontWeight: 600,
+							textDecoration: "none",
+							display: "inline-flex",
+							boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
+							transition: "all 0.2s"
+						}}
+					>
+						Create Event
+					</Link>
+				</div>
+			) : (
+				<div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+					<ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+						{events.map((event, i) => (
+							<li key={event._id?.toString()} style={{ borderTop: i > 0 ? "1px solid var(--border-dim)" : "none", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-elevated)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+								<div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+									<div style={{ flex: 1, minWidth: 0, paddingRight: "16px" }}>
+										<div className="flex items-center gap-3 mb-1">
+											<h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+												{event.title}
+											</h3>
+											<span style={{ 
+												padding: "2px 10px", 
+												borderRadius: "9999px", 
+												fontSize: "11px", 
+												fontWeight: 600, 
+												textTransform: "uppercase",
+												letterSpacing: "0.05em",
+												background: event.status === 'published' ? "rgba(16, 185, 129, 0.1)" : "var(--bg-elevated)", 
+												color: event.status === 'published' ? "var(--green)" : "var(--text-secondary)", 
+												border: `1px solid ${event.status === 'published' ? "rgba(16, 185, 129, 0.2)" : "var(--border-dim)"}`
+											}}>
+												{event.status}
+											</span>
+											<span style={{ 
+												padding: "2px 10px", 
+												borderRadius: "9999px", 
+												fontSize: "11px", 
+												fontWeight: 600, 
+												textTransform: "uppercase",
+												letterSpacing: "0.05em",
+												background: "var(--bg-elevated)", 
+												color: "var(--text-secondary)", 
+												border: "1px solid var(--border-dim)"
+											}}>
+												{event.eventType}
+											</span>
 										</div>
 										
-										<div className="flex items-center gap-3">
-											{event.status === 'published' && (
-												<Link 
-													href={`/events/${event.slug}`} 
-													target="_blank"
-													className="text-gray-500 hover:text-primary transition-colors p-2"
-													title="View Public Page"
-												>
-													<CheckCircle className="w-5 h-5" />
-												</Link>
+										<div className="flex items-center gap-4 mt-2" style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+											{event.startAt && (
+												<div className="flex items-center gap-1.5">
+													<Clock className="w-4 h-4" />
+													{new Date(event.startAt).toLocaleDateString()}
+												</div>
 											)}
-											<Link 
-												href={`/organizer/events/${event._id}/edit`}
-												className="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 font-medium py-1.5 px-4 rounded-md hover:bg-gray-50 transition-colors text-sm"
-											>
-												<Edit2 className="w-4 h-4" />
-												Edit
-											</Link>
-											<button className="text-gray-400 hover:text-gray-700 p-2">
-												<MoreVertical className="w-5 h-5" />
-											</button>
+											
+											{(event.eventType === 'offline' || event.eventType === 'hybrid') && (
+												<div className="flex items-center gap-1.5">
+													<MapPin className="w-4 h-4" />
+													<span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "200px" }}>
+														{event.location?.city ? `${event.location.city}, ${event.location.country}` : 'Location TBD'}
+													</span>
+												</div>
+											)}
+
+											<div className="flex items-center gap-1.5">
+												<div style={{ width: "18px", height: "18px", borderRadius: "4px", background: "var(--bg-elevated)", border: "1px solid var(--border-dim)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", fontWeight: 700, color: "var(--gold)" }}>
+													{event.currency === 'USD' ? '$' : event.currency}
+												</div>
+												<span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+													{event.isPaid ? (event.basePrice || 0) : 'Free'}
+												</span>
+											</div>
 										</div>
 									</div>
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-			</div>
-		</main>
+									
+									<div className="flex items-center gap-3">
+										{event.status === 'published' && (
+											<Link 
+												href={`/events/${event.slug}`} 
+												target="_blank"
+												style={{ padding: "8px", color: "var(--text-muted)", transition: "color 0.2s" }}
+												title="View Public Page"
+												onMouseEnter={(e) => e.currentTarget.style.color = "var(--green)"}
+												onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+											>
+												<CheckCircle className="w-5 h-5" />
+											</Link>
+										)}
+										<Link 
+											href={`/organizer/events/${event._id}/edit`}
+											style={{
+												display: "flex",
+												alignItems: "center",
+												gap: "8px",
+												padding: "6px 14px",
+												background: "var(--bg-elevated)",
+												border: "1px solid var(--border-dim)",
+												color: "var(--text-primary)",
+												borderRadius: "var(--radius-md)",
+												fontSize: "13px",
+												fontWeight: 500,
+												textDecoration: "none",
+												transition: "all 0.2s"
+											}}
+											onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-dim)"; }}
+											onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; }}
+										>
+											<Edit2 className="w-4 h-4" />
+											Edit
+										</Link>
+										<Link href={`/organizer/events/${event._id}/attendees`} style={{ background: "none", border: "none", color: "var(--text-muted)", padding: "8px", cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>
+											<MoreVertical className="w-5 h-5" />
+										</Link>
+									</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</div>
 	);
 }

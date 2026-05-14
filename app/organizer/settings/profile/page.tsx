@@ -86,33 +86,52 @@ export default function OrganizerProfileSettings() {
 	if (loading) {
 		return (
 			<div className="animate-pulse space-y-6 max-w-2xl">
-				<div className="h-8 bg-gray-200 rounded w-1/4"></div>
+				<div className="h-8 bg-zinc-800 rounded w-1/4"></div>
 				<div className="space-y-4">
-					<div className="h-10 bg-gray-200 rounded"></div>
-					<div className="h-32 bg-gray-200 rounded"></div>
-					<div className="h-10 bg-gray-200 rounded"></div>
+					<div className="h-10 bg-zinc-800 rounded"></div>
+					<div className="h-32 bg-zinc-800 rounded"></div>
+					<div className="h-10 bg-zinc-800 rounded"></div>
 				</div>
 			</div>
 		);
 	}
 
+	const inputStyle = {
+		width: "100%",
+		padding: "10px 14px",
+		background: "var(--bg-base)",
+		border: "1px solid var(--border-dim)",
+		borderRadius: "var(--radius-md)",
+		color: "var(--text-primary)",
+		outline: "none",
+		transition: "border-color 0.2s"
+	};
+	
+	const labelStyle = {
+		display: "block",
+		fontSize: "14px",
+		fontWeight: 500,
+		color: "var(--text-secondary)",
+		marginBottom: "8px"
+	};
+
 	return (
-		<div className="max-w-2xl">
-			<div className="mb-8">
-				<h1 className="text-2xl font-bold text-gray-900 mb-2">Organizer Profile</h1>
-				<p className="text-gray-600">
+		<div style={{ maxWidth: "800px" }}>
+			<div style={{ marginBottom: "32px" }}>
+				<h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", marginBottom: "8px" }}>Organizer Profile</h1>
+				<p style={{ color: "var(--text-secondary)", fontSize: "15px" }}>
 					This information is displayed publicly on your organizer page and on the events you host.
 				</p>
 			</div>
 
 			{error && (
-				<div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md text-sm">
+				<div style={{ padding: "16px", background: "rgba(239, 68, 68, 0.1)", color: "var(--red)", borderRadius: "var(--radius-md)", marginBottom: "24px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
 					{error}
 				</div>
 			)}
 
 			{success && (
-				<div className="mb-6 p-4 bg-green-50 text-green-700 rounded-md text-sm flex items-center gap-2">
+				<div style={{ padding: "16px", background: "rgba(16, 185, 129, 0.1)", color: "var(--green)", borderRadius: "var(--radius-md)", marginBottom: "24px", display: "flex", alignItems: "center", gap: "8px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
 					<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 					</svg>
@@ -120,65 +139,65 @@ export default function OrganizerProfileSettings() {
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
+			<form onSubmit={handleSubmit(onSubmit)} style={{ background: "var(--bg-surface)", padding: "32px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-dim)", display: "flex", flexDirection: "column", gap: "24px" }}>
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
-						Display Name <span className="text-red-500">*</span>
+					<label style={labelStyle}>
+						Display Name <span style={{ color: "var(--red)" }}>*</span>
 					</label>
 					<input
 						type="text"
 						{...register("displayName")}
-						className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+						style={inputStyle}
 						placeholder="e.g., Tech Innovators NYC"
 					/>
 					{errors.displayName && (
-						<p className="mt-1 text-sm text-red-500">{errors.displayName.message}</p>
+						<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.displayName.message}</p>
 					)}
-					<p className="mt-1 text-xs text-gray-500">
+					<p style={{ marginTop: "6px", fontSize: "12px", color: "var(--text-muted)" }}>
 						This should be your community or personal brand name.
 					</p>
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
-						Profile Slug <span className="text-red-500">*</span>
+					<label style={labelStyle}>
+						Profile Slug <span style={{ color: "var(--red)" }}>*</span>
 					</label>
 					<input
 						type="text"
 						{...register("slug")}
-						className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+						style={inputStyle}
 						placeholder="e.g., tech-innovators-nyc"
 					/>
 					{errors.slug && (
-						<p className="mt-1 text-sm text-red-500">{errors.slug.message}</p>
+						<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.slug.message}</p>
 					)}
-					<p className="mt-1 text-xs text-gray-500">
+					<p style={{ marginTop: "6px", fontSize: "12px", color: "var(--text-muted)" }}>
 						The URL for your public profile.
 					</p>
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
-						Contact Email <span className="text-red-500">*</span>
+					<label style={labelStyle}>
+						Contact Email <span style={{ color: "var(--red)" }}>*</span>
 					</label>
 					<input
 						type="email"
 						{...register("contactEmail")}
-						className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+						style={inputStyle}
 						placeholder="e.g., hello@techinnovators.com"
 					/>
 					{errors.contactEmail && (
-						<p className="mt-1 text-sm text-red-500">{errors.contactEmail.message}</p>
+						<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.contactEmail.message}</p>
 					)}
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
-						Organization Type <span className="text-red-500">*</span>
+					<label style={labelStyle}>
+						Organization Type <span style={{ color: "var(--red)" }}>*</span>
 					</label>
 					<select
 						{...register("organizationType")}
-						className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white"
+						style={inputStyle}
 					>
 						<option value="individual">Individual</option>
 						<option value="company">Company</option>
@@ -188,109 +207,122 @@ export default function OrganizerProfileSettings() {
 						<option value="other">Other</option>
 					</select>
 					{errors.organizationType && (
-						<p className="mt-1 text-sm text-red-500">{errors.organizationType.message}</p>
+						<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.organizationType.message}</p>
 					)}
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-2">
+					<label style={labelStyle}>
 						About
 					</label>
 					<textarea
 						{...register("bio")}
 						rows={5}
-						className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+						style={{...inputStyle, resize: "vertical"}}
 						placeholder="Tell attendees what your events are all about..."
 					/>
 					{errors.bio && (
-						<p className="mt-1 text-sm text-red-500">{errors.bio.message}</p>
+						<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.bio.message}</p>
 					)}
 				</div>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label style={labelStyle}>
 							Website URL
 						</label>
 						<input
 							type="url"
 							{...register("website")}
-							className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+							style={inputStyle}
 							placeholder="https://"
 						/>
 						{errors.website && (
-							<p className="mt-1 text-sm text-red-500">{errors.website.message}</p>
+							<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.website.message}</p>
 						)}
 					</div>
 					
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label style={labelStyle}>
 							X (Twitter) URL
 						</label>
 						<input
 							type="url"
 							{...register("socialLinks.x")}
-							className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+							style={inputStyle}
 							placeholder="https://x.com/..."
 						/>
 						{errors.socialLinks?.x && (
-							<p className="mt-1 text-sm text-red-500">{errors.socialLinks.x.message}</p>
+							<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.socialLinks.x.message}</p>
 						)}
 					</div>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
+						<label style={labelStyle}>
 							LinkedIn URL
 						</label>
 						<input
 							type="url"
 							{...register("socialLinks.linkedin")}
-							className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+							style={inputStyle}
 							placeholder="https://linkedin.com/..."
 						/>
 						{errors.socialLinks?.linkedin && (
-							<p className="mt-1 text-sm text-red-500">{errors.socialLinks.linkedin.message}</p>
+							<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.socialLinks.linkedin.message}</p>
 						)}
 					</div>
 				</div>
 				
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
-							City <span className="text-red-500">*</span>
+						<label style={labelStyle}>
+							City <span style={{ color: "var(--red)" }}>*</span>
 						</label>
 						<input
 							type="text"
 							{...register("location.city")}
-							className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+							style={inputStyle}
 							placeholder="e.g., San Francisco"
 						/>
 						{errors.location?.city && (
-							<p className="mt-1 text-sm text-red-500">{errors.location.city.message}</p>
+							<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.location.city.message}</p>
 						)}
 					</div>
 					
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
-							Country <span className="text-red-500">*</span>
+						<label style={labelStyle}>
+							Country <span style={{ color: "var(--red)" }}>*</span>
 						</label>
 						<input
 							type="text"
 							{...register("location.country")}
-							className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+							style={inputStyle}
 							placeholder="e.g., US"
 						/>
 						{errors.location?.country && (
-							<p className="mt-1 text-sm text-red-500">{errors.location.country.message}</p>
+							<p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.location.country.message}</p>
 						)}
 					</div>
 				</div>
 
-				<div className="pt-6 border-t mt-6 flex justify-end">
+				<div style={{ paddingTop: "24px", borderTop: "1px solid var(--border-dim)", display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
 					<button
 						type="submit"
 						disabled={saving}
-						className="bg-primary text-white py-2 px-6 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 font-medium"
+						style={{
+							background: "var(--gold)",
+							color: "#000",
+							padding: "10px 24px",
+							borderRadius: "var(--radius-md)",
+							fontWeight: 600,
+							border: "none",
+							cursor: saving ? "not-allowed" : "pointer",
+							opacity: saving ? 0.7 : 1,
+							boxShadow: saving ? "none" : "0 0 16px rgba(212, 175, 55, 0.2)",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+						onMouseLeave={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
 					>
 						{saving ? "Saving Changes..." : "Save Profile"}
 					</button>

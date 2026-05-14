@@ -78,143 +78,157 @@ export default function NewEventPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main style={{ minHeight: "100vh", background: "var(--bg-base)", padding: "48px 0" }}>
+      <div style={{ maxWidth: "672px", margin: "0 auto", padding: "0 16px" }}>
         <Link 
           href="/organizer/events" 
-          className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 mb-6 transition-colors"
+          style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "24px", transition: "color 0.2s", textDecoration: "none" }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
         >
-          <ArrowLeft className="w-4 h-4 mr-1" />
+          <ArrowLeft style={{ width: "16px", height: "16px", marginRight: "4px" }} />
           Back to Events
         </Link>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50">
-            <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
-            <p className="text-gray-500 text-sm mt-1">
+        <div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", overflow: "hidden" }}>
+          <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--border-dim)", background: "var(--bg-elevated)" }}>
+            <h1 style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: "0 0 4px 0" }}>Create New Event</h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "14px", margin: 0 }}>
               Let's start with the basics. You can add more details later.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-6 space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>
             {error && (
-              <div className="p-4 rounded-md bg-red-50 text-red-600 text-sm border border-red-100">
+              <div style={{ padding: "16px", borderRadius: "var(--radius-md)", background: "rgba(239, 68, 68, 0.1)", color: "var(--red)", fontSize: "14px", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
                 {error}
               </div>
             )}
 
-            <div className="space-y-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               {/* Event Type Options */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>Event Type <span style={{color: "var(--gold)"}}>*</span></label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "12px" }}>
                   <div 
                     onClick={() => setValue("eventType", "offline")}
-                    className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center gap-2 transition-all ${
-                      eventType === 'offline' 
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary' 
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
+                    style={{
+                      cursor: "pointer", border: `1px solid ${eventType === 'offline' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
+                      background: eventType === 'offline' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                    }}
+                    onMouseEnter={(e) => { if(eventType !== 'offline') e.currentTarget.style.borderColor = "var(--text-muted)" }}
+                    onMouseLeave={(e) => { if(eventType !== 'offline') e.currentTarget.style.borderColor = "var(--border-dim)" }}
                   >
-                    <MapPin className={`w-6 h-6 ${eventType === 'offline' ? 'text-primary' : 'text-gray-400'}`} />
-                    <span className={`text-sm font-medium ${eventType === 'offline' ? 'text-primary' : 'text-gray-700'}`}>In Person</span>
+                    <MapPin style={{ width: "24px", height: "24px", color: eventType === 'offline' ? 'var(--gold)' : 'var(--text-muted)' }} />
+                    <span style={{ fontSize: "14px", fontWeight: 500, color: eventType === 'offline' ? 'var(--gold)' : 'var(--text-primary)' }}>In Person</span>
                   </div>
                   <div 
                     onClick={() => setValue("eventType", "online")}
-                    className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center gap-2 transition-all ${
-                      eventType === 'online' 
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary' 
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
+                    style={{
+                      cursor: "pointer", border: `1px solid ${eventType === 'online' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
+                      background: eventType === 'online' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                    }}
+                    onMouseEnter={(e) => { if(eventType !== 'online') e.currentTarget.style.borderColor = "var(--text-muted)" }}
+                    onMouseLeave={(e) => { if(eventType !== 'online') e.currentTarget.style.borderColor = "var(--border-dim)" }}
                   >
-                    <Video className={`w-6 h-6 ${eventType === 'online' ? 'text-primary' : 'text-gray-400'}`} />
-                    <span className={`text-sm font-medium ${eventType === 'online' ? 'text-primary' : 'text-gray-700'}`}>Online</span>
+                    <Video style={{ width: "24px", height: "24px", color: eventType === 'online' ? 'var(--gold)' : 'var(--text-muted)' }} />
+                    <span style={{ fontSize: "14px", fontWeight: 500, color: eventType === 'online' ? 'var(--gold)' : 'var(--text-primary)' }}>Online</span>
                   </div>
                   <div 
                     onClick={() => setValue("eventType", "hybrid")}
-                    className={`cursor-pointer border rounded-lg p-4 flex flex-col items-center gap-2 transition-all ${
-                      eventType === 'hybrid' 
-                        ? 'border-primary bg-primary/5 ring-1 ring-primary' 
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
+                    style={{
+                      cursor: "pointer", border: `1px solid ${eventType === 'hybrid' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
+                      background: eventType === 'hybrid' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                    }}
+                    onMouseEnter={(e) => { if(eventType !== 'hybrid') e.currentTarget.style.borderColor = "var(--text-muted)" }}
+                    onMouseLeave={(e) => { if(eventType !== 'hybrid') e.currentTarget.style.borderColor = "var(--border-dim)" }}
                   >
-                    <Globe className={`w-6 h-6 ${eventType === 'hybrid' ? 'text-primary' : 'text-gray-400'}`} />
-                    <span className={`text-sm font-medium ${eventType === 'hybrid' ? 'text-primary' : 'text-gray-700'}`}>Hybrid</span>
+                    <Globe style={{ width: "24px", height: "24px", color: eventType === 'hybrid' ? 'var(--gold)' : 'var(--text-muted)' }} />
+                    <span style={{ fontSize: "14px", fontWeight: 500, color: eventType === 'hybrid' ? 'var(--gold)' : 'var(--text-primary)' }}>Hybrid</span>
                   </div>
                 </div>
                 <input type="hidden" {...register("eventType")} />
               </div>
 
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Title *
+                <label htmlFor="title" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                  Event Title <span style={{color: "var(--gold)"}}>*</span>
                 </label>
                 <input
                   id="title"
                   type="text"
                   placeholder="E.g., Global Tech Summit 2026"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
+                  style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", transition: "border-color 0.2s" }}
+                  onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+                  onBlurCapture={(e) => e.target.style.borderColor = "var(--border-dim)"}
                   {...register("title")}
                 />
-                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
+                {errors.title && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.title.message}</p>}
               </div>
 
               <div>
-                <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Short Description * <span className="text-gray-400 font-normal">(Summary for cards)</span>
+                <label htmlFor="shortDescription" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                  Short Description <span style={{color: "var(--gold)"}}>*</span> <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>(Summary for cards)</span>
                 </label>
                 <textarea
                   id="shortDescription"
                   rows={2}
                   placeholder="A quick summary of what this event is about..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors resize-none"
+                  style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", transition: "border-color 0.2s", resize: "none" }}
+                  onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+                  onBlurCapture={(e) => e.target.style.borderColor = "var(--border-dim)"}
                   {...register("shortDescription")}
                 />
-                {errors.shortDescription && <p className="mt-1 text-sm text-red-600">{errors.shortDescription.message}</p>}
+                {errors.shortDescription && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.shortDescription.message}</p>}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
-                  <label htmlFor="startAt" className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date & Time *
+                  <label htmlFor="startAt" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                    Start Date & Time <span style={{color: "var(--gold)"}}>*</span>
                   </label>
-                  <div className="relative">
+                  <div style={{ position: "relative" }}>
                     <input
                       id="startAt"
                       type="datetime-local"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
+                      style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", transition: "border-color 0.2s" }}
+                      onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+                      onBlurCapture={(e) => e.target.style.borderColor = "var(--border-dim)"}
                       {...register("startAt")}
                     />
                   </div>
-                  {errors.startAt && <p className="mt-1 text-sm text-red-600">{errors.startAt.message}</p>}
+                  {errors.startAt && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.startAt.message}</p>}
                 </div>
                 
                 <div>
-                  <label htmlFor="endAt" className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date & Time *
+                  <label htmlFor="endAt" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                    End Date & Time <span style={{color: "var(--gold)"}}>*</span>
                   </label>
-                  <div className="relative">
+                  <div style={{ position: "relative" }}>
                     <input
                       id="endAt"
                       type="datetime-local"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
+                      style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", transition: "border-color 0.2s" }}
+                      onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+                      onBlurCapture={(e) => e.target.style.borderColor = "var(--border-dim)"}
                       {...register("endAt")}
                     />
                   </div>
-                  {errors.endAt && <p className="mt-1 text-sm text-red-600">{errors.endAt.message}</p>}
+                  {errors.endAt && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.endAt.message}</p>}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Timezone *
+                <label htmlFor="timezone" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                  Timezone <span style={{color: "var(--gold)"}}>*</span>
                 </label>
                 <select
                   id="timezone"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors bg-white"
+                  style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", transition: "border-color 0.2s" }}
+                  onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+                  onBlurCapture={(e) => e.target.style.borderColor = "var(--border-dim)"}
                   {...register("timezone")}
                 >
-                  {/* Just using the client timezone as default, providing a few common ones for demo */}
                   <option value={Intl.DateTimeFormat().resolvedOptions().timeZone}>
                     {Intl.DateTimeFormat().resolvedOptions().timeZone} (Current)
                   </option>
@@ -229,27 +243,33 @@ export default function NewEventPage() {
                   <option value="Asia/Calcutta">India (IST)</option>
                   <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
                 </select>
-                {errors.timezone && <p className="mt-1 text-sm text-red-600">{errors.timezone.message}</p>}
+                {errors.timezone && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.timezone.message}</p>}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+            <div style={{ paddingTop: "24px", borderTop: "1px solid var(--border-dim)", display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
               <Link
                 href="/organizer/events"
-                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                style={{ padding: "10px 24px", border: "1px solid var(--border-dim)", color: "var(--text-primary)", fontWeight: 500, borderRadius: "var(--radius-md)", background: "transparent", transition: "all 0.2s", textDecoration: "none" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-elevated)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
               >
                 Cancel
               </Link>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center"
+                style={{
+                  padding: "10px 24px", background: "var(--gold)", color: "#000", fontWeight: 600, borderRadius: "var(--radius-md)", border: "none", display: "flex", alignItems: "center", cursor: isSubmitting ? "not-allowed" : "pointer", opacity: isSubmitting ? 0.7 : 1, transition: "all 0.2s", boxShadow: isSubmitting ? "none" : "0 0 16px rgba(212, 175, 55, 0.2)"
+                }}
+                onMouseEnter={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+                onMouseLeave={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
               >
                 {isSubmitting ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg style={{ animation: "spin 1s linear infinite", marginLeft: "-4px", marginRight: "8px", height: "16px", width: "16px", color: "#000" }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Creating Draft...
                   </>

@@ -70,28 +70,32 @@ export default async function OrganizerAttendeesPage({ params }: { params: Promi
   const activeAttendees = total - cancelledCount;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto" }}>
       
-      <div className="flex items-center gap-4 mb-4">
+      <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
         <Link 
           href={`/organizer/events/${event._id}`}
-          className="text-gray-500 hover:text-gray-900 transition-colors bg-white border border-gray-200 p-2 rounded-lg shadow-sm"
+          style={{ color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", padding: "8px", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <span className="text-gray-400 font-medium">|</span>
-        <span className="text-gray-600 font-medium truncate">{event.title}</span>
+        <span style={{ color: "var(--border-dim)", fontWeight: 500 }}>|</span>
+        <span style={{ color: "var(--text-secondary)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{event.title}</span>
       </div>
       
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "24px", marginBottom: "32px" }}>
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900">Manage Attendees</h1>
-          <p className="text-gray-500 mt-1">View registrations, handle check-ins, and export data.</p>
+          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: "0 0 8px 0" }}>Manage Attendees</h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "15px", margin: 0 }}>View registrations, handle check-ins, and export data.</p>
         </div>
         
         <Link 
           href={`/organizer/events/${event._id}/check-in`}
-          className="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm"
+          style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", background: "var(--gold)", color: "#000", padding: "10px 20px", borderRadius: "var(--radius-md)", fontWeight: 600, transition: "all 0.2s", textDecoration: "none", boxShadow: "0 0 16px var(--gold-dim)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
         >
           <QrCode className="w-5 h-5" />
           Open Check-in Scanner
@@ -99,26 +103,26 @@ export default async function OrganizerAttendeesPage({ params }: { params: Promi
       </div>
 
       {/* Snapshot Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-           <p className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-1.5"><Users className="w-4 h-4" /> Total Registrations</p>
-           <p className="text-3xl font-bold text-gray-900">{total}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "32px" }}>
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "24px" }}>
+           <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}><Users className="w-4 h-4" /> Total Registrations</p>
+           <p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>{total}</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-           <p className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Active Attendees</p>
-           <p className="text-3xl font-bold text-gray-900">{activeAttendees}</p>
-           {event.capacity && <p className="text-xs text-gray-400 mt-1">of {event.capacity} capacity</p>}
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "24px" }}>
+           <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></span> Active Attendees</p>
+           <p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>{activeAttendees}</p>
+           {event.capacity && <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>of {event.capacity} capacity</p>}
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-           <p className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500"></span> Checked In</p>
-           <p className="text-3xl font-bold text-green-600">{checkedInCount}</p>
-           <p className="text-xs text-gray-400 mt-1">
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "24px" }}>
+           <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--green)" }}></span> Checked In</p>
+           <p style={{ fontSize: "32px", fontWeight: 700, color: "var(--green)", fontFamily: "var(--font-display)", margin: 0 }}>{checkedInCount}</p>
+           <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>
              {activeAttendees > 0 ? Math.round((checkedInCount / activeAttendees) * 100) : 0}% arrival rate
            </p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-           <p className="text-sm font-medium text-gray-500 mb-1 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500"></span> Cancelled</p>
-           <p className="text-3xl font-bold text-gray-900">{cancelledCount}</p>
+        <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "24px" }}>
+           <p style={{ fontSize: "13px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px" }}><span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--red)" }}></span> Cancelled</p>
+           <p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>{cancelledCount}</p>
         </div>
       </div>
 

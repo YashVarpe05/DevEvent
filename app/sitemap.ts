@@ -6,7 +6,7 @@ import OrganizerProfile from "@/database/organizer-profile.model";
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 
 	const staticEntries: MetadataRoute.Sitemap = [
 		{ url: `${appUrl}/`, changeFrequency: "daily", priority: 1 },

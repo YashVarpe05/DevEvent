@@ -54,70 +54,85 @@ export default async function ReferralsPage({
 	const referrals = result.success && result.data ? result.data : [];
 
 	return (
-		<main className="min-h-screen bg-gray-50 py-8">
-			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="mb-6">
+		<main style={{ padding: "32px 24px", maxWidth: "1000px", margin: "0 auto" }}>
+			<div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+				<div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
 					<Link
 						href="/organizer/events"
-						className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+						style={{ color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", padding: "8px", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+						onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
+						onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
 					>
-						<ArrowLeft className="w-4 h-4 mr-1" />
-						Back to Events
+						<ArrowLeft className="w-4 h-4" />
 					</Link>
+					<span style={{ color: "var(--border-dim)", fontWeight: 500 }}>|</span>
+					<span style={{ color: "var(--text-secondary)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{event.title}</span>
 				</div>
 
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-						<LinkIcon className="text-primary w-7 h-7" />
+				<div>
+					<h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", display: "flex", alignItems: "center", gap: "12px", margin: "0 0 8px 0" }}>
+						<LinkIcon style={{ color: "var(--gold)", width: "24px", height: "24px" }} />
 						Referral Links
 					</h1>
-					<p className="text-gray-500 mt-2">
-						Create trackable referral links for <span className="font-semibold">{event.title}</span>. 
+					<p style={{ color: "var(--text-secondary)", fontSize: "15px", margin: 0 }}>
+						Create trackable referral links for <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{event.title}</span>. 
 						Share them with partners, influencers, or affiliates to track clicks and conversions.
 					</p>
 				</div>
 
 				{/* Quick Navigation */}
-				<div className="mb-6 flex flex-wrap gap-2">
+				<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "16px", marginBottom: "32px" }}>
 					<Link
 						href={`/organizer/events/${id}/edit`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Edit Event
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/tickets`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Tickets
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/promo-codes`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Promo Codes
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/referrals`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-primary/20 bg-primary/5 text-primary font-medium transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--gold-dim)", background: "var(--gold-dim)", color: "var(--gold)", fontWeight: 500, textDecoration: "none" }}
 					>
 						Referrals
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/orders`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Orders
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/attendees`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Attendees
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/earnings`}
-						className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
 					>
 						Earnings
 					</Link>

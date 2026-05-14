@@ -132,7 +132,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		event.seo?.ogImage ||
 		event.coverImageUrl ||
 		"https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200&h=630";
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonical = `${appUrl}/events/${event.slug}`;
 	const isPublic = event.visibility === "public";
 
@@ -179,7 +179,7 @@ export default async function EventDetailPage({ params }: Props) {
 	const session = await auth();
 	let isRegistered = false;
 	let availableSpots = undefined;
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonicalUrl = `${appUrl}/events/${event.slug}`;
 
 	if (session?.user?.id) {

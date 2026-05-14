@@ -1,0 +1,102 @@
+
+> event-platform@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 2.8s
+[Database] connection completed
+ GET / 200 in 9.4s (compile: 2.9s, proxy.ts: 163ms, render: 6.3s)
+ GET / 200 in 2.1s (compile: 26ms, proxy.ts: 40ms, render: 1986ms)
+ GET /api/auth/session 200 in 4.5s (compile: 4.4s, proxy.ts: 42ms, render: 96ms)
+✓ Compiled in 623ms
+ GET /api/auth/session 200 in 50ms (compile: 23ms, proxy.ts: 15ms, render: 13ms)
+ GET /api/auth/session 200 in 41ms (compile: 17ms, proxy.ts: 11ms, render: 14ms)
+ GET / 200 in 3.9s (compile: 414ms, proxy.ts: 19ms, render: 3.4s)
+ GET /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1556761175-5973dc0f32e7%3Fauto%3Dformat%26fit%3Dcrop%26q%3D80%26w%3D1200&w=384&q=75 500 in 8.1s (compile: 8.0s, render: 48ms)
+ GET /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1556761175-5973dc0f32e7%3Fauto%3Dformat%26fit%3Dcrop%26q%3D80%26w%3D1200&w=384&q=75 500 in 8.1s (compile: 8.0s, render: 49ms)
+ GET /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1504384308090-c894fdcc538d%3Fauto%3Dformat%26fit%3Dcrop%26q%3D80%26w%3D1200&w=384&q=75 500 in 8.2s (compile: 8.2s, render: 15ms)
+ GET /_next/image?url=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1504384308090-c894fdcc538d%3Fauto%3Dformat%26fit%3Dcrop%26q%3D80%26w%3D1200&w=384&q=75 500 in 8.2s (compile: 8.2s, render: 15ms)
+ GET / 200 in 196ms (compile: 42ms, proxy.ts: 9ms, render: 145ms)
+✓ Compiled in 226ms
+ GET /api/auth/session 200 in 58ms (compile: 18ms, proxy.ts: 33ms, render: 7ms)
+ GET /api/auth/session 200 in 36ms (compile: 9ms, proxy.ts: 19ms, render: 8ms)
+ GET / 200 in 1334ms (compile: 309ms, proxy.ts: 33ms, render: 992ms)
+ GET / 200 in 635ms (compile: 24ms, proxy.ts: 15ms, render: 595ms)
+ GET /api/auth/session 200 in 67ms (compile: 38ms, proxy.ts: 12ms, render: 18ms)
+ GET /api/auth/session 200 in 46ms (compile: 20ms, proxy.ts: 13ms, render: 13ms)
+ GET /api/auth/session 200 in 28ms (compile: 12ms, proxy.ts: 7ms, render: 9ms)
+ GET / 200 in 1070ms (compile: 6ms, proxy.ts: 10ms, render: 1055ms)
+ GET /api/auth/session 200 in 58ms (compile: 22ms, proxy.ts: 23ms, render: 12ms)
+ GET /api/auth/session 200 in 49ms (compile: 10ms, proxy.ts: 30ms, render: 9ms)
+ GET / 200 in 1578ms (compile: 207ms, proxy.ts: 10ms, render: 1361ms)
+ GET /api/auth/session 200 in 70ms (compile: 42ms, proxy.ts: 14ms, render: 13ms)
+ GET /api/auth/session 200 in 33ms (compile: 13ms, proxy.ts: 9ms, render: 11ms)
+ GET / 200 in 869ms (compile: 6ms, proxy.ts: 12ms, render: 851ms)
+ GET / 200 in 921ms (compile: 197ms, proxy.ts: 7ms, render: 717ms)
+ GET /api/auth/session 200 in 243ms (compile: 175ms, proxy.ts: 25ms, render: 43ms)
+ GET /api/auth/session 200 in 43ms (compile: 17ms, proxy.ts: 12ms, render: 14ms)
+ GET / 200 in 375ms (compile: 19ms, proxy.ts: 17ms, render: 339ms)
+ GET /api/auth/session 200 in 83ms (compile: 45ms, proxy.ts: 24ms, render: 14ms)
+ GET /api/auth/session 200 in 41ms (compile: 18ms, proxy.ts: 11ms, render: 12ms)
+ GET /events 200 in 209ms (compile: 141ms, proxy.ts: 8ms, render: 60ms)
+[Analytics] search_performed tracked
+ GET /api/public/events/search?sort=relevance&page=1&limit=12 200 in 259ms (compile: 116ms, render: 142ms)
+ GET /api/public/events/search?sort=relevance&page=1&limit=12 200 in 23ms (compile: 6ms, render: 17ms)
+✓ Compiled in 4.1s
+ GET / 200 in 2.4s (compile: 816ms, proxy.ts: 21ms, render: 1607ms)
+ GET / 200 in 1329ms (compile: 24ms, proxy.ts: 183ms, render: 1122ms)
+ GET / 200 in 1340ms (compile: 102ms, proxy.ts: 182ms, render: 1056ms)
+ GET /api/auth/session 200 in 99ms (compile: 57ms, proxy.ts: 22ms, render: 20ms)
+ GET /api/auth/session 200 in 47ms (compile: 20ms, proxy.ts: 12ms, render: 15ms)
+✓ Compiled in 859ms
+✓ Compiled in 553ms
+ GET / 200 in 1403ms (compile: 484ms, proxy.ts: 17ms, render: 902ms)
+ GET / 200 in 1050ms (compile: 28ms, proxy.ts: 28ms, render: 995ms)
+ GET / 200 in 912ms (compile: 86ms, proxy.ts: 42ms, render: 784ms)
+ GET /api/auth/session 200 in 173ms (compile: 71ms, proxy.ts: 75ms, render: 27ms)
+ GET /api/auth/session 200 in 162ms (compile: 52ms, proxy.ts: 83ms, render: 27ms)
+ GET /api/auth/session 200 in 135ms (compile: 87ms, proxy.ts: 14ms, render: 34ms)
+ GET /api/auth/session 200 in 119ms (compile: 58ms, proxy.ts: 32ms, render: 28ms)
+✓ Compiled in 539ms
+ GET / 200 in 1073ms (compile: 321ms, proxy.ts: 11ms, render: 740ms)
+ GET / 200 in 1137ms (compile: 17ms, proxy.ts: 20ms, render: 1100ms)
+ GET / 200 in 1026ms (compile: 56ms, proxy.ts: 37ms, render: 934ms)
+ GET /api/auth/session 200 in 195ms (compile: 113ms, proxy.ts: 47ms, render: 36ms)
+ GET /api/auth/session 200 in 156ms (compile: 62ms, proxy.ts: 67ms, render: 27ms)
+ GET /api/auth/session 200 in 161ms (compile: 66ms, proxy.ts: 81ms, render: 15ms)
+ GET /api/auth/session 200 in 54ms (compile: 23ms, proxy.ts: 11ms, render: 20ms)
+✓ Compiled in 408ms
+ GET / 200 in 1480ms (compile: 376ms, proxy.ts: 16ms, render: 1089ms)
+ GET /api/auth/session 200 in 92ms (compile: 58ms, proxy.ts: 16ms, render: 18ms)
+ GET /api/auth/session 200 in 47ms (compile: 22ms, proxy.ts: 12ms, render: 13ms)
+ GET /events 200 in 1260ms (compile: 438ms, proxy.ts: 14ms, render: 808ms)
+ GET / 200 in 538ms (compile: 21ms, proxy.ts: 16ms, render: 501ms)
+ GET /api/auth/session 200 in 128ms (compile: 73ms, proxy.ts: 20ms, render: 35ms)
+ GET /api/auth/session 200 in 47ms (compile: 16ms, proxy.ts: 10ms, render: 21ms)
+✓ Compiled in 531ms
+ GET / 200 in 1280ms (compile: 319ms, proxy.ts: 16ms, render: 945ms)
+ GET /api/auth/session 200 in 84ms (compile: 41ms, proxy.ts: 28ms, render: 15ms)
+ GET /api/auth/session 200 in 72ms (compile: 25ms, proxy.ts: 16ms, render: 31ms)
+✓ Compiled in 561ms
+ GET / 200 in 1533ms (compile: 390ms, proxy.ts: 19ms, render: 1125ms)
+ GET /api/auth/session 200 in 86ms (compile: 43ms, proxy.ts: 27ms, render: 16ms)
+ GET /api/auth/session 200 in 50ms (compile: 20ms, proxy.ts: 14ms, render: 16ms)
+✓ Compiled in 410ms
+ GET / 200 in 1486ms (compile: 403ms, proxy.ts: 15ms, render: 1068ms)
+ GET /api/auth/session 200 in 97ms (compile: 55ms, proxy.ts: 23ms, render: 18ms)
+ GET /api/auth/session 200 in 59ms (compile: 24ms, proxy.ts: 11ms, render: 24ms)
+ GET / 200 in 576ms (compile: 19ms, proxy.ts: 17ms, render: 540ms)
+ GET /api/auth/session 200 in 100ms (compile: 45ms, proxy.ts: 35ms, render: 20ms)
+ GET /api/auth/session 200 in 43ms (compile: 15ms, proxy.ts: 12ms, render: 15ms)
+✓ Compiled in 695ms
+ GET / 200 in 1362ms (compile: 371ms, proxy.ts: 15ms, render: 977ms)
+ GET /api/auth/session 200 in 82ms (compile: 45ms, proxy.ts: 24ms, render: 13ms)
+ GET /api/auth/session 200 in 65ms (compile: 32ms, proxy.ts: 16ms, render: 17ms)
+ GET / 200 in 184ms (compile: 9ms, proxy.ts: 11ms, render: 164ms)
+ GET /api/auth/session 200 in 44ms (compile: 23ms, proxy.ts: 11ms, render: 10ms)
+ GET /api/auth/session 200 in 16ms (compile: 6ms, proxy.ts: 6ms, render: 4ms)

@@ -61,101 +61,101 @@ export default function CheckInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-10">
-        <div className="max-w-md mx-auto flex items-center gap-4">
-          <Link 
-            href={`/organizer/events/${eventId}/attendees`}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-bold text-gray-900">Event Check-in</h1>
-        </div>
-      </div>
+		<div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", flexDirection: "column" }}>
+			{/* Header */}
+			<div style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--border-dim)", padding: "16px", position: "sticky", top: 0, zIndex: 10 }}>
+				<div style={{ maxWidth: "448px", margin: "0 auto", display: "flex", alignItems: "center", gap: "16px" }}>
+					<Link 
+						href={`/organizer/events/${eventId}/attendees`}
+						style={{ padding: "8px", borderRadius: "var(--radius-md)", color: "var(--text-secondary)", transition: "all 0.2s" }}
+						onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.background = "var(--bg-elevated)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.background = "transparent"; }}
+					>
+						<ArrowLeft className="w-5 h-5" />
+					</Link>
+					<h1 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-display)" }}>Event Check-in</h1>
+				</div>
+			</div>
 
-      <div className="flex-1 flex flex-col items-center p-6 lg:p-12">
-        <div className="w-full max-w-md space-y-8">
-          
-          {/* Main Input Component */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 text-center">
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors ${
-              status === "success" ? "bg-green-100 text-green-600" : 
-              status === "error" ? "bg-red-100 text-red-600" : 
-              "bg-primary/10 text-primary"
-            }`}>
-              {status === "loading" ? <Loader2 className="w-10 h-10 animate-spin" /> : <QrCode className="w-10 h-10" />}
-            </div>
+			<div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "24px 24px 48px" }}>
+				<div style={{ width: "100%", maxWidth: "448px", display: "flex", flexDirection: "column", gap: "32px" }}>
+					
+					{/* Main Input Component */}
+					<div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", padding: "32px", textAlign: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
+						<div style={{ width: "80px", height: "80px", borderRadius: "24px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", transition: "background-color 0.3s", background: status === "success" ? "rgba(34, 197, 94, 0.1)" : status === "error" ? "rgba(239, 68, 68, 0.1)" : "var(--gold-dim)", color: status === "success" ? "var(--green)" : status === "error" ? "var(--red)" : "var(--gold)" }}>
+							{status === "loading" ? <Loader2 className="w-10 h-10 animate-spin" /> : <QrCode className="w-10 h-10" />}
+						</div>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Scan or Enter Code</h2>
-            <p className="text-gray-500 mb-8">Enter the attendee's ticket code manually or use a scanner.</p>
+						<h2 style={{ fontSize: "24px", fontWeight: 700, color: "var(--text-primary)", marginBottom: "8px", fontFamily: "var(--font-display)" }}>Scan or Enter Code</h2>
+						<p style={{ color: "var(--text-secondary)", marginBottom: "32px", fontSize: "15px" }}>Enter the attendee's ticket code manually or use a scanner.</p>
 
-            <form onSubmit={handleCheckIn} className="space-y-4">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="DEV-XXXX-YYYY"
-                value={ticketCode}
-                onChange={(e) => setTicketCode(e.target.value.toUpperCase())}
-                autoFocus
-                autoComplete="off"
-                className="w-full text-center text-2xl font-mono tracking-widest uppercase py-4 border-2 border-gray-200 rounded-2xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all placeholder:text-gray-300"
-              />
-              <button
-                type="submit"
-                disabled={!ticketCode || status === "loading"}
-                className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all text-lg"
-              >
-                {status === "loading" ? "Validating..." : "Check In"}
-              </button>
-            </form>
-          </div>
+						<form onSubmit={handleCheckIn} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+							<input
+								ref={inputRef}
+								type="text"
+								placeholder="DEV-XXXX-YYYY"
+								value={ticketCode}
+								onChange={(e) => setTicketCode(e.target.value.toUpperCase())}
+								autoFocus
+								autoComplete="off"
+								style={{ width: "100%", textAlign: "center", fontSize: "24px", fontFamily: "monospace", letterSpacing: "4px", textTransform: "uppercase", padding: "16px", background: "var(--bg-base)", border: "2px solid var(--border-dim)", borderRadius: "var(--radius-lg)", color: "var(--text-primary)", outline: "none", transition: "all 0.2s" }}
+								onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+								onBlur={(e) => e.target.style.borderColor = "var(--border-dim)"}
+							/>
+							<button
+								type="submit"
+								disabled={!ticketCode || status === "loading"}
+								style={{ width: "100%", background: "var(--gold)", color: "#000", fontWeight: 700, padding: "16px", borderRadius: "var(--radius-lg)", border: "none", fontSize: "18px", transition: "all 0.2s", opacity: (!ticketCode || status === "loading") ? 0.5 : 1, cursor: (!ticketCode || status === "loading") ? "not-allowed" : "pointer", boxShadow: "0 0 16px var(--gold-dim)" }}
+								onMouseEnter={(e) => { if (ticketCode && status !== "loading") { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+								onMouseLeave={(e) => { if (ticketCode && status !== "loading") { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; } }}
+							>
+								{status === "loading" ? "Validating..." : "Check In"}
+							</button>
+						</form>
+					</div>
 
-          {/* Feedback Area */}
-          {(status === "success" || status === "error") && (
-            <div className={`rounded-2xl p-6 border flex items-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-300 ${
-              status === "success" ? "bg-green-50 border-green-100 text-green-800" : "bg-red-50 border-red-100 text-red-800"
-            }`}>
-              {status === "success" ? <CheckCircle2 className="w-6 h-6 shrink-0" /> : <XCircle className="w-6 h-6 shrink-0" />}
-              <div>
-                <p className="font-bold text-lg">{status === "success" ? "Confirmed!" : "Verification Failed"}</p>
-                <p className="font-medium opacity-90">{message}</p>
-              </div>
-            </div>
-          )}
+					{/* Feedback Area */}
+					{(status === "success" || status === "error") && (
+						<div style={{ borderRadius: "var(--radius-lg)", padding: "24px", display: "flex", alignItems: "flex-start", gap: "16px", background: status === "success" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)", border: `1px solid ${status === "success" ? "rgba(34, 197, 94, 0.2)" : "rgba(239, 68, 68, 0.2)"}`, color: status === "success" ? "var(--green)" : "var(--red)" }}>
+							{status === "success" ? <CheckCircle2 className="w-6 h-6 shrink-0" /> : <XCircle className="w-6 h-6 shrink-0" />}
+							<div style={{ flex: 1 }}>
+								<p style={{ fontWeight: 700, fontSize: "18px", margin: "0 0 4px 0" }}>{status === "success" ? "Confirmed!" : "Verification Failed"}</p>
+								<p style={{ fontWeight: 500, opacity: 0.9, margin: 0, fontSize: "15px" }}>{message}</p>
+							</div>
+						</div>
+					)}
 
-          {/* Last Result Card */}
-          {lastCheckIn && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-3">
-                 <Ticket className="w-12 h-12 text-gray-50 opacity-10" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Last Result</h3>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                  <User className="w-6 h-6 text-gray-400" />
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 text-lg leading-none mb-1">
-                    {lastCheckIn.attendeeUserId?.name || "Unknown Attendee"}
-                  </p>
-                  <p className="text-sm text-gray-500">{lastCheckIn.attendeeUserId?.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm pt-4 border-t border-gray-50">
-                <span className="text-gray-500">Ticket Code</span>
-                <span className="font-mono font-bold text-gray-900">{lastCheckIn.ticketCode}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+					{/* Last Result Card */}
+					{lastCheckIn && (
+						<div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", padding: "24px", position: "relative", overflow: "hidden" }}>
+							<div style={{ position: "absolute", top: 0, right: 0, padding: "12px" }}>
+								 <Ticket style={{ width: "48px", height: "48px", color: "var(--border-dim)", opacity: 0.3 }} />
+							</div>
+							<h3 style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 16px 0" }}>Last Result</h3>
+							<div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px" }}>
+								<div style={{ width: "48px", height: "48px", background: "var(--bg-elevated)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+									<User className="w-6 h-6" style={{ color: "var(--text-muted)" }} />
+								</div>
+								<div>
+									<p style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "18px", margin: "0 0 4px 0", lineHeight: 1 }}>
+										{lastCheckIn.attendeeUserId?.name || "Unknown Attendee"}
+									</p>
+									<p style={{ fontSize: "14px", color: "var(--text-secondary)", margin: 0 }}>{lastCheckIn.attendeeUserId?.email}</p>
+								</div>
+							</div>
+							<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "14px", paddingTop: "16px", borderTop: "1px solid var(--border-dim)" }}>
+								<span style={{ color: "var(--text-secondary)" }}>Ticket Code</span>
+								<span style={{ fontFamily: "monospace", fontWeight: 700, color: "var(--text-primary)", fontSize: "15px" }}>{lastCheckIn.ticketCode}</span>
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
 
-      {/* Helpful Hint (Mobile Only) */}
-      <div className="p-6 text-center text-gray-400 text-sm mb-4">
-        <p>Pro Tip: Use a Bluetooth barcode scanner for rapid entry.</p>
-      </div>
-    </div>
+			{/* Helpful Hint (Mobile Only) */}
+			<div style={{ padding: "24px", textAlign: "center", color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
+				<p style={{ margin: 0 }}>Pro Tip: Use a Bluetooth barcode scanner for rapid entry.</p>
+			</div>
+		</div>
   );
 }

@@ -4,7 +4,7 @@ const USER_REFERRAL_COOKIE_NAME = "dev_event_uref";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
 export function generateUserReferralLink(eventId: string, referrerId: string): string {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
     return `${baseUrl}/events/${eventId}?uref=${referrerId}`;
 }
 

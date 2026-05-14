@@ -40,14 +40,21 @@ export default function OrganizerEventOrdersPage() {
 	}, [orders]);
 
 	return (
-		<main className="mx-auto max-w-6xl p-6">
-			<div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-				<h1 className="text-3xl font-bold text-white">Event Orders</h1>
+		<div style={{ maxWidth: "1200px", margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: "32px" }}>
+			<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+				<div>
+					<h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", display: "flex", alignItems: "center", gap: "12px", margin: "0 0 8px 0" }}>
+						Event Orders
+					</h1>
+					<p style={{ color: "var(--text-secondary)", margin: 0 }}>View and manage ticket orders for this event.</p>
+				</div>
 				<select
 					id="order-status-filter"
 					value={statusFilter}
 					onChange={(e) => setStatusFilter(e.target.value)}
-					className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
+					style={{ padding: "10px 16px", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none", cursor: "pointer", fontSize: "14px" }}
+					onFocus={(e) => e.target.style.borderColor = "var(--gold)"}
+					onBlur={(e) => e.target.style.borderColor = "var(--border-dim)"}
 				>
 					<option value="all">All statuses</option>
 					<option value="paid">Paid</option>
@@ -58,31 +65,33 @@ export default function OrganizerEventOrdersPage() {
 				</select>
 			</div>
 
-			<div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
-				<span className="mr-4">Orders: {totals.count}</span>
-				<span>Gross: ${(totals.gross / 100).toFixed(2)}</span>
+			<div style={{ padding: "16px 24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--gold-dim)", background: "rgba(212, 175, 55, 0.05)", display: "flex", alignItems: "center", gap: "24px", fontSize: "15px", color: "var(--gold)" }}>
+				<span style={{ fontWeight: 600 }}>Total Orders: {totals.count}</span>
+				<span style={{ fontWeight: 600 }}>Gross Revenue: ${(totals.gross / 100).toFixed(2)}</span>
 			</div>
 
 			{loading ? (
-				<p className="text-zinc-400">Loading orders...</p>
+				<div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", background: "var(--bg-surface)" }}>
+					Loading orders...
+				</div>
 			) : orders.length === 0 ? (
-				<p className="rounded-xl border border-dashed border-zinc-700 p-8 text-zinc-500">
-					No orders found.
-				</p>
+				<div style={{ padding: "48px", textAlign: "center", borderRadius: "var(--radius-xl)", border: "1px dashed var(--border-dim)", color: "var(--text-muted)" }}>
+					No orders found for the selected status.
+				</div>
 			) : (
-				<div className="overflow-x-auto rounded-xl border border-zinc-800">
-					<table className="min-w-full divide-y divide-zinc-800 text-sm">
-						<thead className="bg-zinc-950 text-zinc-400">
-							<tr>
-								<th className="px-4 py-3 text-left">Order</th>
-								<th className="px-4 py-3 text-left">Status</th>
-								<th className="px-4 py-3 text-left">Tickets</th>
-								<th className="px-4 py-3 text-left">Gross</th>
-								<th className="px-4 py-3 text-left">Platform fee</th>
-								<th className="px-4 py-3 text-left">Created</th>
+				<div style={{ overflowX: "auto", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", background: "var(--bg-surface)" }}>
+					<table style={{ minWidth: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+						<thead>
+							<tr style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--border-dim)" }}>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Order ID</th>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Status</th>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Tickets</th>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Gross</th>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Platform Fee</th>
+								<th style={{ padding: "16px", textAlign: "left", fontWeight: 600, color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase", fontSize: "12px" }}>Created At</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-zinc-900 bg-zinc-950/40 text-zinc-200">
+						<tbody>
 							{orders.map((order) => {
 								const gross = order.lineItems.reduce(
 									(sum: number, item: any) => sum + item.amountTotal,
@@ -93,20 +102,24 @@ export default function OrganizerEventOrdersPage() {
 									0,
 								);
 								return (
-									<tr key={order._id}>
-										<td className="px-4 py-3 font-mono text-xs">
+									<tr key={order._id} style={{ borderBottom: "1px solid var(--border-dim)", transition: "background-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--bg-elevated)"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}>
+										<td style={{ padding: "16px", color: "var(--gold)", fontFamily: "monospace", fontSize: "13px" }}>
 											{order._id.slice(-10)}
 										</td>
-										<td className="px-4 py-3">{order.status}</td>
-										<td className="px-4 py-3">{ticketCount}</td>
-										<td className="px-4 py-3">${(gross / 100).toFixed(2)}</td>
-										<td className="px-4 py-3">
+										<td style={{ padding: "16px" }}>
+											<span style={{ padding: "4px 8px", borderRadius: "9999px", fontSize: "12px", fontWeight: 500, background: order.status === 'paid' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: order.status === 'paid' ? 'var(--green)' : 'var(--red)' }}>
+												{order.status}
+											</span>
+										</td>
+										<td style={{ padding: "16px", color: "var(--text-primary)" }}>{ticketCount}</td>
+										<td style={{ padding: "16px", color: "var(--text-primary)" }}>${(gross / 100).toFixed(2)}</td>
+										<td style={{ padding: "16px", color: "var(--text-secondary)" }}>
 											$
 											{(
 												(order.pricingSnapshot?.platformFeeAmount || 0) / 100
 											).toFixed(2)}
 										</td>
-										<td className="px-4 py-3">
+										<td style={{ padding: "16px", color: "var(--text-secondary)" }}>
 											{new Date(order.createdAt).toLocaleString()}
 										</td>
 									</tr>
@@ -116,6 +129,6 @@ export default function OrganizerEventOrdersPage() {
 					</table>
 				</div>
 			)}
-		</main>
+		</div>
 	);
 }

@@ -49,21 +49,21 @@ export default async function EditEventPage({
     };
 
 	return (
-		<main className="min-h-screen bg-gray-50 py-8">
-			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="mb-6">
+		<main style={{ minHeight: "100vh", background: "var(--bg-base)", padding: "32px 0" }}>
+			<div style={{ maxWidth: "896px", margin: "0 auto", padding: "0 16px" }}>
+				<div style={{ marginBottom: "24px" }}>
 					<Link 
 						href="/organizer/events" 
-						className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+						style={{ display: "inline-flex", alignItems: "center", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", transition: "color 0.2s" }}
 					>
-						<ArrowLeft className="w-4 h-4 mr-1" />
+						<ArrowLeft style={{ width: "16px", height: "16px", marginRight: "4px" }} />
 						Back to Events
 					</Link>
 				</div>
                 
-				<div className="mb-8">
-					<h1 className="text-3xl font-bold text-gray-900">Edit Event</h1>
-					<p className="text-gray-500 mt-2">
+				<div style={{ marginBottom: "32px" }}>
+					<h1 style={{ fontSize: "30px", fontWeight: 700, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-display)" }}>Edit Event</h1>
+					<p style={{ color: "var(--text-secondary)", marginTop: "8px", fontSize: "15px" }}>
 						{event.status === "published" 
                             ? "This event is live. Changes will be reflected immediately." 
                             : "This is a draft. Fill in the details to publish it."}

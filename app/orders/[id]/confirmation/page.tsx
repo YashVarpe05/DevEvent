@@ -77,43 +77,86 @@ export default function OrderConfirmationPage() {
 	}, [state]);
 
 	return (
-		<main className="min-h-screen bg-black text-white px-4 py-20">
-			<div className="mx-auto max-w-2xl rounded-3xl border border-zinc-800 bg-zinc-950 p-8 text-center">
-				<div className="mb-6 flex justify-center">
+		<main style={{ minHeight: "100dvh", background: "var(--bg-base)", color: "var(--text-primary)", padding: "80px 16px" }}>
+			<div 
+				style={{ 
+					margin: "0 auto", 
+					maxWidth: "600px", 
+					background: "var(--bg-surface)", 
+					border: "1px solid var(--border-dim)", 
+					borderRadius: "var(--radius-xl)", 
+					padding: "48px 32px", 
+					textAlign: "center",
+					boxShadow: "0 20px 40px -20px rgba(0,0,0,0.5)"
+				}}
+			>
+				<div style={{ marginBottom: "24px", display: "flex", justifyContent: "center" }}>
 					{state === "paid" ? (
-						<CheckCircle2 className="h-16 w-16 text-emerald-500" />
+						<CheckCircle2 style={{ width: "64px", height: "64px", color: "var(--green)" }} />
 					) : state === "loading" || state === "processing" ? (
-						<Loader2 className="h-16 w-16 animate-spin text-zinc-400" />
+						<Loader2 style={{ width: "64px", height: "64px", color: "var(--text-muted)", animation: "spin 1s linear infinite" }} />
 					) : (
-						<Ticket className="h-16 w-16 text-amber-400" />
+						<Ticket style={{ width: "64px", height: "64px", color: "var(--gold)" }} />
 					)}
 				</div>
-				<h1 className="text-3xl font-bold">{title}</h1>
-				<p className="mt-3 text-zinc-400">
+				
+				<h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 700, color: "var(--text-primary)" }}>
+					{title}
+				</h1>
+				
+				<p style={{ marginTop: "12px", color: "var(--text-secondary)", fontSize: "15px", lineHeight: 1.5 }}>
 					{state === "paid"
 						? "Your tickets are confirmed and available in your account."
 						: "Webhook confirmation may take a few moments. Refresh if needed."}
 				</p>
 
-				<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-					<Link
-						href="/my/orders"
-						className="rounded-xl border border-zinc-700 px-5 py-3 text-sm font-semibold hover:bg-zinc-900"
-					>
-						View my orders
-					</Link>
-					<Link
-						href="/my/registrations"
-						className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
-					>
-						View my tickets
-					</Link>
+				<div style={{ marginTop: "32px", display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+					<div style={{ display: "flex", flexDirection: "row", gap: "12px", width: "100%", justifyContent: "center", flexWrap: "wrap" }}>
+						<Link
+							href="/my/orders"
+							style={{
+								padding: "12px 24px",
+								border: "1px solid var(--border)",
+								borderRadius: "var(--radius-lg)",
+								fontSize: "13px",
+								fontWeight: 600,
+								color: "var(--text-secondary)",
+								textDecoration: "none",
+								transition: "all 160ms ease"
+							}}
+							className="hover:text-white hover:border-white"
+						>
+							View my orders
+						</Link>
+						<Link
+							href="/my/registrations"
+							style={{
+								padding: "12px 24px",
+								background: "var(--text-primary)",
+								color: "var(--bg-base)",
+								borderRadius: "var(--radius-lg)",
+								fontSize: "13px",
+								fontWeight: 700,
+								textDecoration: "none",
+								transition: "all 160ms ease"
+							}}
+							className="hover:opacity-90"
+						>
+							View my tickets
+						</Link>
+					</div>
 				</div>
 
-				<p className="mt-6 text-xs text-zinc-500">Order: {orderId}</p>
-				{sessionId && (
-					<p className="text-xs text-zinc-600">Session: {sessionId}</p>
-				)}
+				<div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid var(--border-dim)" }}>
+					<p style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+						Order: {orderId}
+					</p>
+					{sessionId && (
+						<p style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginTop: "4px" }}>
+							Session: {sessionId}
+						</p>
+					)}
+				</div>
 			</div>
 		</main>
 	);

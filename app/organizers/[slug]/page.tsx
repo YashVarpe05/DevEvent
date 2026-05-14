@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	}
 
 	const organizer = data.organizer;
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonical = `${appUrl}/organizers/${organizer.slug}`;
 
 	return {
@@ -69,7 +69,7 @@ export default async function OrganizerPublicPage({ params }: Props) {
 	}
 
 	const { organizer, events } = data;
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonical = `${appUrl}/organizers/${organizer.slug}`;
 
 	const structuredData = {

@@ -52,22 +52,22 @@ export default function PayoutsDashboard() {
 
 	if (loading)
 		return (
-			<div className="p-8 text-center text-zinc-400">
+			<div style={{ padding: "32px", textAlign: "center", color: "var(--text-secondary)" }}>
 				Loading payout details...
 			</div>
 		);
 
 	return (
-		<main className="max-w-6xl mx-auto p-6 md:p-12 space-y-12">
-			<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-				<div className="space-y-4">
-					<h1 className="text-5xl font-black text-white tracking-tighter flex items-center gap-4">
-						<div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500 shadow-xl shadow-emerald-500/20 border border-emerald-500/10">
-							<DollarSign size={32} />
+		<main style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "48px" }}>
+			<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "24px" }}>
+				<div>
+					<h1 style={{ fontSize: "36px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", display: "flex", alignItems: "center", gap: "16px", margin: 0 }}>
+						<div style={{ width: "48px", height: "48px", background: "var(--bg-elevated)", borderRadius: "var(--radius-lg)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--gold)", border: "1px solid var(--border-dim)" }}>
+							<DollarSign size={24} />
 						</div>
 						Earnings
 					</h1>
-					<p className="text-zinc-500 max-w-sm text-lg font-medium leading-relaxed">
+					<p style={{ color: "var(--text-secondary)", fontSize: "16px", maxWidth: "400px", margin: "8px 0 0 0" }}>
 						Track your event revenue and manage payouts through Stripe Connect.
 					</p>
 				</div>
@@ -75,36 +75,47 @@ export default function PayoutsDashboard() {
 				{onboardingUrl && (
 					<a
 						href={onboardingUrl}
-						className="group bg-white text-black hover:bg-zinc-200 font-bold py-4 px-8 rounded-2xl transition-all shadow-2xl flex items-center gap-3 active:scale-95"
+						style={{
+							background: "var(--gold)",
+							color: "#000",
+							padding: "12px 24px",
+							borderRadius: "var(--radius-lg)",
+							fontWeight: 600,
+							display: "flex",
+							alignItems: "center",
+							gap: "12px",
+							textDecoration: "none",
+							boxShadow: "0 0 16px var(--gold-dim)",
+							transition: "all 0.2s"
+						}}
+						onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+						onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
 					>
 						Go to Stripe Dashboard{" "}
-						<ExternalLinkIcon
-							size={20}
-							className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
-						/>
+						<ExternalLinkIcon size={20} />
 					</a>
 				)}
 			</div>
 
 			{/* Stats Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px" }}>
 				{[
 					{
 						label: "Total Sales",
 						value: `$${((stats?.grossSales || 0) / 100).toFixed(2)}`,
-						icon: <TrendingUp className="text-emerald-400" size={24} />,
+						icon: <TrendingUp style={{ color: "var(--green)" }} size={24} />,
 						sub: "Gross across all events",
 					},
 					{
 						label: "Platform Fees",
 						value: `$${((stats?.platformFees || 0) / 100).toFixed(2)}`,
-						icon: <Building className="text-zinc-400" size={24} />,
+						icon: <Building style={{ color: "var(--text-secondary)" }} size={24} />,
 						sub: "Paid to DevEvent",
 					},
 					{
 						label: "Net Earnings",
 						value: `$${((stats?.estimatedNet || 0) / 100).toFixed(2)}`,
-						icon: <Activity className="text-blue-400" size={24} />,
+						icon: <Activity style={{ color: "var(--gold)" }} size={24} />,
 						sub: "Your total revenue",
 					},
 					{
@@ -113,34 +124,34 @@ export default function PayoutsDashboard() {
 							stats?.availableBalance === -1
 								? "Login to Stripe"
 								: `$${((stats?.availableBalance || 0) / 100).toFixed(2)}`,
-						icon: <Clock className="text-amber-400" size={24} />,
+						icon: <Clock style={{ color: "var(--text-primary)" }} size={24} />,
 						sub: "Ready for payout",
 					},
 				].map((card, i) => (
 					<div
 						key={i}
-						className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 space-y-6 shadow-sm border-b-4 border-b-zinc-800/50"
+						style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-xl)", padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}
 					>
-						<div className="flex justify-between items-center bg-zinc-800/50 w-12 h-12 rounded-2xl p-3">
+						<div style={{ display: "flex", justifyContent: "center", alignItems: "center", background: "var(--bg-elevated)", width: "48px", height: "48px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)" }}>
 							{card.icon}
 						</div>
 						<div>
-							<p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mb-1">
+							<p style={{ color: "var(--text-muted)", fontSize: "11px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>
 								{card.label}
 							</p>
-							<h4 className="text-3xl font-black text-white tracking-tight">
+							<h4 style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: "0 0 8px 0" }}>
 								{card.value}
 							</h4>
-							<p className="text-zinc-600 text-xs mt-2">{card.sub}</p>
+							<p style={{ color: "var(--text-secondary)", fontSize: "13px", margin: 0 }}>{card.sub}</p>
 						</div>
 					</div>
 				))}
 			</div>
 
-			<div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 text-center space-y-4">
-				<CreditCard size={40} className="mx-auto text-zinc-700" />
-				<h3 className="text-xl font-bold text-zinc-400">Payout History</h3>
-				<p className="text-zinc-600 max-w-md mx-auto text-sm">
+			<div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-xl)", padding: "48px 32px", textAlign: "center" }}>
+				<CreditCard size={40} style={{ color: "var(--text-muted)", margin: "0 auto 16px auto" }} />
+				<h3 style={{ fontSize: "20px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px" }}>Payout History</h3>
+				<p style={{ color: "var(--text-secondary)", fontSize: "14px", maxWidth: "480px", margin: "0 auto", lineHeight: 1.6 }}>
 					Detailed payout logs and bank transfer status are available directly
 					in your Stripe Express dashboard. Payment processing can take 2-5
 					business days depending on your bank.

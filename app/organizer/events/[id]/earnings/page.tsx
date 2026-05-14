@@ -38,34 +38,40 @@ export default function OrganizerEventEarningsPage() {
 	}
 
 	return (
-		<main className="mx-auto max-w-5xl p-6">
-			<h1 className="mb-6 text-3xl font-bold text-white">Event Earnings</h1>
-			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-				<div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-					<p className="text-xs uppercase text-zinc-500">Gross sales</p>
-					<p className="mt-2 text-2xl font-bold text-white">
+		<div style={{ maxWidth: "1000px", margin: "0 auto", padding: "32px 24px", display: "flex", flexDirection: "column", gap: "32px" }}>
+			<div>
+				<h1 style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", display: "flex", alignItems: "center", gap: "12px", margin: "0 0 8px 0" }}>
+					Event Earnings
+				</h1>
+				<p style={{ color: "var(--text-secondary)", margin: 0 }}>View a summary of your sales, refunds, and net earnings.</p>
+			</div>
+
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+				<div style={{ padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", background: "var(--bg-surface)", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+					<p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>Gross sales</p>
+					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>
 						${(summary.grossSales / 100).toFixed(2)}
 					</p>
 				</div>
-				<div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-					<p className="text-xs uppercase text-zinc-500">Refunds</p>
-					<p className="mt-2 text-2xl font-bold text-white">
+				<div style={{ padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", background: "var(--bg-surface)", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+					<p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>Refunds</p>
+					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>
 						${(summary.refunds / 100).toFixed(2)}
 					</p>
 				</div>
-				<div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-					<p className="text-xs uppercase text-zinc-500">Platform fees</p>
-					<p className="mt-2 text-2xl font-bold text-white">
+				<div style={{ padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", background: "var(--bg-surface)", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+					<p style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>Platform fees</p>
+					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>
 						${(summary.platformFees / 100).toFixed(2)}
 					</p>
 				</div>
-				<div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-					<p className="text-xs uppercase text-zinc-500">Estimated net</p>
-					<p className="mt-2 text-2xl font-bold text-white">
+				<div style={{ padding: "24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--gold-dim)", background: "var(--bg-surface)", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>
+					<p style={{ fontSize: "13px", fontWeight: 600, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px 0" }}>Estimated net</p>
+					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)", margin: 0 }}>
 						${(summary.estimatedNet / 100).toFixed(2)}
 					</p>
 				</div>
 			</div>
-		</main>
+		</div>
 	);
 }

@@ -1,0 +1,137 @@
+
+> event-platform@0.1.0 dev
+> next dev --hostname 127.0.0.1 --port 3000
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+- Environments: .env.local, .env
+
+✓ Starting...
+✓ Ready in 4.7s
+ GET /events 200 in 3.1s (compile: 1758ms, proxy.ts: 11ms, render: 1320ms)
+[Database] connection completed
+ GET / 200 in 7.8s (compile: 2.0s, proxy.ts: 87ms, render: 5.6s)
+ GET / 200 in 393ms (compile: 7ms, proxy.ts: 14ms, render: 372ms)
+ GET /api/auth/session 200 in 3.5s (compile: 3.4s, proxy.ts: 14ms, render: 58ms)
+ GET /api/auth/session 200 in 66ms (compile: 34ms, proxy.ts: 13ms, render: 20ms)
+ GET / 200 in 419ms (compile: 7ms, proxy.ts: 7ms, render: 405ms)
+ GET /api/auth/session 200 in 34ms (compile: 18ms, proxy.ts: 6ms, render: 10ms)
+ GET /api/auth/session 200 in 24ms (compile: 9ms, proxy.ts: 7ms, render: 7ms)
+✓ Compiled in 735ms
+ GET / 200 in 464ms (compile: 333ms, proxy.ts: 16ms, render: 115ms)
+✓ Compiled in 328ms
+ GET / 200 in 338ms (compile: 114ms, proxy.ts: 8ms, render: 215ms)
+ GET / 200 in 79ms (compile: 8ms, proxy.ts: 8ms, render: 64ms)
+ GET /api/auth/session 200 in 82ms (compile: 36ms, proxy.ts: 10ms, render: 36ms)
+ GET /api/auth/session 200 in 36ms (compile: 16ms, proxy.ts: 9ms, render: 12ms)
+ GET / 200 in 317ms (compile: 11ms, proxy.ts: 14ms, render: 292ms)
+ GET /api/auth/session 200 in 81ms (compile: 36ms, proxy.ts: 19ms, render: 26ms)
+ GET /api/auth/session 200 in 45ms (compile: 16ms, proxy.ts: 15ms, render: 14ms)
+ GET / 200 in 73ms (compile: 7ms, proxy.ts: 5ms, render: 62ms)
+ GET /api/auth/session 200 in 37ms (compile: 20ms, proxy.ts: 8ms, render: 9ms)
+ GET /api/auth/session 200 in 23ms (compile: 9ms, proxy.ts: 5ms, render: 9ms)
+ GET / 200 in 100ms (compile: 16ms, proxy.ts: 21ms, render: 63ms)
+ GET /api/auth/session 200 in 35ms (compile: 18ms, proxy.ts: 9ms, render: 8ms)
+ GET /api/auth/session 200 in 17ms (compile: 6ms, proxy.ts: 5ms, render: 6ms)
+✓ Compiled in 205ms
+ GET / 200 in 460ms (compile: 162ms, proxy.ts: 13ms, render: 284ms)
+ GET /api/auth/session 200 in 82ms (compile: 35ms, proxy.ts: 22ms, render: 25ms)
+ GET /api/auth/session 200 in 50ms (compile: 26ms, proxy.ts: 10ms, render: 14ms)
+ GET / 200 in 187ms (compile: 11ms, proxy.ts: 11ms, render: 165ms)
+ GET /api/auth/session 200 in 75ms (compile: 36ms, proxy.ts: 21ms, render: 18ms)
+ GET /api/auth/session 200 in 38ms (compile: 15ms, proxy.ts: 11ms, render: 12ms)
+✓ Compiled in 211ms
+ GET / 200 in 298ms (compile: 106ms, proxy.ts: 7ms, render: 185ms)
+ GET / 200 in 79ms (compile: 8ms, proxy.ts: 6ms, render: 66ms)
+ GET /api/auth/session 200 in 35ms (compile: 18ms, proxy.ts: 8ms, render: 8ms)
+ GET /api/auth/session 200 in 25ms (compile: 9ms, proxy.ts: 6ms, render: 10ms)
+ GET / 200 in 79ms (compile: 6ms, proxy.ts: 8ms, render: 65ms)
+✓ Compiled in 386ms
+✓ Compiled in 323ms
+ GET / 200 in 452ms (compile: 152ms, proxy.ts: 8ms, render: 291ms)
+✓ Compiled in 219ms
+ GET / 200 in 360ms (compile: 106ms, proxy.ts: 9ms, render: 246ms)
+ GET /api/auth/session 200 in 49ms (compile: 27ms, proxy.ts: 12ms, render: 11ms)
+ GET /api/auth/session 200 in 37ms (compile: 17ms, proxy.ts: 9ms, render: 11ms)
+✓ Compiled in 239ms
+ GET / 200 in 349ms (compile: 138ms, proxy.ts: 8ms, render: 202ms)
+ GET /api/auth/session 200 in 43ms (compile: 23ms, proxy.ts: 11ms, render: 9ms)
+ GET /api/auth/session 200 in 46ms (compile: 15ms, proxy.ts: 7ms, render: 24ms)
+✓ Compiled in 313ms
+✓ Compiled in 201ms
+✓ Compiled in 178ms
+ GET / 200 in 768ms (compile: 200ms, proxy.ts: 9ms, render: 559ms)
+ GET / 200 in 80ms (compile: 6ms, proxy.ts: 7ms, render: 67ms)
+ GET /api/auth/session 200 in 41ms (compile: 24ms, proxy.ts: 8ms, render: 9ms)
+ GET /api/auth/session 200 in 27ms (compile: 10ms, proxy.ts: 7ms, render: 10ms)
+✓ Compiled in 744ms
+ GET / 200 in 539ms (compile: 190ms, proxy.ts: 8ms, render: 340ms)
+ GET / 200 in 134ms (compile: 8ms, proxy.ts: 7ms, render: 119ms)
+ GET /api/auth/session 200 in 51ms (compile: 31ms, proxy.ts: 11ms, render: 10ms)
+ GET /api/auth/session 200 in 28ms (compile: 11ms, proxy.ts: 9ms, render: 8ms)
+✓ Compiled in 193ms
+ GET / 200 in 459ms (compile: 173ms, proxy.ts: 6ms, render: 280ms)
+ GET /api/auth/session 200 in 37ms (compile: 20ms, proxy.ts: 9ms, render: 8ms)
+ GET /api/auth/session 200 in 18ms (compile: 7ms, proxy.ts: 4ms, render: 6ms)
+✓ Compiled in 169ms
+ GET / 200 in 339ms (compile: 121ms, proxy.ts: 7ms, render: 212ms)
+ GET / 200 in 62ms (compile: 5ms, proxy.ts: 6ms, render: 51ms)
+ GET /api/auth/session 200 in 38ms (compile: 21ms, proxy.ts: 7ms, render: 10ms)
+ GET /api/auth/session 200 in 42ms (compile: 8ms, proxy.ts: 29ms, render: 5ms)
+✓ Compiled in 231ms
+ GET / 200 in 300ms (compile: 107ms, proxy.ts: 6ms, render: 187ms)
+ GET /api/auth/session 200 in 89ms (compile: 17ms, proxy.ts: 65ms, render: 7ms)
+ GET /api/auth/session 200 in 23ms (compile: 8ms, proxy.ts: 10ms, render: 5ms)
+✓ Compiled in 236ms
+✓ Compiled in 195ms
+ GET / 200 in 341ms (compile: 101ms, proxy.ts: 6ms, render: 235ms)
+ GET / 200 in 70ms (compile: 7ms, proxy.ts: 6ms, render: 57ms)
+ GET /api/auth/session 200 in 34ms (compile: 19ms, proxy.ts: 7ms, render: 8ms)
+ GET /api/auth/session 200 in 24ms (compile: 12ms, proxy.ts: 5ms, render: 7ms)
+✓ Compiled in 410ms
+ GET / 200 in 428ms (compile: 134ms, proxy.ts: 9ms, render: 285ms)
+ GET / 200 in 103ms (compile: 8ms, proxy.ts: 8ms, render: 87ms)
+ GET /api/auth/session 200 in 57ms (compile: 30ms, proxy.ts: 11ms, render: 16ms)
+ GET /api/auth/session 200 in 25ms (compile: 11ms, proxy.ts: 8ms, render: 6ms)
+✓ Compiled in 534ms
+ GET / 200 in 795ms (compile: 580ms, proxy.ts: 86ms, render: 129ms)
+ GET / 200 in 440ms (compile: 13ms, proxy.ts: 18ms, render: 408ms)
+ GET / 200 in 164ms (compile: 14ms, proxy.ts: 16ms, render: 134ms)
+ GET /api/auth/session 200 in 103ms (compile: 44ms, proxy.ts: 41ms, render: 18ms)
+ GET /api/auth/session 200 in 55ms (compile: 19ms, proxy.ts: 18ms, render: 18ms)
+ GET / 200 in 330ms (compile: 16ms, proxy.ts: 25ms, render: 289ms)
+ GET /api/auth/session 200 in 129ms (compile: 69ms, proxy.ts: 40ms, render: 20ms)
+ GET /api/auth/session 200 in 78ms (compile: 26ms, proxy.ts: 23ms, render: 30ms)
+ GET / 200 in 212ms (compile: 13ms, proxy.ts: 15ms, render: 185ms)
+ GET /api/auth/session 200 in 82ms (compile: 33ms, proxy.ts: 33ms, render: 17ms)
+ GET /api/auth/session 200 in 60ms (compile: 26ms, proxy.ts: 18ms, render: 16ms)
+ GET / 200 in 78ms (compile: 10ms, proxy.ts: 10ms, render: 58ms)
+ GET /api/auth/session 200 in 58ms (compile: 28ms, proxy.ts: 16ms, render: 14ms)
+ GET /api/auth/session 200 in 25ms (compile: 8ms, proxy.ts: 9ms, render: 8ms)
+ GET /og-image.png 404 in 243ms (compile: 49ms, proxy.ts: 18ms, render: 176ms)
+✓ Compiled in 280ms
+ GET / 200 in 400ms (compile: 114ms, proxy.ts: 4ms, render: 282ms)
+✓ Compiled in 237ms
+ GET / 200 in 307ms (compile: 108ms, proxy.ts: 5ms, render: 194ms)
+ GET /api/auth/session 200 in 64ms (compile: 32ms, proxy.ts: 24ms, render: 7ms)
+ GET /api/auth/session 200 in 30ms (compile: 9ms, proxy.ts: 15ms, render: 7ms)
+ GET / 200 in 83ms (compile: 6ms, proxy.ts: 5ms, render: 72ms)
+ GET /api/auth/session 200 in 34ms (compile: 19ms, proxy.ts: 8ms, render: 7ms)
+ GET /api/auth/session 200 in 21ms (compile: 9ms, proxy.ts: 7ms, render: 5ms)
+✓ Compiled in 249ms
+ GET / 200 in 335ms (compile: 111ms, proxy.ts: 4ms, render: 220ms)
+ GET /api/auth/session 200 in 37ms (compile: 20ms, proxy.ts: 8ms, render: 9ms)
+ GET /api/auth/session 200 in 18ms (compile: 6ms, proxy.ts: 6ms, render: 5ms)
+✓ Compiled in 284ms
+ GET / 200 in 375ms (compile: 147ms, proxy.ts: 20ms, render: 208ms)
+ GET / 200 in 122ms (compile: 20ms, proxy.ts: 7ms, render: 96ms)
+ GET /api/auth/session 200 in 43ms (compile: 22ms, proxy.ts: 10ms, render: 10ms)
+ GET /api/auth/session 200 in 20ms (compile: 11ms, proxy.ts: 4ms, render: 5ms)
+ GET /og-image.png 404 in 69ms (compile: 14ms, proxy.ts: 7ms, render: 48ms)
+ GET /og-image.png 404 in 74ms (compile: 13ms, proxy.ts: 9ms, render: 52ms)
+✓ Compiled in 282ms
+ GET / 200 in 771ms (compile: 477ms, proxy.ts: 8ms, render: 286ms)
+ GET / 200 in 137ms (compile: 5ms, proxy.ts: 8ms, render: 124ms)
+ GET /api/auth/session 200 in 40ms (compile: 20ms, proxy.ts: 8ms, render: 12ms)
+ GET /api/auth/session 200 in 18ms (compile: 9ms, proxy.ts: 4ms, render: 4ms)
