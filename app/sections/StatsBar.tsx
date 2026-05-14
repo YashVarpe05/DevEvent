@@ -1,120 +1,37 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "motion/react";
-import CountUp from "../components/CountUp";
-
-const stats = [
-	{ number: 2400, suffix: "+", label: "DEVELOPERS" },
-	{ number: 140, suffix: "+", label: "EVENTS HOSTED" },
-	{ number: 28, suffix: "", label: "CITIES" },
-	{ number: 100, suffix: "%", label: "OPEN SOURCE" },
-] as const;
+import CountUp from "@/components/CountUp";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function StatsBar() {
-	const ref = useRef<HTMLDivElement>(null);
-	const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const stats = [
+    { target: 2400, prefix: "", suffix: "+", label: "DEVELOPERS" },
+    { target: 140, prefix: "", suffix: "+", label: "EVENTS HOSTED" },
+    { target: 28, prefix: "", suffix: "", label: "CITIES" },
+    { target: 100, prefix: "", suffix: "%", label: "OPEN SOURCE" },
+  ];
 
-	return (
-		<section
-			ref={ref}
-			className="stats-bar"
-			aria-label="DevEvent platform stats"
-		>
-			<style>{statsBarStyles}</style>
-			<div className="stats-bar__inner">
-				<div className="stats-bar__grid">
-					{stats.map((stat, index) => (
-						<motion.div
-							key={stat.label}
-							initial={{ opacity: 0, y: 20 }}
-							animate={isInView ? { opacity: 1, y: 0 } : {}}
-							transition={{ duration: 0.5, delay: index * 0.1 }}
-							className="stats-bar__item"
-						>
-							<div className="stats-bar__number">
-								<CountUp
-									target={stat.number}
-									suffix={stat.suffix}
-									duration={1.5}
-									start={isInView}
-								/>
-							</div>
-							<div className="stats-bar__label">{stat.label}</div>
-						</motion.div>
-					))}
-				</div>
-			</div>
-		</section>
-	);
+  return (
+    <section className="bg-bg-elevated border-y border-border-subtle overflow-hidden">
+      <div className="max-w-[1440px] mx-auto">
+        <ScrollReveal direction="up" delay={0.2} className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border-subtle">
+          {stats.map((stat, idx) => (
+            <div key={idx} className="flex flex-col items-center justify-center py-10 px-4 text-center">
+              <div className="font-display text-[32px] md:text-[40px] font-bold text-accent mb-2">
+                <CountUp 
+                  target={stat.target} 
+                  prefix={stat.prefix} 
+                  suffix={stat.suffix} 
+                  duration={2.5} 
+                />
+              </div>
+              <div className="font-mono text-[10px] sm:text-[11px] text-text-secondary uppercase tracking-widest">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </ScrollReveal>
+      </div>
+    </section>
+  );
 }
-
-const statsBarStyles = `
-	.stats-bar {
-		width: 100%;
-		background: #111113;
-		border-bottom: 1px solid #1F1F23;
-	}
-
-	.stats-bar__inner {
-		width: min(100%, 1440px);
-		margin: 0 auto;
-		padding: 48px 24px;
-	}
-
-	.stats-bar__grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 32px 0;
-	}
-
-	.stats-bar__item {
-		display: flex;
-		min-height: 86px;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-	}
-
-	.stats-bar__number {
-		margin-bottom: 8px;
-		color: #FF6B35;
-		font-family: var(--font-mono);
-		font-size: 32px;
-		font-weight: 700;
-		line-height: 1;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.stats-bar__label {
-		color: #6B6B74;
-		font-family: var(--font-mono);
-		font-size: 11px;
-		font-weight: 500;
-		letter-spacing: 0.15em;
-		line-height: 1.2;
-		text-transform: uppercase;
-	}
-
-	@media (min-width: 768px) {
-		.stats-bar__grid {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
-			gap: 0;
-		}
-
-		.stats-bar__item:not(:last-child) {
-			border-right: 1px solid #1F1F23;
-		}
-
-		.stats-bar__number {
-			font-size: 40px;
-		}
-	}
-
-	@media (min-width: 1024px) {
-		.stats-bar__inner {
-			padding-inline: 40px;
-		}
-	}
-`;

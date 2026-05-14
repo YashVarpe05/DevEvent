@@ -1,391 +1,136 @@
 "use client";
 
-import { useRef } from "react";
-import type { LucideIcon } from "lucide-react";
-import { Globe, Lock, QrCode, Star, Users, Zap } from "lucide-react";
-import { motion, useInView, useReducedMotion } from "motion/react";
-import ScrollReveal from "../components/ScrollReveal";
-
-const heatmapData = [
-	[1, 0, 2, 0, 4, 0, 1, 3, 0, 2, 0, 1, 4, 0, 0, 2],
-	[0, 3, 0, 1, 0, 2, 4, 0, 1, 0, 3, 0, 2, 0, 1, 0],
-	[2, 0, 4, 1, 0, 3, 0, 1, 0, 4, 0, 2, 0, 3, 0, 1],
-] as const;
-
-const featureCards = [
-	{
-		description: "End-to-end encryption and compliance ready.",
-		delay: 0.1,
-		Icon: Lock,
-		title: "Secure",
-		watermark: false,
-	},
-	{
-		description: "Optimized edge routing globally.",
-		delay: 0.15,
-		Icon: Zap,
-		title: "Lightning Fast",
-		watermark: true,
-	},
-	{
-		description: "Direct integrations for instant settlement.",
-		delay: 0.2,
-		Icon: QrCode,
-		title: "UPI Native",
-		watermark: false,
-	},
-	{
-		description: "Built alongside thousands of organizers.",
-		delay: 0.25,
-		Icon: Users,
-		title: "Community First",
-		watermark: false,
-	},
-	{
-		description: "Active deployment zones across India.",
-		delay: 0.3,
-		Icon: Globe,
-		title: "28 Cities",
-		watermark: false,
-	},
-] as const;
+import ScrollReveal from "@/components/ScrollReveal";
+import { Badge } from "@/components/ui/Badge";
 
 export default function FeaturesBento() {
-	const ref = useRef<HTMLDivElement>(null);
-	const isInView = useInView(ref, { once: true, margin: "-100px" });
-	const reduceMotion = useReducedMotion();
-	const initial = reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 };
-	const animate = isInView ? { opacity: 1, y: 0 } : {};
+  return (
+    <section className="py-24 bg-bg-elevated border-b border-border-subtle overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-6">
+        
+        <ScrollReveal className="mb-16">
+          <span className="section-label mb-4 block">
+            // WHY DEVEVENT
+          </span>
+          <h2 className="editorial-headline text-[40px] md:text-[56px]">
+            Built for <br />
+            <em className="text-accent not-italic pr-2">Builders</em>
+          </h2>
+        </ScrollReveal>
 
-	return (
-		<section className="features-bento">
-			<style>{featuresBentoStyles}</style>
-			<div className="features-bento__inner">
-				<ScrollReveal>
-					<div className="features-bento__header">
-						<div className="features-bento__label">{"// WHY DEVEVENT"}</div>
-						<h2 className="features-bento__headline">
-							Built for <span>Builders</span>
-						</h2>
-					</div>
-				</ScrollReveal>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[240px]">
+          
+          {/* Card 1: Open Source (8 cols, 2 rows) */}
+          <ScrollReveal delay={0.1} className="md:col-span-8 md:row-span-2 group">
+            <div className="w-full h-full bg-bg-base border border-border-subtle hover:border-accent transition-colors relative overflow-hidden flex flex-col p-8">
+              <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                {/* Heatmap dot grid decoration */}
+                <div className="absolute inset-0 grid grid-cols-[repeat(auto-fill,20px)] grid-rows-[repeat(auto-fill,20px)] gap-1 p-4">
+                  {Array.from({ length: 400 }).map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`heatmap-cell ${Math.random() > 0.8 ? `active-${Math.floor(Math.random() * 5) + 1}` : ''}`} 
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="relative z-10 flex-1 flex flex-col justify-between">
+                <div>
+                  <Badge variant="accent" className="mb-4">100% OPEN SOURCE</Badge>
+                  <h3 className="font-display font-bold text-3xl md:text-5xl text-text-primary mb-4 leading-tight">
+                    Own your data. <br /> Fork the code.
+                  </h3>
+                  <p className="font-mono text-[12px] uppercase text-text-secondary tracking-widest max-w-md leading-relaxed">
+                    DevEvent is fully open source. Self-host it, extend it, or contribute back. The community builds the future.
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="px-4 py-2 border border-border-subtle bg-bg-elevated flex items-center gap-3">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-text-primary">
+                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                    </svg>
+                    <span className="font-mono text-[14px] text-text-primary">8.2k</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
 
-				<div ref={ref} className="features-bento__grid">
-					<motion.div
-						initial={initial}
-						animate={animate}
-						transition={{ duration: 0.6, delay: 0 }}
-						className="features-bento-card features-bento-card--open-source"
-					>
-						<div className="features-bento-card__top">
-							<div>
-								<h3 className="features-bento-card__title features-bento-card__title--large">
-									100% Open Source
-								</h3>
-								<p className="features-bento-card__copy features-bento-card__copy--wide">
-									Inspect the code, self-host the infrastructure, or contribute
-									to the core. Total transparency.
-								</p>
-							</div>
-							<div
-								className="features-bento-card__stars"
-								aria-label="12.4k GitHub stars"
-							>
-								<Star aria-hidden="true" size={16} />
-								<span>12.4k</span>
-							</div>
-						</div>
+          {/* Card 2: Secure (4 cols) */}
+          <ScrollReveal delay={0.2} className="md:col-span-4 group">
+            <div className="w-full h-full bg-bg-base border border-border-subtle hover:border-accent transition-colors p-8 flex flex-col justify-between">
+              <div className="w-12 h-12 border border-border-subtle flex items-center justify-center group-hover:border-accent transition-colors">
+                <svg className="w-5 h-5 text-text-secondary group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-2xl text-text-primary mb-2">Enterprise Security</h3>
+                <p className="font-mono text-[11px] uppercase text-text-secondary tracking-widest leading-relaxed">
+                  Bank-grade encryption for all payments and user data.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
 
-						<div className="features-bento-card__heatmap" aria-hidden="true">
-							{heatmapData.map((row, rowIndex) =>
-								row.map((cell, columnIndex) => (
-									<div
-										key={`${rowIndex}-${columnIndex}`}
-										className={`heatmap-cell active-${cell}`}
-									/>
-								)),
-							)}
-						</div>
-					</motion.div>
+          {/* Card 3: Lightning Fast (4 cols) */}
+          <ScrollReveal delay={0.3} className="md:col-span-4 group relative">
+            <div className="w-full h-full bg-bg-base border border-border-subtle hover:border-accent transition-colors p-8 flex flex-col justify-between overflow-hidden">
+              <div className="absolute -right-8 -bottom-8 font-display font-bold text-[120px] leading-none text-border-subtle opacity-50 group-hover:text-accent-dim transition-colors">
+                99<span className="text-[60px]">ms</span>
+              </div>
+              <div className="relative z-10 w-12 h-12 border border-border-subtle flex items-center justify-center group-hover:border-accent transition-colors mb-4">
+                <svg className="w-5 h-5 text-text-secondary group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div className="relative z-10 mt-auto">
+                <h3 className="font-display font-bold text-2xl text-text-primary mb-2">Lightning Fast</h3>
+                <p className="font-mono text-[11px] uppercase text-text-secondary tracking-widest leading-relaxed">
+                  Global edge caching via Next.js and Vercel.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
 
-					{featureCards.map((card) => (
-						<FeatureCard
-							key={card.title}
-							animate={animate}
-							description={card.description}
-							delay={card.delay}
-							Icon={card.Icon}
-							initial={initial}
-							title={card.title}
-							watermark={card.watermark}
-						/>
-					))}
-				</div>
-			</div>
-		</section>
-	);
+          {/* Card 4: UPI Native (4 cols) */}
+          <ScrollReveal delay={0.4} className="md:col-span-4 group">
+            <div className="w-full h-full bg-bg-base border border-border-subtle hover:border-accent transition-colors p-8 flex flex-col justify-between">
+              <div className="w-12 h-12 border border-border-subtle flex items-center justify-center group-hover:border-accent transition-colors">
+                <svg className="w-5 h-5 text-text-secondary group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-2xl text-text-primary mb-2">UPI Native</h3>
+                <p className="font-mono text-[11px] uppercase text-text-secondary tracking-widest leading-relaxed">
+                  Zero-friction payments tailored for India.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Card 5: Community (4 cols) */}
+          <ScrollReveal delay={0.5} className="md:col-span-4 group">
+            <div className="w-full h-full bg-bg-base border border-border-subtle hover:border-accent transition-colors p-8 flex flex-col justify-between">
+              <div className="w-12 h-12 border border-border-subtle flex items-center justify-center group-hover:border-accent transition-colors">
+                <svg className="w-5 h-5 text-text-secondary group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-2xl text-text-primary mb-2">Community First</h3>
+                <p className="font-mono text-[11px] uppercase text-text-secondary tracking-widest leading-relaxed">
+                  Built specifically for dev communities.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+        </div>
+      </div>
+    </section>
+  );
 }
-
-function FeatureCard({
-	animate,
-	description,
-	delay,
-	Icon,
-	initial,
-	title,
-	watermark,
-}: {
-	animate: { opacity?: number; y?: number };
-	description: string;
-	delay: number;
-	Icon: LucideIcon;
-	initial: { opacity: number; y: number };
-	title: string;
-	watermark?: boolean;
-}) {
-	return (
-		<motion.div
-			initial={initial}
-			animate={animate}
-			transition={{ duration: 0.6, delay }}
-			className="features-bento-card features-bento-card--small"
-			data-watermark={watermark ? "true" : "false"}
-		>
-			<div className="features-bento-card__content">
-				<Icon
-					aria-hidden="true"
-					className="features-bento-card__icon"
-					size={32}
-				/>
-				<h3 className="features-bento-card__title">{title}</h3>
-				<p className="features-bento-card__copy">{description}</p>
-			</div>
-			{watermark ? (
-				<div className="features-bento-card__watermark" aria-hidden="true">
-					99<span>ms</span>
-				</div>
-			) : null}
-		</motion.div>
-	);
-}
-
-const featuresBentoStyles = `
-	.features-bento {
-		width: 100%;
-		padding: 96px 0;
-		background: #0A0A0B;
-		border-bottom: 1px solid #1F1F23;
-	}
-
-	.features-bento__inner {
-		width: 100%;
-		max-width: 1440px;
-		margin: 0 auto;
-		padding: 0 24px;
-		box-sizing: border-box;
-	}
-
-	.features-bento__header {
-		margin-bottom: 48px;
-		padding-left: 16px;
-		border-left: 4px solid #FF6B35;
-	}
-
-	.features-bento__label {
-		margin-bottom: 8px;
-		color: #FF6B35;
-		font-family: var(--font-mono);
-		font-size: 12px;
-		letter-spacing: 0.1em;
-		line-height: 1.2;
-		text-transform: uppercase;
-	}
-
-	.features-bento__headline {
-		margin: 0;
-		color: #E8E6E3;
-		font-family: var(--font-display);
-		font-size: clamp(40px, 5vw, 56px);
-		font-weight: 700;
-		letter-spacing: -0.02em;
-		line-height: 0.9;
-	}
-
-	.features-bento__headline span {
-		color: #FF6B35;
-		font-style: italic;
-	}
-
-	.features-bento__grid {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 16px;
-	}
-
-	.features-bento-card {
-		position: relative;
-		display: flex;
-		min-height: 220px;
-		overflow: hidden;
-		flex-direction: column;
-		justify-content: space-between;
-		border: 1px solid #1F1F23;
-		border-radius: 0;
-		background: #111113;
-		padding: 24px;
-		transition: border-color 180ms ease;
-	}
-
-	.features-bento-card:hover {
-		border-color: #FF6B35;
-	}
-
-	.features-bento-card:hover .features-bento-card__icon {
-		color: #FF6B35;
-	}
-
-	.features-bento-card__top {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 24px;
-	}
-
-	.features-bento-card__title {
-		margin: 0 0 8px;
-		color: #E8E6E3;
-		font-family: var(--font-display);
-		font-size: 22px;
-		font-weight: 700;
-		letter-spacing: 0;
-		line-height: 1.1;
-	}
-
-	.features-bento-card__title--large {
-		font-size: clamp(28px, 3vw, 36px);
-	}
-
-	.features-bento-card__copy {
-		margin: 0;
-		color: #6B6B74;
-		font-family: var(--font-mono);
-		font-size: 12px;
-		letter-spacing: 0.02em;
-		line-height: 1.55;
-		text-transform: uppercase;
-	}
-
-	.features-bento-card__copy--wide {
-		max-width: 500px;
-		font-family: var(--font-body);
-		font-size: 16px;
-		letter-spacing: 0;
-		line-height: 1.6;
-		text-transform: none;
-	}
-
-	.features-bento-card__stars {
-		display: inline-flex;
-		flex: 0 0 auto;
-		align-items: center;
-		gap: 8px;
-		border: 1px solid #1F1F23;
-		background: #0A0A0B;
-		color: #E8E6E3;
-		font-family: var(--font-mono);
-		font-size: 12px;
-		line-height: 1;
-		padding: 8px 12px;
-	}
-
-	.features-bento-card__stars svg {
-		color: #FF6B35;
-		fill: #FF6B35;
-	}
-
-	.features-bento-card__heatmap {
-		display: grid;
-		grid-template-columns: repeat(16, 10px);
-		gap: 4px;
-		margin-top: auto;
-		padding-top: 32px;
-		opacity: 0.62;
-	}
-
-	.features-bento-card__content {
-		position: relative;
-		z-index: 1;
-	}
-
-	.features-bento-card__icon {
-		display: block;
-		margin-bottom: 16px;
-		color: #1F1F23;
-		transition: color 180ms ease;
-	}
-
-	.features-bento-card__watermark {
-		position: absolute;
-		right: 8px;
-		bottom: -10px;
-		z-index: 0;
-		color: #111113;
-		font-family: var(--font-display);
-		font-size: 100px;
-		font-weight: 700;
-		line-height: 0.8;
-		pointer-events: none;
-		user-select: none;
-		transition: color 180ms ease;
-	}
-
-	.features-bento-card:hover .features-bento-card__watermark {
-		color: #1A1B22;
-	}
-
-	.features-bento-card__watermark span {
-		font-size: 50px;
-	}
-
-	@media (min-width: 768px) {
-		.features-bento__grid {
-			grid-template-columns: repeat(12, minmax(0, 1fr));
-			grid-auto-rows: 220px;
-		}
-
-		.features-bento-card {
-			min-height: 0;
-		}
-
-		.features-bento-card--open-source {
-			grid-column: span 8;
-			grid-row: span 2;
-		}
-
-		.features-bento-card--small {
-			grid-column: span 4;
-		}
-	}
-
-	@media (min-width: 1024px) {
-		.features-bento__inner {
-			padding-inline: 40px;
-		}
-	}
-
-	@media (max-width: 640px) {
-		.features-bento {
-			padding: 72px 0;
-		}
-
-		.features-bento-card__top {
-			flex-direction: column;
-		}
-
-		.features-bento-card__heatmap {
-			grid-template-columns: repeat(12, 10px);
-		}
-	}
-`;

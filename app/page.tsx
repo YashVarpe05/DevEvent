@@ -1,7 +1,4 @@
-"use client";
-
-import type { CSSProperties } from "react";
-import Navbar from "./sections/Navbar";
+import NavbarShell from "@/components/NavbarShell";
 import Hero from "./sections/Hero";
 import StatsBar from "./sections/StatsBar";
 import CommunityMarquee from "./sections/CommunityMarquee";
@@ -10,42 +7,30 @@ import FeaturesBento from "./sections/FeaturesBento";
 import SocialProof from "./sections/SocialProof";
 import CTABottom from "./sections/CTABottom";
 import Footer from "./sections/Footer";
+import { auth } from "@/lib/auth";
 
-const homeTheme = {
-	"--home-bg": "#0A0A0B",
-	"--home-bg-deep": "#0A0A0B",
-	"--home-surface": "#111113",
-	"--home-surface-low": "#1A1B22",
-	"--home-border": "#1F1F23",
-	"--home-border-bright": "#383941",
-	"--home-text": "#E8E6E3",
-	"--home-text-soft": "#E8E6E3",
-	"--home-muted": "#6B6B74",
-	"--home-copy": "#A7A1A0",
-	"--home-primary": "#FF6B35",
-	"--home-primary-hover": "#FFB59D",
-	"--home-on-primary": "#0A0A0B",
-	"--home-secondary": "#00D4AA",
-	"--home-on-secondary": "#00382B",
-} as CSSProperties;
+export async function generateMetadata() {
+  return {
+    title: "DevEvent | India's Developer Event Platform",
+    description: "Discover hackathons, meetups, and workshops. Book your spot in seconds. No fluff.",
+  };
+}
 
-export default function HomePage() {
-	return (
-		<div
-			style={homeTheme}
-			className="min-h-screen bg-[#0A0A0B] text-[#E8E6E3]"
-		>
-			<Navbar />
-			<main>
-				<Hero />
-				<StatsBar />
-				<CommunityMarquee />
-				<EventsDiscovery />
-				<FeaturesBento />
-				<SocialProof />
-				<CTABottom />
-			</main>
-			<Footer />
-		</div>
-	);
+export default async function Home() {
+  // Fetch session server-side to pass to client NavbarShell
+  const session = await auth();
+
+  return (
+    <main className="bg-bg-base min-h-screen text-text-primary">
+      <NavbarShell user={session?.user ? { id: session.user.email || "" } : null} />
+      <Hero />
+      <StatsBar />
+      <CommunityMarquee />
+      <EventsDiscovery />
+      <FeaturesBento />
+      <SocialProof />
+      <CTABottom />
+      <Footer />
+    </main>
+  );
 }

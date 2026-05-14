@@ -1,95 +1,61 @@
-"use client";
-
-import { forwardRef } from "react";
-import { motion } from "framer-motion";
+import * as React from "react";
+import Link from "next/link";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-type ButtonSize = "sm" | "md" | "lg";
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	variant?: ButtonVariant;
-	size?: ButtonSize;
-	loading?: boolean;
-	children: React.ReactNode;
-}
-
-const variantClasses: Record<ButtonVariant, string> = {
-	primary: [
-		"bg-[#C9A84C] text-[#08080A] font-semibold",
-		"hover:bg-[#DFC06E] hover:shadow-[0_0_20px_rgba(201,168,76,0.2)]",
-		"active:bg-[#8A6E2A]",
-	].join(" "),
-	secondary: [
-		"bg-transparent text-[var(--text-primary)]",
-		"border border-[var(--border-bright)]",
-		"hover:border-[rgba(201,168,76,0.4)] hover:bg-[var(--gold-subtle)]",
-	].join(" "),
-	ghost: [
-		"bg-transparent text-[var(--text-secondary)]",
-		"hover:text-[var(--text-primary)]",
-	].join(" "),
-	danger: [
-		"bg-transparent text-[var(--red)]",
-		"border border-[rgba(204,70,70,0.3)]",
-		"hover:bg-[rgba(204,70,70,0.08)]",
-	].join(" "),
-};
-
-const sizeClasses: Record<ButtonSize, string> = {
-	sm: "h-8 px-3 text-[13px] rounded-[var(--radius-sm)]",
-	md: "h-10 px-4 text-[14px] rounded-[var(--radius-md)]",
-	lg: "h-12 px-6 text-[15px] rounded-[var(--radius-md)]",
-};
-
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-	(
-		{
-			variant = "primary",
-			size = "md",
-			loading = false,
-			disabled,
-			children,
-			className,
-			style,
-			...props
-		},
-		ref,
-	) => {
-		const isDisabled = disabled || loading;
-
-		return (
-			<motion.button
-				ref={ref}
-				whileTap={isDisabled ? undefined : { scale: 0.97 }}
-				transition={{ duration: 0.1 }}
-				disabled={isDisabled}
-				className={cn(
-					"inline-flex items-center justify-center gap-2",
-					"font-medium tracking-[0.01em]",
-					"transition-all duration-[160ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
-					"cursor-pointer select-none",
-					"disabled:opacity-40 disabled:cursor-not-allowed",
-					variantClasses[variant],
-					sizeClasses[size],
-					className,
-				)}
-				style={style}
-				{...(props as any)}
-			>
-				{loading ? (
-					<span
-						className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent"
-						aria-label="Loading"
-					/>
-				) : (
-					children
-				)}
-			</motion.button>
-		);
-	},
+const buttonVariants = cva(
+  "inline-flex items-center justify-center font-mono text-[12px] uppercase tracking-[0.1em] font-bold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        primary:
+          "bg-accent text-bg-base hover:bg-accent-hover rounded-none border-none",
+        secondary:
+          "bg-transparent text-text-primary border border-border-subtle rounded-none hover:border-accent hover:text-accent",
+        ghost: "hover:underline text-text-primary rounded-none border-none",
+      },
+      size: {
+        default: "px-6 py-3",
+        sm: "px-4 py-2",
+        md: "px-6 py-3",
+        lg: "px-8 py-4",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "default",
+    },
+  }
 );
 
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  href?: string;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, href, ...props }, ref) => {
+    if (href) {
+      return (
+        <Link
+          href={href}
+          className={cn(buttonVariants({ variant, size, className }))}
+        >
+          {props.children}
+        </Link>
+      );
+    }
+    return (
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
 Button.displayName = "Button";
-export { Button };
-export type { ButtonProps, ButtonVariant, ButtonSize };
+
+export { Button, buttonVariants };

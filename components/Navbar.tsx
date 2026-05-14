@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { auth } from "@/lib/auth";
-import { NavbarShell } from "./NavbarShell";
+import NavbarShell from "./NavbarShell";
 
 export default async function Navbar() {
 	await connection();
