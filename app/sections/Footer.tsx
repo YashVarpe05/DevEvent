@@ -7,25 +7,15 @@ const linkGroups = [
 	{
 		links: [
 			{ href: "/events", label: "Discover Events" },
-			{ href: "/organizers", label: "For Organizers" },
-			{ href: "/pricing", label: "Pricing" },
+			{ href: "/become-organizer", label: "For Organizers" },
 		],
 		title: "PLATFORM",
 	},
 	{
 		links: [
-			{ href: "/docs", label: "Documentation" },
-			{ href: "/api", label: "API" },
-			{ href: "/opensource", label: "Open Source" },
+			{ href: "https://github.com/YashVarpe05/DevEvent", label: "Open Source", external: true },
 		],
 		title: "RESOURCES",
-	},
-	{
-		links: [
-			{ href: "/privacy", label: "Privacy" },
-			{ href: "/terms", label: "Terms" },
-		],
-		title: "LEGAL",
 	},
 ] as const;
 
@@ -75,15 +65,19 @@ export default function Footer() {
 							aria-label={group.title}
 						>
 							<h2 className="footer-section__group-title">{group.title}</h2>
-							{group.links.map((link) => (
-								<Link
-									key={link.label}
-									href={link.href}
-									className="footer-section__group-link"
-								>
-									{link.label}
-								</Link>
-							))}
+							{group.links.map((link) => {
+								const isExt = 'external' in link;
+								return (
+									<Link
+										key={link.label}
+										href={link.href}
+										{...(isExt ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+										className="footer-section__group-link"
+									>
+										{link.label}
+									</Link>
+								);
+							})}
 						</nav>
 					))}
 				</div>
@@ -91,7 +85,7 @@ export default function Footer() {
 				<div className="footer-section__bottom">
 					<p>© 2026 DevEvent. All rights reserved.</p>
 					<div>
-						Built with <span>&lt;/&gt;</span> in India
+						Made with <span>♥</span> in India
 					</div>
 				</div>
 			</div>
@@ -102,8 +96,8 @@ export default function Footer() {
 const footerStyles = `
 	.footer-section {
 		width: 100%;
-		background: #0A0A0B;
-		border-top: 1px solid #1F1F23;
+		background: var(--bg-base, #0A0A0B);
+		border-top: 1px solid var(--border-dim, #1F1F23);
 	}
 
 	.footer-section__inner {
@@ -124,7 +118,7 @@ const footerStyles = `
 	.footer-section__logo {
 		display: inline-block;
 		margin-bottom: 24px;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 		font-family: var(--font-display);
 		font-size: 20px;
 		font-weight: 700;
@@ -133,14 +127,14 @@ const footerStyles = `
 	}
 
 	.footer-section__logo span {
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 		font-style: italic;
 	}
 
 	.footer-section__tagline {
 		max-width: 280px;
 		margin: 0 0 24px;
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-body);
 		font-size: 14px;
 		line-height: 1.65;
@@ -157,15 +151,15 @@ const footerStyles = `
 		height: 40px;
 		align-items: center;
 		justify-content: center;
-		border: 1px solid #1F1F23;
-		color: #6B6B74;
+		border: 1px solid var(--border-dim, #1F1F23);
+		color: var(--text-muted, #6B6B74);
 		text-decoration: none;
 		transition: border-color 180ms ease, color 180ms ease;
 	}
 
 	.footer-section__social-link:hover {
-		border-color: #FF6B35;
-		color: #FF6B35;
+		border-color: var(--gold, #FF6B35);
+		color: var(--gold, #FF6B35);
 	}
 
 	.footer-section__link-group {
@@ -176,7 +170,7 @@ const footerStyles = `
 
 	.footer-section__group-title {
 		margin: 0 0 8px;
-		color: #E8E6E3;
+		color: var(--text-primary, #E8E6E3);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 700;
@@ -186,7 +180,7 @@ const footerStyles = `
 	}
 
 	.footer-section__group-link {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 12px;
 		font-weight: 500;
@@ -198,7 +192,7 @@ const footerStyles = `
 	}
 
 	.footer-section__group-link:hover {
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 	}
 
 	.footer-section__bottom {
@@ -208,8 +202,8 @@ const footerStyles = `
 		justify-content: space-between;
 		gap: 16px;
 		padding-top: 24px;
-		border-top: 1px solid #1F1F23;
-		color: #6B6B74;
+		border-top: 1px solid var(--border-dim, #1F1F23);
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		letter-spacing: 0.08em;
@@ -223,12 +217,12 @@ const footerStyles = `
 	}
 
 	.footer-section__bottom span {
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 	}
 
 	@media (min-width: 768px) {
 		.footer-section__grid {
-			grid-template-columns: repeat(4, minmax(0, 1fr));
+			grid-template-columns: repeat(3, minmax(0, 1fr));
 		}
 
 		.footer-section__bottom {

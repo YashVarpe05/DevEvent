@@ -48,8 +48,8 @@ export default function StatsBar() {
 const statsBarStyles = `
 	.stats-bar {
 		width: 100%;
-		background: #111113;
-		border-bottom: 1px solid #1F1F23;
+		background: var(--bg-surface, #111113);
+		border-bottom: 1px solid var(--border-dim, #1F1F23);
 	}
 
 	.stats-bar__inner {
@@ -75,7 +75,7 @@ const statsBarStyles = `
 
 	.stats-bar__number {
 		margin-bottom: 8px;
-		color: #FF6B35;
+		color: var(--gold, #FF6B35);
 		font-family: var(--font-mono);
 		font-size: 32px;
 		font-weight: 700;
@@ -84,7 +84,7 @@ const statsBarStyles = `
 	}
 
 	.stats-bar__label {
-		color: #6B6B74;
+		color: var(--text-muted, #6B6B74);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 500;
@@ -100,7 +100,7 @@ const statsBarStyles = `
 		}
 
 		.stats-bar__item:not(:last-child) {
-			border-right: 1px solid #1F1F23;
+			border-right: 1px solid var(--border-dim, #1F1F23);
 		}
 
 		.stats-bar__number {
@@ -114,3 +114,4 @@ const statsBarStyles = `
 		}
 	}
 `;
+
