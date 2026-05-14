@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import { getAllEvents } from "@/lib/actions/event.actions";
 import Hero from "./sections/Hero";
 import StatsBar from "./sections/StatsBar";
 import CommunityMarquee from "./sections/CommunityMarquee";
@@ -46,7 +47,10 @@ const homeTheme = {
 	"--home-on-secondary": "#00382B",
 } as CSSProperties;
 
-export default function HomePage() {
+export default async function HomePage() {
+	const result = await getAllEvents();
+	const events = result.success && result.data ? JSON.parse(JSON.stringify(result.data)) : [];
+
 	return (
 		<div
 			style={homeTheme}
@@ -57,7 +61,7 @@ export default function HomePage() {
 				<Hero />
 				<StatsBar />
 				<CommunityMarquee />
-				<EventsDiscovery />
+				<EventsDiscovery events={events} />
 				<FeaturesBento />
 				<SocialProof />
 				<CTABottom />
