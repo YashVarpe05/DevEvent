@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import React from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { CalendarDays, Users, CalendarCheck, IndianRupee, User } from "lucide-react";
 
 export const metadata = {
 	title: "Organizer Dashboard | DevEvent",
@@ -9,105 +10,364 @@ export const metadata = {
 
 export default async function OrganizerDashboard() {
 	const session = await auth();
+	const firstName = session?.user?.name?.split(" ")[0] || "Organizer";
+
+	const statCards = [
+		{ label: "TOTAL EVENTS", value: "0", Icon: CalendarDays },
+		{ label: "TOTAL ATTENDEES", value: "0", Icon: Users },
+		{ label: "UPCOMING EVENTS", value: "0", Icon: CalendarCheck },
+	];
+
+	const quickActions = [
+		{
+			href: "/organizer/events",
+			Icon: CalendarDays,
+			title: "My Events",
+			subtitle: "Manage your events",
+		},
+		{
+			href: "/organizer/payouts",
+			Icon: IndianRupee,
+			title: "Payouts",
+			subtitle: "Track earnings",
+		},
+		{
+			href: "/organizer/settings/profile",
+			Icon: User,
+			title: "Profile",
+			subtitle: "Edit your details",
+		},
+	];
 
 	return (
-		<div style={{ padding: "32px 24px", maxWidth: "1200px", margin: "0 auto" }}>
-			<div className="flex justify-between items-center mb-8">
+		<div style={{ padding: "32px 32px 48px", maxWidth: "1100px" }}>
+			{/* SECTION 1 — Header */}
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "center",
+					marginBottom: "32px",
+					flexWrap: "wrap" as const,
+					gap: "16px",
+				}}
+			>
 				<div>
-					<h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 600, color: "var(--text-primary)" }}>
-						Organizer Dashboard
+					<span
+						style={{
+							fontSize: "10px",
+							color: "var(--gold)",
+							textTransform: "uppercase",
+							letterSpacing: "0.14em",
+							fontFamily: "var(--font-mono)",
+							display: "block",
+							marginBottom: "6px",
+						}}
+					>
+						Organizer
+					</span>
+					<h1
+						style={{
+							fontFamily: "var(--font-serif)",
+							fontSize: "32px",
+							fontWeight: 600,
+							color: "var(--text-primary)",
+							lineHeight: 1.2,
+						}}
+					>
+						Welcome back,{" "}
+						<em style={{ color: "var(--gold)", fontStyle: "italic" }}>
+							{firstName}
+						</em>
 					</h1>
-					<p style={{ color: "var(--text-secondary)", fontSize: "14px", marginTop: "4px" }}>
-						Welcome back, {session?.user?.name || "Organizer"}!
+					<p
+						style={{
+							color: "var(--text-muted)",
+							fontSize: "14px",
+							marginTop: "6px",
+						}}
+					>
+						Here&apos;s what&apos;s happening with your events
 					</p>
 				</div>
-				<div className="flex gap-4">
+
+				<div style={{ display: "flex", gap: "10px" }}>
 					<Link
 						href="/organizer/settings/profile"
+						className="dash-btn-secondary"
 						style={{
-							padding: "8px 16px",
+							padding: "10px 18px",
 							background: "var(--bg-surface)",
 							border: "1px solid var(--border-dim)",
 							color: "var(--text-primary)",
 							borderRadius: "var(--radius-md)",
-							fontSize: "14px",
+							fontSize: "13px",
 							fontWeight: 500,
 							textDecoration: "none",
-							transition: "all 0.2s"
+							transition: "all 160ms ease",
+							display: "inline-flex",
+							alignItems: "center",
 						}}
-						onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-elevated)"}
-						onMouseLeave={(e) => e.currentTarget.style.background = "var(--bg-surface)"}
 					>
 						Settings
 					</Link>
 					<Link
 						href="/organizer/events/new"
+						className="dash-btn-gold"
 						style={{
-							padding: "8px 16px",
+							padding: "10px 18px",
 							background: "var(--gold)",
-							color: "#000",
+							color: "#08080A",
 							border: "none",
 							borderRadius: "var(--radius-md)",
-							fontSize: "14px",
+							fontSize: "13px",
 							fontWeight: 600,
 							textDecoration: "none",
-							boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
-							transition: "all 0.2s"
+							transition: "all 160ms ease",
+							display: "inline-flex",
+							alignItems: "center",
 						}}
-						onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.5)"}
-						onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.3)"}
 					>
-						Create Event
+						Create Event +
 					</Link>
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-				<div style={{ padding: "24px", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)" }}>
-					<h3 style={{ color: "var(--text-muted)", fontSize: "13px", fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "8px" }}>Total Events</h3>
-					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>0</p>
-				</div>
-				<div style={{ padding: "24px", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)" }}>
-					<h3 style={{ color: "var(--text-muted)", fontSize: "13px", fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "8px" }}>Total Attendees</h3>
-					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>0</p>
-				</div>
-				<div style={{ padding: "24px", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)" }}>
-					<h3 style={{ color: "var(--text-muted)", fontSize: "13px", fontWeight: 500, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "8px" }}>Upcoming Events</h3>
-					<p style={{ fontSize: "32px", fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>0</p>
-				</div>
+			{/* SECTION 2 — Quick Actions */}
+			<div
+				style={{
+					display: "flex",
+					gap: "12px",
+					marginBottom: "32px",
+					flexWrap: "wrap" as const,
+				}}
+			>
+				{quickActions.map((action) => (
+					<Link
+						key={action.href}
+						href={action.href}
+						className="quick-action-card"
+						style={{
+							background: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderRadius: "var(--radius-lg)",
+							padding: "16px 20px",
+							textDecoration: "none",
+							display: "flex",
+							alignItems: "center",
+							gap: "12px",
+							flex: 1,
+							minWidth: "180px",
+							transition: "all 160ms ease",
+							cursor: "pointer",
+						}}
+					>
+						<div
+							style={{
+								width: "32px",
+								height: "32px",
+								background: "var(--gold-subtle)",
+								border: "1px solid rgba(201,168,76,0.15)",
+								borderRadius: "4px",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								flexShrink: 0,
+							}}
+						>
+							<action.Icon size={16} style={{ color: "var(--gold)" }} />
+						</div>
+						<div>
+							<div
+								style={{
+									fontSize: "13px",
+									fontWeight: 500,
+									color: "var(--text-primary)",
+								}}
+							>
+								{action.title}
+							</div>
+							<div
+								style={{
+									fontSize: "11px",
+									color: "var(--text-muted)",
+									marginTop: "1px",
+								}}
+							>
+								{action.subtitle}
+							</div>
+						</div>
+					</Link>
+				))}
 			</div>
 
-			<div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", padding: "48px", textAlign: "center" }}>
-				<div style={{ width: "64px", height: "64px", background: "var(--bg-elevated)", color: "var(--gold)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-					<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-					</svg>
+			{/* SECTION 3 — Stats Grid */}
+			<div
+				className="stats-grid"
+				style={{
+					display: "grid",
+					gridTemplateColumns: "repeat(3, 1fr)",
+					gap: "12px",
+					marginBottom: "32px",
+				}}
+			>
+				{statCards.map((stat) => (
+					<div
+						key={stat.label}
+						className="stat-card"
+						style={{
+							background: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderRadius: "var(--radius-lg)",
+							padding: "20px 24px",
+							transition: "all 200ms ease",
+						}}
+					>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "flex-start",
+							}}
+						>
+							<span
+								style={{
+									fontSize: "10px",
+									textTransform: "uppercase",
+									color: "var(--gold)",
+									letterSpacing: "0.14em",
+									fontFamily: "var(--font-mono)",
+									fontWeight: 500,
+								}}
+							>
+								{stat.label}
+							</span>
+							<div
+								style={{
+									width: "32px",
+									height: "32px",
+									background: "var(--gold-subtle)",
+									border: "1px solid rgba(201,168,76,0.15)",
+									borderRadius: "4px",
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+								}}
+							>
+								<stat.Icon size={16} style={{ color: "var(--gold)" }} />
+							</div>
+						</div>
+						<div
+							style={{
+								fontFamily: "var(--font-mono)",
+								fontSize: "36px",
+								fontWeight: 600,
+								color: "var(--text-primary)",
+								marginTop: "12px",
+								lineHeight: 1,
+							}}
+						>
+							{stat.value}
+						</div>
+					</div>
+				))}
+			</div>
+
+			{/* SECTION 4 — Empty State */}
+			<div
+				style={{
+					background: "var(--bg-surface)",
+					border: "1px solid var(--border-dim)",
+					borderRadius: "var(--radius-lg)",
+					padding: "56px 24px",
+					textAlign: "center",
+				}}
+			>
+				<div
+					style={{
+						width: "56px",
+						height: "56px",
+						background: "var(--gold-subtle)",
+						border: "1px solid rgba(201,168,76,0.15)",
+						borderRadius: "var(--radius-md)",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						margin: "0 auto 16px",
+					}}
+				>
+					<CalendarDays size={24} style={{ color: "var(--gold)" }} />
 				</div>
-				<h3 style={{ fontSize: "18px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "8px" }}>You don't have any events yet</h3>
-				<p style={{ color: "var(--text-secondary)", maxWidth: "380px", margin: "0 auto 24px", fontSize: "14px" }}>
-					Create your first tech event to start building your community.
+
+				<h3
+					style={{
+						fontFamily: "var(--font-serif)",
+						fontSize: "20px",
+						fontWeight: 600,
+						color: "var(--text-primary)",
+						marginBottom: "8px",
+					}}
+				>
+					No events yet
+				</h3>
+				<p
+					style={{
+						color: "var(--text-muted)",
+						fontSize: "14px",
+						marginBottom: "24px",
+						maxWidth: "340px",
+						margin: "0 auto 24px",
+						lineHeight: 1.6,
+					}}
+				>
+					Create your first tech event and start building your developer
+					community.
 				</p>
+
 				<Link
 					href="/organizer/events/new"
+					className="dash-btn-gold"
 					style={{
-						padding: "10px 20px",
+						height: "44px",
+						padding: "0 20px",
 						background: "var(--gold)",
-						color: "#000",
+						color: "#08080A",
 						border: "none",
 						borderRadius: "var(--radius-md)",
 						fontSize: "14px",
 						fontWeight: 600,
 						textDecoration: "none",
 						display: "inline-flex",
-						boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
-						transition: "all 0.2s"
+						alignItems: "center",
+						transition: "background 160ms ease",
 					}}
-					onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.5)"}
-					onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.3)"}
 				>
-					Create Your First Event
+					Create Your First Event →
 				</Link>
 			</div>
+
+			<style>{`
+				.dash-btn-secondary:hover {
+					background: var(--bg-elevated) !important;
+					border-color: var(--border) !important;
+				}
+				.dash-btn-gold:hover {
+					background: #DFC06E !important;
+				}
+				.quick-action-card:hover {
+					border-color: var(--border-bright) !important;
+					transform: translateY(-1px);
+				}
+				.stat-card:hover {
+					border-color: var(--border-bright) !important;
+					transform: translateY(-1px);
+				}
+				@media (max-width: 768px) {
+					.stats-grid {
+						grid-template-columns: 1fr !important;
+					}
+				}
+			`}</style>
 		</div>
 	);
 }
