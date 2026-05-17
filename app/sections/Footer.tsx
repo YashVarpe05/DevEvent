@@ -21,9 +21,9 @@ export default function Footer() {
             {/* Social Icons */}
             <div className="flex items-center gap-2">
               {[
-                { name: "Twitter", href: "#" },
+                { name: "Twitter", href: "https://twitter.com/devevents" },
                 { name: "GitHub", href: "https://github.com/YashVarpe05/DevEvent" },
-                { name: "Discord", href: "#" }
+                { name: "LinkedIn", href: "https://linkedin.com/company/devevents" }
               ].map((social) => (
                 <a 
                   key={social.name} 
@@ -47,17 +47,22 @@ export default function Footer() {
             <ul className="flex flex-col gap-4">
               <li>
                 <Link href="/events" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
-                  Discover Events
+                  Browse Events
                 </Link>
               </li>
               <li>
                 <Link href="/become-organizer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
-                  For Organizers
+                  Host an Event
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
-                  Pricing (Free)
+                <Link href="/login" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link href="/signup" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  Sign Up
                 </Link>
               </li>
             </ul>
@@ -69,19 +74,29 @@ export default function Footer() {
             </h4>
             <ul className="flex flex-col gap-4">
               <li>
-                <Link href="/docs" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                <a href="https://github.com/YashVarpe05/DevEvent#readme" target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
                   Documentation
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/api" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
-                  API Reference
-                </Link>
+                <a href="https://github.com/YashVarpe05/DevEvent/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  Contributing
+                </a>
               </li>
               <li>
-                <Link href="https://github.com/YashVarpe05/DevEvent" target="_blank" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                <a href="https://github.com/YashVarpe05/DevEvent#self-hosting" target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  Self Hosting
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/YashVarpe05/DevEvent" target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  API Docs
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/YashVarpe05/DevEvent" target="_blank" rel="noopener noreferrer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
                   Open Source
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -111,7 +126,7 @@ export default function Footer() {
             &copy; {currentYear} DevEvent. All rights reserved.
           </p>
           <p className="font-mono text-[10px] uppercase text-text-secondary tracking-widest">
-            Built with <span className="text-accent">&lt;/&gt;</span> in India
+            Made with <span className="text-accent">♥</span> in India 🇮🇳
           </p>
         </div>
 
