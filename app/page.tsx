@@ -7,6 +7,7 @@ import FeaturesBento from "./sections/FeaturesBento";
 import SocialProof from "./sections/SocialProof";
 import CTABottom from "./sections/CTABottom";
 import Footer from "./sections/Footer";
+import { getAllEvents } from "@/lib/actions/event.actions";
 
 export async function generateMetadata() {
   return {
@@ -16,13 +17,16 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
+  const result = await getAllEvents();
+  const events = result?.data || [];
+
   return (
     <main className="bg-bg-base min-h-screen text-text-primary">
       <Navbar />
       <Hero />
       <StatsBar />
       <CommunityMarquee />
-      <EventsDiscovery />
+      <EventsDiscovery events={events} />
       <FeaturesBento />
       <SocialProof />
       <CTABottom />
