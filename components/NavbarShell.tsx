@@ -26,7 +26,7 @@ export default function NavbarShell({ user }: NavbarShellProps) {
           : "bg-transparent border-transparent"
       }`}
     >
-      <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between relative z-50">
         <Link href="/" className="font-display font-bold text-xl tracking-tight text-text-primary">
           Dev<em className="text-accent not-italic">Event</em>
         </Link>
@@ -74,30 +74,37 @@ export default function NavbarShell({ user }: NavbarShellProps) {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-16 bg-bg-base border-t border-border-subtle z-40 p-6 flex flex-col gap-6 md:hidden">
-          <Link href="/events" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
-            Discover
-          </Link>
-          <Link href="/become-organizer" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
-            Organizers
-          </Link>
-          <Link href="https://github.com/YashVarpe05/DevEvent" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
-            Open Source
-          </Link>
-          <div className="h-px w-full bg-border-subtle my-2" />
-          {user ? (
-            <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
-              Profile
+        <>
+          <div 
+            className="fixed inset-0 z-[49] bg-black/70 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-0 top-16 bg-bg-void z-50 p-6 flex flex-col gap-6 md:hidden overflow-y-auto border-t border-border-subtle">
+            <Link href="/events" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
+              Discover
             </Link>
-          ) : (
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
-              Sign In
+            <Link href="/become-organizer" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
+              Organizers
             </Link>
-          )}
-          <Button asChild variant="primary" className="mt-4 w-full">
-            <Link href="/become-organizer" onClick={() => setMobileMenuOpen(false)}>List an Event</Link>
-          </Button>
-        </div>
+            <Link href="https://github.com/YashVarpe05/DevEvent" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
+              Open Source
+            </Link>
+            <div className="h-px w-full bg-border-subtle my-2" />
+            {user ? (
+              <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
+                Profile
+              </Link>
+            ) : (
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="font-mono text-[14px] uppercase tracking-widest text-text-primary">
+                Sign In
+              </Link>
+            )}
+            <Button asChild variant="primary" className="mt-4 w-full">
+              <Link href="/become-organizer" onClick={() => setMobileMenuOpen(false)}>List an Event</Link>
+            </Button>
+          </div>
+        </>
       )}
     </header>
   );
