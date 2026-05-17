@@ -47,7 +47,13 @@ export const getSimilarEventsBySlug = async (slug: string) => {
 export const getAllEvents = async () => {
 	try {
 		await connectDB();
-		const events = await Event.find({}).sort({ createdAt: -1 }).lean();
+		const events = await Event.find({})
+			.sort({ createdAt: -1 })
+			.populate({
+				path: 'organizerProfileId',
+				select: 'organizationName logoUrl slug'
+			})
+			.lean();
 		return { success: true, data: JSON.parse(JSON.stringify(events)) };
 	} catch (error) {
 		console.error("Error fetching events:", error);

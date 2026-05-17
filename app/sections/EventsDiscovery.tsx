@@ -99,7 +99,7 @@ export default function EventsDiscovery({ events }: EventsDiscoveryProps) {
                     price={event.basePrice ?? (event.price ? parseFloat(event.price) : undefined)}
                     currency={event.currency || 'INR'}
                     category={typeof event.category === 'string' ? event.category : event.category?.name || 'Event'}
-                    organizerName={typeof event.organizer === 'string' ? event.organizer : event.organizer?.firstName || 'Organizer'}
+                    organizerName={event.organizerProfileId?.organizationName || 'DevEvent'}
                   />
                 </motion.div>
               ))}
