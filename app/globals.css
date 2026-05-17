@@ -38,6 +38,21 @@
   --teal: #00D4AA;
   --teal-dim: rgba(0, 212, 170, 0.15);
   --error: #ffb4ab;
+
+  /* Gold / Organizer Design Tokens */
+  --gold: #C9A84C;
+  --gold-subtle: #131008;
+  --gold-bright: #DFC06E;
+  --border-dim: #1A1A1D;
+  --border: #222226;
+  --border-bright: #2A2A2E;
+  --text-muted: #4E4E58;
+  --red: #CC4646;
+  --green: #2A9D6F;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
 }
 
 @layer base {

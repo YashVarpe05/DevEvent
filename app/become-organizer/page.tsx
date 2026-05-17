@@ -5,63 +5,177 @@ export const metadata = {
 	description: "Apply to become an event organizer on DevEvent.",
 };
 
+const benefits = [
+	"Host unlimited free events",
+	"Access community-building tools",
+	"Analytics and attendee insights",
+	"Paid ticketing (coming soon)",
+];
+
 export default function BecomeOrganizerPage() {
 	return (
-		<main className="min-h-screen bg-gray-50 py-12">
-			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-					<div className="md:col-span-1 space-y-6">
-						<div>
-							<h1 className="text-3xl font-bold text-gray-900 mb-2">Build Your Community</h1>
-							<p className="text-gray-600">
-								Join thousands of organizers hosting high-quality tech events around the world.
-							</p>
-						</div>
+		<main
+			style={{
+				minHeight: "100dvh",
+				background: "var(--bg-base)",
+				padding: "48px 24px",
+			}}
+		>
+			<div
+				style={{
+					maxWidth: "960px",
+					margin: "0 auto",
+					display: "grid",
+					gridTemplateColumns: "1fr 1.6fr",
+					gap: "48px",
+					alignItems: "start",
+				}}
+				className="become-org-grid"
+			>
+				{/* LEFT COLUMN */}
+				<div>
+					{/* Page label */}
+					<span
+						style={{
+							fontSize: "10px",
+							color: "var(--gold)",
+							textTransform: "uppercase",
+							letterSpacing: "0.14em",
+							marginBottom: "8px",
+							display: "block",
+							fontFamily: "var(--font-mono)",
+						}}
+					>
+						{"// BECOME AN ORGANIZER"}
+					</span>
 
-						<div className="bg-blue-50 border border-blue-100 p-5 rounded-xl">
-							<h3 className="font-semibold text-blue-900 mb-2">Why we verify organizers</h3>
-							<p className="text-sm text-blue-800">
-								To maintain a high-quality experience for attendees, we review all new organizer applications. This helps us prevent spam and ensures all events meet our community guidelines.
-							</p>
-							<p className="text-sm text-blue-800 mt-2 font-medium">
-								Applications are typically reviewed within 48 hours.
-							</p>
-						</div>
+					{/* Heading */}
+					<h1
+						style={{
+							fontFamily: "var(--font-serif)",
+							fontSize: "clamp(28px, 4vw, 42px)",
+							fontWeight: 600,
+							color: "var(--text-primary)",
+							letterSpacing: "-0.025em",
+							lineHeight: 1.1,
+							marginBottom: "12px",
+						}}
+					>
+						Build Your
+						<br />
+						<em style={{ color: "var(--gold)", fontStyle: "italic" }}>
+							Community
+						</em>
+					</h1>
 
-						{/* Benefits List */}
-						<ul className="space-y-4 pt-4 border-t border-gray-200">
-							<li className="flex gap-3 text-sm text-gray-700">
-								<svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-								Host unlimited free events
-							</li>
-							<li className="flex gap-3 text-sm text-gray-700">
-								<svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-								Access community-building tools
-							</li>
-							<li className="flex gap-3 text-sm text-gray-700">
-								<svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-								Analytics and attendee insights
-							</li>
-							<li className="flex gap-3 text-sm text-gray-700">
-								<svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-								</svg>
-								Paid ticketing (coming soon)
-							</li>
-						</ul>
+					{/* Subtext */}
+					<p
+						style={{
+							fontSize: "14px",
+							color: "var(--text-muted)",
+							lineHeight: 1.7,
+							marginBottom: "28px",
+							maxWidth: "320px",
+						}}
+					>
+						Join thousands of organizers hosting high-quality tech events around
+						the world.
+					</p>
+
+					{/* INFO CARD */}
+					<div
+						style={{
+							background: "var(--bg-surface)",
+							border: "1px solid var(--border-dim)",
+							borderLeft: "2px solid var(--gold)",
+							borderRadius: "var(--radius-md)",
+							padding: "16px 18px",
+							marginBottom: "28px",
+						}}
+					>
+						<h3
+							style={{
+								fontSize: "13px",
+								fontWeight: 600,
+								color: "var(--text-primary)",
+								marginBottom: "6px",
+							}}
+						>
+							Why we verify organizers
+						</h3>
+						<p
+							style={{
+								fontSize: "13px",
+								color: "var(--text-muted)",
+								lineHeight: 1.6,
+							}}
+						>
+							To maintain a high-quality experience for attendees, we review all
+							new organizer applications. Applications are typically reviewed
+							within{" "}
+							<span style={{ color: "var(--gold)", fontWeight: 500 }}>
+								48 hours
+							</span>
+							.
+						</p>
 					</div>
 
-					<div className="md:col-span-2">
-						<BecomeOrganizerForm />
-					</div>
+					{/* BENEFITS LIST */}
+					<ul
+						style={{
+							borderTop: "1px solid var(--border-dim)",
+							paddingTop: "20px",
+							display: "flex",
+							flexDirection: "column",
+							gap: "10px",
+							listStyle: "none",
+							margin: 0,
+							padding: "20px 0 0 0",
+						}}
+					>
+						{benefits.map((benefit) => (
+							<li
+								key={benefit}
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "10px",
+									fontSize: "13px",
+									color: "var(--text-secondary)",
+								}}
+							>
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="var(--green)"
+									strokeWidth={2.5}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									style={{ flexShrink: 0 }}
+								>
+									<path d="M5 13l4 4L19 7" />
+								</svg>
+								{benefit}
+							</li>
+						))}
+					</ul>
+				</div>
+
+				{/* RIGHT COLUMN */}
+				<div>
+					<BecomeOrganizerForm />
 				</div>
 			</div>
+
+			<style>{`
+				@media (max-width: 768px) {
+					.become-org-grid {
+						grid-template-columns: 1fr !important;
+					}
+				}
+			`}</style>
 		</main>
 	);
 }
