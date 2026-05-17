@@ -29,6 +29,7 @@
     "next-auth": "^5.0.0-beta.30",
     "ogl": "^1.0.11",
     "posthog-js": "^1.318.1",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.72.0",
