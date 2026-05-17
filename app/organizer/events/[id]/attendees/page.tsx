@@ -94,7 +94,7 @@ export default async function OrganizerAttendeesPage({ params }: { params: Promi
         <Link 
           href={`/organizer/events/${event._id}/check-in`}
           style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px", background: "var(--gold)", color: "#000", padding: "10px 20px", borderRadius: "var(--radius-md)", fontWeight: 600, transition: "all 0.2s", textDecoration: "none", boxShadow: "0 0 16px var(--gold-dim)" }}
-          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
         >
           <QrCode className="w-5 h-5" />

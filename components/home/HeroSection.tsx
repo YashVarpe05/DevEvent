@@ -50,7 +50,7 @@ export function HeroSection() {
 					className="absolute left-1/2 top-0 -translate-x-1/2 h-[500px] w-[800px]"
 					style={{
 						background:
-							"radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 70%)",
+							"radial-gradient(ellipse at center, rgba(255,107,53,0.06) 0%, transparent 70%)",
 					}}
 				/>
 			</motion.div>

@@ -167,7 +167,7 @@ export default async function OrganizerDashboard() {
 								width: "32px",
 								height: "32px",
 								background: "var(--gold-subtle)",
-								border: "1px solid rgba(201,168,76,0.15)",
+								border: "1px solid rgba(255,107,53,0.15)",
 								borderRadius: "4px",
 								display: "flex",
 								alignItems: "center",
@@ -247,7 +247,7 @@ export default async function OrganizerDashboard() {
 									width: "32px",
 									height: "32px",
 									background: "var(--gold-subtle)",
-									border: "1px solid rgba(201,168,76,0.15)",
+									border: "1px solid rgba(255,107,53,0.15)",
 									borderRadius: "4px",
 									display: "flex",
 									alignItems: "center",
@@ -288,7 +288,7 @@ export default async function OrganizerDashboard() {
 						width: "56px",
 						height: "56px",
 						background: "var(--gold-subtle)",
-						border: "1px solid rgba(201,168,76,0.15)",
+						border: "1px solid rgba(255,107,53,0.15)",
 						borderRadius: "var(--radius-md)",
 						display: "flex",
 						alignItems: "center",
@@ -352,7 +352,7 @@ export default async function OrganizerDashboard() {
 					border-color: var(--border) !important;
 				}
 				.dash-btn-gold:hover {
-					background: #DFC06E !important;
+					background: #FF8555 !important;
 				}
 				.quick-action-card:hover {
 					border-color: var(--border-bright) !important;

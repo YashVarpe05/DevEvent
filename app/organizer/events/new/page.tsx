@@ -114,7 +114,7 @@ export default function NewEventPage() {
                     onClick={() => setValue("eventType", "offline")}
                     style={{
                       cursor: "pointer", border: `1px solid ${eventType === 'offline' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
-                      background: eventType === 'offline' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                      background: eventType === 'offline' ? 'rgba(255,107,53, 0.05)' : 'var(--bg-base)'
                     }}
                     onMouseEnter={(e) => { if(eventType !== 'offline') e.currentTarget.style.borderColor = "var(--text-muted)" }}
                     onMouseLeave={(e) => { if(eventType !== 'offline') e.currentTarget.style.borderColor = "var(--border-dim)" }}
@@ -126,7 +126,7 @@ export default function NewEventPage() {
                     onClick={() => setValue("eventType", "online")}
                     style={{
                       cursor: "pointer", border: `1px solid ${eventType === 'online' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
-                      background: eventType === 'online' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                      background: eventType === 'online' ? 'rgba(255,107,53, 0.05)' : 'var(--bg-base)'
                     }}
                     onMouseEnter={(e) => { if(eventType !== 'online') e.currentTarget.style.borderColor = "var(--text-muted)" }}
                     onMouseLeave={(e) => { if(eventType !== 'online') e.currentTarget.style.borderColor = "var(--border-dim)" }}
@@ -138,7 +138,7 @@ export default function NewEventPage() {
                     onClick={() => setValue("eventType", "hybrid")}
                     style={{
                       cursor: "pointer", border: `1px solid ${eventType === 'hybrid' ? 'var(--gold)' : 'var(--border-dim)'}`, borderRadius: "var(--radius-lg)", padding: "16px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", transition: "all 0.2s",
-                      background: eventType === 'hybrid' ? 'rgba(212, 175, 55, 0.05)' : 'var(--bg-base)'
+                      background: eventType === 'hybrid' ? 'rgba(255,107,53, 0.05)' : 'var(--bg-base)'
                     }}
                     onMouseEnter={(e) => { if(eventType !== 'hybrid') e.currentTarget.style.borderColor = "var(--text-muted)" }}
                     onMouseLeave={(e) => { if(eventType !== 'hybrid') e.currentTarget.style.borderColor = "var(--border-dim)" }}
@@ -260,10 +260,10 @@ export default function NewEventPage() {
                 type="submit"
                 disabled={isSubmitting}
                 style={{
-                  padding: "10px 24px", background: "var(--gold)", color: "#000", fontWeight: 600, borderRadius: "var(--radius-md)", border: "none", display: "flex", alignItems: "center", cursor: isSubmitting ? "not-allowed" : "pointer", opacity: isSubmitting ? 0.7 : 1, transition: "all 0.2s", boxShadow: isSubmitting ? "none" : "0 0 16px rgba(212, 175, 55, 0.2)"
+                  padding: "10px 24px", background: "var(--gold)", color: "#000", fontWeight: 600, borderRadius: "var(--radius-md)", border: "none", display: "flex", alignItems: "center", cursor: isSubmitting ? "not-allowed" : "pointer", opacity: isSubmitting ? 0.7 : 1, transition: "all 0.2s", boxShadow: isSubmitting ? "none" : "0 0 16px rgba(255,107,53, 0.2)"
                 }}
-                onMouseEnter={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
-                onMouseLeave={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
+                onMouseEnter={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+                onMouseLeave={(e) => { if(!isSubmitting) { e.currentTarget.style.boxShadow = "0 0 16px rgba(255,107,53, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
               >
                 {isSubmitting ? (
                   <>

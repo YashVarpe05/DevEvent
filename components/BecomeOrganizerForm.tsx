@@ -104,8 +104,8 @@ export default function BecomeOrganizerForm() {
 	};
 
 	const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		e.target.style.borderColor = "rgba(201,168,76,0.5)";
-		e.target.style.boxShadow = "0 0 0 3px #131008";
+		e.target.style.borderColor = "rgba(255,107,53,0.5)";
+		e.target.style.boxShadow = "0 0 0 3px #1A0A05";
 	};
 
 	const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -353,7 +353,7 @@ export default function BecomeOrganizerForm() {
 									color: "var(--gold)",
 									textDecoration: "none",
 								}}
-								onMouseEnter={(e) => (e.currentTarget.style.color = "#DFC06E")}
+								onMouseEnter={(e) => (e.currentTarget.style.color = "#FF8555")}
 								onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gold)")}
 							>
 								Terms of Service
@@ -396,7 +396,7 @@ export default function BecomeOrganizerForm() {
 									color: "var(--gold)",
 									textDecoration: "none",
 								}}
-								onMouseEnter={(e) => (e.currentTarget.style.color = "#DFC06E")}
+								onMouseEnter={(e) => (e.currentTarget.style.color = "#FF8555")}
 								onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gold)")}
 							>
 								Community Guidelines &amp; Organizer Policy
@@ -429,7 +429,7 @@ export default function BecomeOrganizerForm() {
 							opacity: isSubmitting ? 0.5 : 1,
 						}}
 						onMouseEnter={(e) => {
-							if (!isSubmitting) e.currentTarget.style.background = "#DFC06E";
+							if (!isSubmitting) e.currentTarget.style.background = "#FF8555";
 						}}
 						onMouseLeave={(e) => {
 							if (!isSubmitting) e.currentTarget.style.background = "var(--gold)";
@@ -446,7 +446,7 @@ export default function BecomeOrganizerForm() {
 					color: var(--text-primary) !important;
 				}
 				.event-type-checkbox:has(input:checked) {
-					border-color: rgba(201,168,76,0.4) !important;
+					border-color: rgba(255,107,53,0.4) !important;
 					background: rgba(19,16,8,0.8) !important;
 					color: var(--gold) !important;
 				}
@@ -455,7 +455,7 @@ export default function BecomeOrganizerForm() {
 					color: var(--text-primary) !important;
 				}
 				.ticketing-radio:has(input:checked) {
-					border-color: rgba(201,168,76,0.4) !important;
+					border-color: rgba(255,107,53,0.4) !important;
 					color: var(--text-primary) !important;
 				}
 				textarea::placeholder,

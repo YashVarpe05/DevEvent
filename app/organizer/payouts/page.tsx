@@ -88,7 +88,7 @@ export default function PayoutsDashboard() {
 							boxShadow: "0 0 16px var(--gold-dim)",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+						onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
 						onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
 					>
 						Go to Stripe Dashboard{" "}

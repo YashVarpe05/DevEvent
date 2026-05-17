@@ -125,7 +125,7 @@ export default function TicketManagementPage() {
 				<button
 					onClick={() => setIsAdding(true)}
 					style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--gold)", color: "#000", border: "none", padding: "10px 20px", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 0 16px var(--gold-dim)" }}
-					onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+					onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
 					onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
 				>
 					<Plus size={20} /> Add Tier
@@ -229,7 +229,7 @@ export default function TicketManagementPage() {
 								<button 
 									type="submit"
 									style={{ padding: "10px 24px", background: "var(--gold)", color: "#000", border: "none", borderRadius: "var(--radius-md)", fontWeight: 600, cursor: "pointer", transition: "all 0.2s", boxShadow: "0 0 16px var(--gold-dim)" }}
-									onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
+									onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; }}
 									onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; }}
 								>
 									Create Tier

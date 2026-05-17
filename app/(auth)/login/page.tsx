@@ -76,7 +76,7 @@ function LoginForm() {
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="you@example.com"
 							required
-							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(255,107,53,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
 							style={{ height: '44px', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', paddingLeft: '40px', paddingRight: '14px', color: 'var(--text-primary)' }}
 						/>
 					</div>
@@ -104,7 +104,7 @@ function LoginForm() {
 							onChange={(e) => setPassword(e.target.value)}
 							placeholder="Enter your password"
 							required
-							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(201,168,76,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
+							className="w-full text-[14px] outline-none transition-colors duration-150 placeholder:text-[var(--text-muted)] focus:border-[rgba(255,107,53,0.5)] focus:ring-[3px] focus:ring-[var(--gold-subtle)]"
 							style={{ height: '44px', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', paddingLeft: '40px', paddingRight: '40px', color: 'var(--text-primary)' }}
 						/>
 						<button

@@ -421,7 +421,7 @@ export default function DiscoveryPage() {
 												overflow: "hidden",
 												transition: "all 0.3s ease",
 											}}
-											className="group hover:border-[var(--gold)] hover:shadow-[0_4px_20px_rgba(201,168,76,0.1)] hover:-translate-y-1"
+											className="group hover:border-[var(--gold)] hover:shadow-[0_4px_20px_rgba(255,107,53,0.1)] hover:-translate-y-1"
 										>
 											{event.coverImageUrl ? (
 												<div

@@ -106,7 +106,7 @@ export default function CheckInPage() {
 								type="submit"
 								disabled={!ticketCode || status === "loading"}
 								style={{ width: "100%", background: "var(--gold)", color: "#000", fontWeight: 700, padding: "16px", borderRadius: "var(--radius-lg)", border: "none", fontSize: "18px", transition: "all 0.2s", opacity: (!ticketCode || status === "loading") ? 0.5 : 1, cursor: (!ticketCode || status === "loading") ? "not-allowed" : "pointer", boxShadow: "0 0 16px var(--gold-dim)" }}
-								onMouseEnter={(e) => { if (ticketCode && status !== "loading") { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+								onMouseEnter={(e) => { if (ticketCode && status !== "loading") { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
 								onMouseLeave={(e) => { if (ticketCode && status !== "loading") { e.currentTarget.style.boxShadow = "0 0 16px var(--gold-dim)"; e.currentTarget.style.transform = "scale(1)"; } }}
 							>
 								{status === "loading" ? "Validating..." : "Check In"}

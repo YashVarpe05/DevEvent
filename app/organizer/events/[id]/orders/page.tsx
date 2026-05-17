@@ -65,7 +65,7 @@ export default function OrganizerEventOrdersPage() {
 				</select>
 			</div>
 
-			<div style={{ padding: "16px 24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--gold-dim)", background: "rgba(212, 175, 55, 0.05)", display: "flex", alignItems: "center", gap: "24px", fontSize: "15px", color: "var(--gold)" }}>
+			<div style={{ padding: "16px 24px", borderRadius: "var(--radius-xl)", border: "1px solid var(--gold-dim)", background: "rgba(255,107,53, 0.05)", display: "flex", alignItems: "center", gap: "24px", fontSize: "15px", color: "var(--gold)" }}>
 				<span style={{ fontWeight: 600 }}>Total Orders: {totals.count}</span>
 				<span style={{ fontWeight: 600 }}>Gross Revenue: ${(totals.gross / 100).toFixed(2)}</span>
 			</div>

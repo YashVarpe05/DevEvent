@@ -23,7 +23,7 @@ export default function AuthLayout({
 				style={{
 					position: "absolute",
 					inset: 0,
-					background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%)",
+					background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,107,53,0.04) 0%, transparent 60%)",
 					pointerEvents: "none",
 					zIndex: 0,
 				}}

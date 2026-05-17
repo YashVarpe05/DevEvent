@@ -34,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 						"placeholder:text-[var(--text-muted)]",
 						error
 							? "border-[rgba(204,70,70,0.4)] shadow-[0_0_0_3px_rgba(204,70,70,0.06)]"
-							: "border-[var(--border)] focus:border-[rgba(201,168,76,0.5)] focus:shadow-[0_0_0_3px_var(--gold-subtle)]",
+							: "border-[var(--border)] focus:border-[rgba(255,107,53,0.5)] focus:shadow-[0_0_0_3px_var(--gold-subtle)]",
 						className,
 					)}
 					style={{

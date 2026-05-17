@@ -343,7 +343,7 @@ export default async function EventDetailPage({ params }: Props) {
 						style={{
 							backgroundColor: "var(--bg-void)",
 							backgroundImage:
-								"radial-gradient(ellipse 60% 50% at 50% 100%, rgba(201,168,76,0.04), transparent)",
+								"radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255,107,53,0.04), transparent)",
 						}}
 					/>
 				)}
@@ -362,7 +362,7 @@ export default async function EventDetailPage({ params }: Props) {
 									fontWeight: 500,
 									letterSpacing: "0.08em",
 									textTransform: "uppercase",
-									border: "1px solid rgba(201,168,76,0.3)",
+									border: "1px solid rgba(255,107,53,0.3)",
 									borderRadius: "var(--radius-xs, 4px)",
 									color: "var(--gold)",
 									backgroundColor: "var(--gold-subtle)",
@@ -411,7 +411,7 @@ export default async function EventDetailPage({ params }: Props) {
 									fontWeight: 500,
 									letterSpacing: "0.08em",
 									textTransform: "uppercase",
-									border: "1px solid rgba(201,168,76,0.5)",
+									border: "1px solid rgba(255,107,53,0.5)",
 									borderRadius: "var(--radius-xs, 4px)",
 									color: "var(--gold-bright)",
 									backgroundColor: "var(--gold-subtle)",
@@ -459,7 +459,7 @@ export default async function EventDetailPage({ params }: Props) {
 							className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden shrink-0"
 							style={{
 								backgroundColor: "var(--gold-subtle)",
-								border: "1px solid rgba(201,168,76,0.2)",
+								border: "1px solid rgba(255,107,53,0.2)",
 							}}
 						>
 							{event.organizerProfileId?.logoUrl ? (
@@ -601,7 +601,7 @@ export default async function EventDetailPage({ params }: Props) {
 										alignItems: "center",
 										justifyContent: "center",
 										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid var(--border-gold, rgba(201,168,76,0.3))",
+										border: "1px solid var(--border-gold, rgba(255,107,53,0.3))",
 									}}
 								>
 									{event.organizerProfileId?.logoUrl ? (
@@ -902,7 +902,7 @@ export default async function EventDetailPage({ params }: Props) {
 									width: "36px",
 									height: "36px",
 									backgroundColor: "var(--gold-subtle)",
-									border: "1px solid rgba(201,168,76,0.15)",
+									border: "1px solid rgba(255,107,53,0.15)",
 									borderRadius: "var(--radius-sm, 6px)",
 									display: "flex",
 									alignItems: "center",
@@ -992,7 +992,7 @@ export default async function EventDetailPage({ params }: Props) {
 										width: "36px",
 										height: "36px",
 										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid rgba(201,168,76,0.15)",
+										border: "1px solid rgba(255,107,53,0.15)",
 										borderRadius: "var(--radius-sm, 6px)",
 										display: "flex",
 										alignItems: "center",
@@ -1074,7 +1074,7 @@ export default async function EventDetailPage({ params }: Props) {
 										width: "36px",
 										height: "36px",
 										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid rgba(201,168,76,0.15)",
+										border: "1px solid rgba(255,107,53,0.15)",
 										borderRadius: "var(--radius-sm, 6px)",
 										display: "flex",
 										alignItems: "center",

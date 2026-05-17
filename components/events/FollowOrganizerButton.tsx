@@ -69,7 +69,7 @@ export function FollowOrganizerButton({
 					letterSpacing: "0.05em",
 					padding: "6px 12px",
 					borderRadius: "var(--radius-sm, 6px)",
-					border: following ? "1px solid var(--border-dim)" : "1px solid rgba(201,168,76,0.3)",
+					border: following ? "1px solid var(--border-dim)" : "1px solid rgba(255,107,53,0.3)",
 				}}
 			>
 				{loading ? "..." : following ? "Following" : "Follow"}

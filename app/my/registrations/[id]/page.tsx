@@ -107,7 +107,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
               style={{
                 position: "absolute",
                 inset: "-1px",
-                background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05), transparent 60%)",
+                background: "linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,107,53,0.05), transparent 60%)",
                 borderRadius: "calc(var(--radius-xl) + 1px)",
                 filter: "blur(8px)",
                 zIndex: 0,
@@ -121,7 +121,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
               position: "relative",
               zIndex: 1,
               background: "var(--bg-surface)",
-              border: `1px solid ${isCancelled ? "var(--border-dim)" : "rgba(201,168,76,0.2)"}`,
+              border: `1px solid ${isCancelled ? "var(--border-dim)" : "rgba(255,107,53,0.2)"}`,
               borderRadius: "var(--radius-xl)",
               overflow: "hidden",
             }}
@@ -133,7 +133,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                   ? "var(--bg-elevated)"
                   : "linear-gradient(135deg, var(--bg-elevated) 0%, var(--gold-subtle) 100%)",
                 padding: "24px 24px 20px",
-                borderBottom: "1px dashed rgba(201,168,76,0.2)",
+                borderBottom: "1px dashed rgba(255,107,53,0.2)",
                 position: "relative",
               }}
             >
@@ -146,7 +146,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                     right: 0,
                     width: "120px",
                     height: "120px",
-                    background: "radial-gradient(circle at top right, rgba(201,168,76,0.06), transparent 70%)",
+                    background: "radial-gradient(circle at top right, rgba(255,107,53,0.06), transparent 70%)",
                     pointerEvents: "none",
                   }}
                 />
@@ -234,7 +234,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Perforated edge divider */}
-            <div style={{ position: "relative", height: "1px", borderTop: "1px dashed rgba(201,168,76,0.15)" }}>
+            <div style={{ position: "relative", height: "1px", borderTop: "1px dashed rgba(255,107,53,0.15)" }}>
               <div
                 style={{
                   position: "absolute",

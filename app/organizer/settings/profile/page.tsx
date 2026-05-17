@@ -318,11 +318,11 @@ export default function OrganizerProfileSettings() {
 							border: "none",
 							cursor: saving ? "not-allowed" : "pointer",
 							opacity: saving ? 0.7 : 1,
-							boxShadow: saving ? "none" : "0 0 16px rgba(212, 175, 55, 0.2)",
+							boxShadow: saving ? "none" : "0 0 16px rgba(255,107,53, 0.2)",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
-						onMouseLeave={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
+						onMouseEnter={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.4)"; e.currentTarget.style.transform = "scale(0.98)"; } }}
+						onMouseLeave={(e) => { if(!saving) { e.currentTarget.style.boxShadow = "0 0 16px rgba(255,107,53, 0.2)"; e.currentTarget.style.transform = "scale(1)"; } }}
 					>
 						{saving ? "Saving Changes..." : "Save Profile"}
 					</button>

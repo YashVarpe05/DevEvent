@@ -58,11 +58,11 @@ export default async function OrganizerEventsPage({
 							display: "flex",
 							alignItems: "center",
 							gap: "8px",
-							boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
+							boxShadow: "0 0 16px rgba(255,107,53, 0.3)",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(212, 175, 55, 0.5)"}
-						onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.3)"}
+						onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.5)"}
+						onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(255,107,53, 0.3)"}
 					>
 						<Plus className="w-4 h-4" />
 						Create Event
@@ -146,7 +146,7 @@ export default async function OrganizerEventsPage({
 							fontWeight: 600,
 							textDecoration: "none",
 							display: "inline-flex",
-							boxShadow: "0 0 16px rgba(212, 175, 55, 0.3)",
+							boxShadow: "0 0 16px rgba(255,107,53, 0.3)",
 							transition: "all 0.2s"
 						}}
 					>
