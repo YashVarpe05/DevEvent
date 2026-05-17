@@ -1,19 +1,101 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import MagneticButton from "@/components/MagneticButton";
 
+/* ── Hero card data ── */
+const heroCards = [
+  {
+    id: 1,
+    title: "AI Agents Buildspace",
+    category: "Hackathon",
+    location: "Bengaluru",
+    date: "JUN 14, 2025",
+    time: "10:00 AM",
+    attendees: 124,
+    badge: "LIVE NOW",
+    badgeVariant: "accent" as const,
+    image: "/images/hero/hackathon.png",
+  },
+  {
+    id: 2,
+    title: "React India Conf '25",
+    category: "Conference",
+    location: "Goa",
+    date: "AUG 22, 2025",
+    time: "09:00 AM",
+    attendees: 890,
+    badge: "TRENDING",
+    badgeVariant: "teal" as const,
+    image: "/images/hero/conference.png",
+  },
+  {
+    id: 3,
+    title: "DevOps & Cloud Meetup",
+    category: "Meetup",
+    location: "Hyderabad",
+    date: "JUL 05, 2025",
+    time: "06:30 PM",
+    attendees: 67,
+    badge: "FREE",
+    badgeVariant: "teal" as const,
+    image: "/images/hero/meetup.png",
+  },
+  {
+    id: 4,
+    title: "Fullstack Workshop",
+    category: "Workshop",
+    location: "Remote",
+    date: "JUL 19, 2025",
+    time: "02:00 PM",
+    attendees: 210,
+    badge: "FILLING FAST",
+    badgeVariant: "accent" as const,
+    image: "/images/hero/workshop.png",
+  },
+];
+
+/* ── Vertical text words ── */
+const verticalWords = ["HACKATHON", "MEETUP", "WORKSHOP", "CONFERENCE"];
+
+/* ── Positions for the 4-card stack ── */
+const stackPositions = [
+  { zIndex: 40, x: 0, y: 0, rotate: -2, scale: 1, opacity: 1 },
+  { zIndex: 30, x: 24, y: -12, rotate: 3, scale: 0.95, opacity: 0.85 },
+  { zIndex: 20, x: -16, y: -20, rotate: -6, scale: 0.90, opacity: 0.55 },
+  { zIndex: 10, x: 8, y: -28, rotate: 5, scale: 0.85, opacity: 0.30 },
+];
+
 export default function Hero() {
+  const [order, setOrder] = useState([0, 1, 2, 3]);
+  const [isHovering, setIsHovering] = useState(false);
+  const [glitchIdx, setGlitchIdx] = useState<number | null>(null);
+
+  /* Auto-shuffle every 3.5s unless hovering */
+  const shuffle = useCallback(() => {
+    setOrder((prev) => {
+      const next = [...prev];
+      const front = next.shift()!;
+      next.push(front);
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isHovering) return;
+    const timer = setInterval(shuffle, 3500);
+    return () => clearInterval(timer);
+  }, [isHovering, shuffle]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
     },
   };
 
@@ -26,7 +108,7 @@ export default function Hero() {
     <section className="relative min-h-[90vh] flex items-center pt-24 pb-16 overflow-hidden bg-bg-base">
       <div className="max-w-[1440px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center z-10">
         
-        {/* LEFT: Content (55%) */}
+        {/* LEFT: Content */}
         <motion.div 
           className="lg:col-span-6 xl:col-span-7 flex flex-col items-start"
           variants={containerVariants}
@@ -93,64 +175,179 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* CENTER: Vertical chaos strip */}
-        <div className="hidden xl:flex lg:col-span-1 justify-center relative h-full">
-          <div className="absolute top-1/2 -translate-y-1/2 editorial-hairline h-[200px]"></div>
-          <div className="absolute top-1/2 -translate-y-1/2 vertical-text font-mono text-[10px] text-border-subtle uppercase tracking-[0.2em] mix-blend-screen">
-            HACKATHON &middot; MEETUP &middot; WORKSHOP &middot; CONFERENCE
+        {/* CENTER: Vertical scrolling text */}
+        <div className="hidden xl:flex lg:col-span-1 justify-center relative h-[520px]">
+          {/* Hairline */}
+          <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border-subtle opacity-30" />
+          
+          {/* Vertical marquee */}
+          <div className="hero-vertical-track">
+            <div className="hero-vertical-scroll">
+              {/* Repeat 3x for seamless loop */}
+              {[...Array(3)].map((_, rep) => (
+                <div key={rep} className="flex flex-col items-center gap-6">
+                  {verticalWords.map((word, i) => (
+                    <span key={`${rep}-${i}`} className="hero-vertical-word">
+                      {word}
+                    </span>
+                  ))}
+                  <span className="hero-vertical-dot">&middot;</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* RIGHT: Overlapping Cards (45%) */}
+        {/* RIGHT: Shuffling Card Stack */}
         <motion.div 
-          className="lg:col-span-6 xl:col-span-4 relative h-[400px] sm:h-[500px] w-full mt-10 lg:mt-0"
+          className="lg:col-span-6 xl:col-span-4 relative h-[440px] sm:h-[520px] w-full mt-10 lg:mt-0"
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => { setIsHovering(false); setGlitchIdx(null); }}
         >
-          {/* Card 3 (Back) */}
-          <div className="absolute top-[10%] right-[15%] w-[70%] aspect-[3/4] bg-bg-surface border border-border-subtle -rotate-8 origin-bottom-right opacity-40">
-            <div className="grain-overlay"></div>
-          </div>
-          
-          {/* Card 2 (Middle) */}
-          <div className="absolute top-[5%] right-[5%] w-[75%] aspect-[3/4] bg-bg-surface-high border border-border-subtle rotate-3 origin-bottom-left opacity-80">
-            <div className="grain-overlay"></div>
-          </div>
-          
-          {/* Card 1 (Front) */}
-          <div className="absolute top-0 right-0 w-[85%] aspect-[3/4] bg-bg-elevated border border-accent shadow-[0_0_30px_rgba(255,107,53,0.1)] -rotate-2 origin-center overflow-hidden flex flex-col group">
-            <div className="grain-overlay"></div>
-            
-            <div className="relative h-[55%] bg-[#1a1a1e] border-b border-border-subtle overflow-hidden">
-              <div className="absolute top-4 right-4 z-10">
-                <Badge variant="accent" className="animate-pulse">LIVE NOW</Badge>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-bg-elevated to-transparent opacity-50"></div>
-            </div>
-            
-            <div className="p-6 flex flex-col justify-between flex-1 relative z-10">
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="default">Hackathon</Badge>
-                  <span className="font-mono text-[10px] text-text-secondary uppercase">Bengaluru</span>
-                </div>
-                <h3 className="font-display font-bold text-2xl text-text-primary leading-tight mb-2 group-hover:text-accent transition-colors">
-                  AI Agents Buildspace
-                </h3>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-border-subtle flex items-center justify-between">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-8 h-8 bg-bg-surface border border-border-subtle flex items-center justify-center font-mono text-[10px]">
-                      {i}
+          <AnimatePresence mode="sync">
+            {order.map((cardIdx, stackPos) => {
+              const card = heroCards[cardIdx];
+              const pos = stackPositions[stackPos];
+              const isFront = stackPos === 0;
+
+              return (
+                <motion.div
+                  key={card.id}
+                  layout
+                  className="absolute top-0 right-0 w-[82%] sm:w-[78%] cursor-pointer"
+                  style={{ zIndex: pos.zIndex }}
+                  animate={{
+                    x: pos.x,
+                    y: pos.y,
+                    rotate: pos.rotate,
+                    scale: pos.scale,
+                    opacity: pos.opacity,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 24,
+                    mass: 0.8,
+                  }}
+                  onClick={() => {
+                    if (!isFront) {
+                      setOrder((prev) => {
+                        const next = prev.filter((i) => i !== cardIdx);
+                        return [cardIdx, ...next];
+                      });
+                    }
+                  }}
+                  whileHover={isFront ? { scale: 1.02, y: -4 } : { scale: pos.scale + 0.02 }}
+                >
+                  <div
+                    className={`
+                      aspect-[3/4] bg-bg-elevated border overflow-hidden flex flex-col group
+                      ${isFront 
+                        ? "border-accent/60 shadow-[0_0_40px_rgba(255,107,53,0.12)]" 
+                        : "border-border-subtle"}
+                    `}
+                    onMouseEnter={() => isFront && setGlitchIdx(cardIdx)}
+                    onMouseLeave={() => setGlitchIdx(null)}
+                  >
+                    {/* Image area */}
+                    <div className="relative h-[55%] overflow-hidden bg-[#0d0e15]">
+                      <Image
+                        src={card.image}
+                        alt={card.title}
+                        fill
+                        className={`object-cover transition-all duration-500 ${
+                          isFront 
+                            ? "grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105" 
+                            : "grayscale brightness-75"
+                        }`}
+                        sizes="(max-width: 768px) 80vw, 400px"
+                      />
+                      
+                      {/* Glitch effect layers — only on hovered front card */}
+                      {glitchIdx === cardIdx && (
+                        <>
+                          <div className="hero-glitch-layer hero-glitch-r" />
+                          <div className="hero-glitch-layer hero-glitch-b" />
+                          <div className="hero-glitch-scanlines" />
+                        </>
+                      )}
+
+                      {/* Badge */}
+                      <div className="absolute top-3 right-3 z-10">
+                        <Badge
+                          variant={card.badgeVariant}
+                          className={card.badge === "LIVE NOW" ? "animate-pulse" : ""}
+                        >
+                          {card.badge}
+                        </Badge>
+                      </div>
+
+                      {/* Bottom gradient fade */}
+                      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg-elevated to-transparent z-[5]" />
                     </div>
-                  ))}
-                </div>
-                <span className="font-mono text-[10px] text-text-secondary uppercase tracking-widest">+124 JOINED</span>
-              </div>
-            </div>
+
+                    {/* Content */}
+                    <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 relative z-10">
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge variant="default">{card.category}</Badge>
+                          <span className="font-mono text-[10px] text-text-secondary uppercase tracking-wider">
+                            {card.location}
+                          </span>
+                        </div>
+                        <h3 className="font-display font-bold text-xl sm:text-2xl text-text-primary leading-tight mb-2 group-hover:text-accent transition-colors duration-200">
+                          {card.title}
+                        </h3>
+                        <p className="font-mono text-[10px] sm:text-[11px] text-text-secondary uppercase tracking-widest">
+                          {card.date} &middot; {card.time}
+                        </p>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 pt-4 border-t border-border-subtle flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {[0, 1, 2].map((i) => (
+                            <div
+                              key={i}
+                              className="w-7 h-7 border border-border-subtle flex items-center justify-center font-mono text-[9px] text-text-secondary bg-bg-surface"
+                            >
+                              {String.fromCharCode(65 + (card.id + i) % 26)}
+                            </div>
+                          ))}
+                        </div>
+                        <span className="font-mono text-[10px] text-text-secondary uppercase tracking-widest">
+                          +{card.attendees} JOINED
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+
+          {/* Navigation dots */}
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 z-50">
+            {heroCards.map((card, i) => (
+              <button
+                key={card.id}
+                onClick={() => {
+                  setOrder((prev) => {
+                    const next = prev.filter((idx) => idx !== i);
+                    return [i, ...next];
+                  });
+                }}
+                className={`
+                  h-1.5 transition-all duration-300 
+                  ${order[0] === i 
+                    ? "w-6 bg-accent" 
+                    : "w-1.5 bg-border-subtle hover:bg-text-secondary"}
+                `}
+              />
+            ))}
           </div>
         </motion.div>
         

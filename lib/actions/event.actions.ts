@@ -34,10 +34,11 @@ export const getSimilarEventsBySlug = async (slug: string) => {
 			return [];
 		}
 
-		return await Event.find({
+		const similar = await Event.find({
 			_id: { $ne: event._id },
 			tags: { $in: event.tags },
 		}).lean();
+		return JSON.parse(JSON.stringify(similar));
 	} catch {
 		return [];
 	}
@@ -47,7 +48,7 @@ export const getAllEvents = async () => {
 	try {
 		await connectDB();
 		const events = await Event.find({}).sort({ createdAt: -1 }).lean();
-		return { success: true, data: events };
+		return { success: true, data: JSON.parse(JSON.stringify(events)) };
 	} catch (error) {
 		console.error("Error fetching events:", error);
 		return { success: false, error: "Failed to fetch events" };

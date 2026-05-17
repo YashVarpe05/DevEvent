@@ -280,6 +280,122 @@
   white-space: nowrap;
 }
 
+/* ─── HERO VERTICAL MARQUEE ─── */
+.hero-vertical-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.hero-vertical-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: hero-vert-scroll 12s linear infinite;
+}
+
+.hero-vertical-word {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.35;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 12px 0;
+  transition: opacity 0.3s, color 0.3s;
+  white-space: nowrap;
+}
+
+.hero-vertical-dot {
+  font-size: 20px;
+  color: var(--accent);
+  opacity: 0.4;
+  padding: 8px 0;
+}
+
+.hero-vertical-track:hover .hero-vertical-word {
+  opacity: 0.8;
+  color: var(--accent);
+}
+
+@keyframes hero-vert-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-33.33%); }
+}
+
+/* ─── HERO CARD GLITCH EFFECT ─── */
+.hero-glitch-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.hero-glitch-r {
+  background: rgba(255, 107, 53, 0.07);
+  animation: hero-glitch-clip 0.3s steps(2) infinite;
+}
+
+.hero-glitch-b {
+  background: rgba(0, 212, 170, 0.05);
+  animation: hero-glitch-clip 0.3s steps(3) infinite reverse;
+}
+
+@keyframes hero-glitch-clip {
+  0% {
+    clip-path: inset(0 0 85% 0);
+    transform: translate(3px, 0);
+  }
+  20% {
+    clip-path: inset(40% 0 30% 0);
+    transform: translate(-3px, 0);
+  }
+  40% {
+    clip-path: inset(70% 0 5% 0);
+    transform: translate(2px, 0);
+  }
+  60% {
+    clip-path: inset(10% 0 60% 0);
+    transform: translate(-1px, 0);
+  }
+  80% {
+    clip-path: inset(55% 0 15% 0);
+    transform: translate(4px, 0);
+  }
+  100% {
+    clip-path: inset(0 0 90% 0);
+    transform: translate(-2px, 0);
+  }
+}
+
+.hero-glitch-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
+  animation: hero-scanline-move 4s linear infinite;
+}
+
+@keyframes hero-scanline-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
 /* ─── EDITORIAL HAIRLINE ─── */
 .editorial-hairline {
   width: 1px;

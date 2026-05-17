@@ -68,15 +68,28 @@ export default function EventsDiscovery() {
           const result = await getAllEvents();
           if (result?.data && result.data.length > 0) {
             fetchedEvents = result.data.map((evt: any) => ({
-              ...evt,
-              date: new Date(evt.startDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase(),
-              time: new Date(evt.startDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-              location: evt.location || "REMOTE",
-              category: evt.category?.name || "Event",
-              image: evt.imageUrl || "",
-              organizerName: evt.organizer?.firstName || "Organizer",
-              isPaid: evt.isFree === false,
-              price: evt.price ? parseFloat(evt.price) : undefined,
+              _id: evt._id,
+              title: evt.title,
+              slug: evt.slug,
+              date: evt.startAt
+                ? new Date(evt.startAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+                : evt.startDateTime
+                  ? new Date(evt.startDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+                  : 'TBA',
+              time: evt.startAt
+                ? new Date(evt.startAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                : evt.startDateTime
+                  ? new Date(evt.startDateTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                  : 'TBA',
+              location: typeof evt.location === 'string'
+                ? evt.location
+                : evt.location?.city || evt.location?.venueName || 'REMOTE',
+              category: typeof evt.category === 'string' ? evt.category : evt.category?.name || 'Event',
+              image: evt.coverImageUrl || evt.imageUrl || '',
+              organizerName: typeof evt.organizer === 'string' ? evt.organizer : evt.organizer?.firstName || 'Organizer',
+              isPaid: evt.isPaid ?? (evt.isFree === false),
+              price: evt.basePrice ?? (evt.price ? parseFloat(evt.price) : undefined),
+              currency: evt.currency || 'INR',
             }));
           }
         } catch (e) {
@@ -92,9 +105,10 @@ export default function EventsDiscovery() {
     fetchEvents();
   }, []);
 
-  const filteredEvents = activeFilter === "All" 
+  const filteredEvents = (activeFilter === "All" 
     ? events 
-    : events.filter(e => e.category?.toLowerCase() === activeFilter.toLowerCase());
+    : events.filter(e => e.category?.toLowerCase() === activeFilter.toLowerCase())
+  ).slice(0, 6);
 
   return (
     <section className="py-24 bg-bg-base border-b border-border-subtle" id="discover">
@@ -131,11 +145,18 @@ export default function EventsDiscovery() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-full aspect-[4/5] animate-shimmer border border-border-subtle rounded-none" />
+              <div key={i} className="w-full animate-shimmer border border-border-subtle">
+                <div className="h-[180px]" />
+                <div className="p-5 space-y-3">
+                  <div className="h-3 w-24 bg-border-subtle" />
+                  <div className="h-5 w-3/4 bg-border-subtle" />
+                  <div className="h-3 w-16 bg-border-subtle" />
+                </div>
+              </div>
             ))}
           </div>
         ) : filteredEvents.length > 0 ? (
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             <AnimatePresence>
               {filteredEvents.map((event, idx) => (
                 <motion.div

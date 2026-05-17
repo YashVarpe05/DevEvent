@@ -1,4 +1,4 @@
-import NavbarShell from "@/components/NavbarShell";
+import Navbar from "@/components/Navbar";
 import Hero from "./sections/Hero";
 import StatsBar from "./sections/StatsBar";
 import CommunityMarquee from "./sections/CommunityMarquee";
@@ -7,7 +7,6 @@ import FeaturesBento from "./sections/FeaturesBento";
 import SocialProof from "./sections/SocialProof";
 import CTABottom from "./sections/CTABottom";
 import Footer from "./sections/Footer";
-import { auth } from "@/lib/auth";
 
 export async function generateMetadata() {
   return {
@@ -17,12 +16,9 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  // Fetch session server-side to pass to client NavbarShell
-  const session = await auth();
-
   return (
     <main className="bg-bg-base min-h-screen text-text-primary">
-      <NavbarShell user={session?.user ? { id: session.user.email || "" } : null} />
+      <Navbar />
       <Hero />
       <StatsBar />
       <CommunityMarquee />
