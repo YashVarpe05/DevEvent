@@ -133,7 +133,7 @@ export function calculateOrderPricing(
 			quantity: item.quantity,
 			unitPrice: item.ticketType.price,
 		})),
-		currency: "usd",
+		currency: "inr",
 		organizerPlan: "free",
 		discount,
 	});

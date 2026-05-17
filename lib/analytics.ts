@@ -18,7 +18,8 @@ export function trackServerEvent(
 		| "organizer_followed"
 		| "saved_search_created"
 		| "share_clicked"
-		| "user_referral_conversion_success",
+		| "user_referral_conversion_success"
+		| "razorpay_order_created",
 	payload: Record<string, unknown>,
 ) {
 	void payload;

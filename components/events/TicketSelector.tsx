@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
+import PaymentMethodSelector from "@/components/events/PaymentMethodSelector";
 
 function getCurrencySymbol(currency: string): string {
   const symbols: Record<string, string> = {
@@ -45,6 +46,7 @@ export default function TicketSelector({
 	const [isCheckingOut, setIsCheckingOut] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [pricing, setPricing] = useState<PricingBreakdown | null>(null);
+	const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "stripe">("razorpay");
 
 	const [promoCodeInput, setPromoCodeInput] = useState("");
 	const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
@@ -179,17 +181,81 @@ export default function TicketSelector({
 			if (referralCode) payload.referralCode = referralCode;
 			if (appliedPromo) payload.promoCode = appliedPromo;
 
-			const res = await fetch(`/api/checkout/create-session`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			});
+			if (paymentMethod === "razorpay") {
+				// Razorpay flow
+				const res = await fetch("/api/checkout/razorpay", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload),
+				});
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Checkout failed");
 
-			const data = await res.json();
-			if (!res.ok) throw new Error(data.error || "Checkout failed");
+				if (data.bypassed && data.url) {
+					window.location.href = data.url;
+					return;
+				}
 
-			if (data.url) {
-				window.location.href = data.url;
+				// Load Razorpay script and open checkout
+				const script = document.createElement("script");
+				script.src = "https://checkout.razorpay.com/v1/checkout.js";
+				script.async = true;
+				document.body.appendChild(script);
+
+				script.onload = () => {
+					const options = {
+						key: data.keyId,
+						amount: data.amount,
+						currency: data.currency,
+						name: "DevEvent",
+						description: "Event Ticket",
+						order_id: data.razorpayOrderId,
+						prefill: data.prefill,
+						theme: { color: "#FF6B35" },
+						handler: async (response: any) => {
+							const verifyRes = await fetch("/api/webhooks/razorpay", {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									razorpay_order_id: response.razorpay_order_id,
+									razorpay_payment_id: response.razorpay_payment_id,
+									razorpay_signature: response.razorpay_signature,
+									orderId: data.orderId,
+								}),
+							});
+							const verifyData = await verifyRes.json();
+							if (verifyData.success) {
+								window.location.href = `/orders/${data.orderId}/confirmation`;
+							} else {
+								setError("Payment verification failed");
+								setIsCheckingOut(false);
+							}
+						},
+						modal: {
+							ondismiss: () => {
+								setIsCheckingOut(false);
+							},
+						},
+					};
+					const rzp = new (window as any).Razorpay(options);
+					rzp.open();
+				};
+
+				return;
+			} else {
+				// Existing Stripe flow — kept exactly as is
+				const res = await fetch(`/api/checkout/create-session`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload),
+				});
+
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Checkout failed");
+
+				if (data.url) {
+					window.location.href = data.url;
+				}
 			}
 		} catch (err: unknown) {
 			setError(err instanceof Error ? err.message : "Checkout failed");
@@ -345,6 +411,14 @@ export default function TicketSelector({
 				<p style={{ fontSize: "12px", color: "#EF4444", backgroundColor: "rgba(239,68,68,0.1)", padding: "8px", borderRadius: "4px", border: "1px solid rgba(239,68,68,0.2)" }}>
 					{error}
 				</p>
+			)}
+
+			{totalItems > 0 && (
+				<PaymentMethodSelector
+					selectedMethod={paymentMethod}
+					onSelect={setPaymentMethod}
+					currency={currency}
+				/>
 			)}
 
 			<button

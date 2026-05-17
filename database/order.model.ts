@@ -37,6 +37,10 @@ export interface IOrder extends Document {
 	stripeCheckoutSessionId?: string;
 	stripePaymentIntentId?: string | null;
 	stripeChargeId?: string | null;
+	paymentGateway?: "stripe" | "razorpay";
+	razorpayOrderId?: string;
+	razorpayPaymentId?: string;
+	razorpaySignature?: string;
 	idempotencyKey?: string;
 	refunds: Array<{
 		stripeRefundId?: string;
@@ -118,6 +122,14 @@ const OrderSchema = new Schema<IOrder>(
 		stripeCheckoutSessionId: { type: String, unique: true, sparse: true },
 		stripePaymentIntentId: { type: String, index: true, sparse: true },
 		stripeChargeId: { type: String, sparse: true, index: true },
+		paymentGateway: {
+			type: String,
+			enum: ["stripe", "razorpay"],
+			default: "stripe",
+		},
+		razorpayOrderId: { type: String, sparse: true },
+		razorpayPaymentId: { type: String, sparse: true },
+		razorpaySignature: { type: String, sparse: true },
 		idempotencyKey: { type: String, index: true, sparse: true },
 		refunds: [
 			{
