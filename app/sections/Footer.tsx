@@ -51,6 +51,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/organizers" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
+                  Browse Organizers
+                </Link>
+              </li>
+              <li>
                 <Link href="/become-organizer" className="font-mono text-[12px] uppercase text-text-secondary tracking-widest hover:text-accent transition-colors">
                   Host an Event
                 </Link>

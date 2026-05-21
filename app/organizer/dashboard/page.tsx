@@ -3,6 +3,9 @@ import React from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { CalendarDays, Users, CalendarCheck, IndianRupee, User } from "lucide-react";
+import connectDB from "@/lib/mongodb";
+import Event from "@/database/event.model";
+import Registration from "@/database/registration.model";
 
 export const metadata = {
 	title: "Organizer Dashboard | DevEvent",
@@ -12,10 +15,68 @@ export default async function OrganizerDashboard() {
 	const session = await auth();
 	const firstName = session?.user?.name?.split(" ")[0] || "Organizer";
 
+	let totalEvents = 0;
+	let upcomingEvents = 0;
+	let totalAttendees = 0;
+	let recentEvents: any[] = [];
+
+	const organizerId = session?.user?.id;
+	if (organizerId) {
+		await connectDB();
+
+		// Total events this organizer has created
+		totalEvents = await Event.countDocuments({
+			organizerId,
+			deletedAt: null,
+		});
+
+		// Upcoming events (published, startAt in future)
+		upcomingEvents = await Event.countDocuments({
+			organizerId,
+			deletedAt: null,
+			status: "published",
+			startAt: { $gte: new Date() },
+		});
+
+		// Get all event IDs for this organizer
+		const organizerEventIds = await Event.find(
+			{ organizerId, deletedAt: null },
+			{ _id: 1 }
+		).lean();
+
+		const eventIds = organizerEventIds.map((e: any) => e._id);
+
+		// Total confirmed attendees across all events
+		totalAttendees = eventIds.length > 0
+			? await Registration.countDocuments({
+					eventId: { $in: eventIds },
+					status: "confirmed",
+			  })
+			: 0;
+
+		// Fetch last 3 events
+		recentEvents = await Event.find(
+			{ organizerId, deletedAt: null },
+			{
+				title: 1,
+				status: 1,
+				startAt: 1,
+				slug: 1,
+				eventType: 1,
+				isPaid: 1,
+				basePrice: 1,
+				currency: 1,
+			}
+		)
+			.sort({ createdAt: -1 })
+			.limit(3)
+			.lean();
+	}
+
 	const statCards = [
-		{ label: "TOTAL EVENTS", value: "0", Icon: CalendarDays },
-		{ label: "TOTAL ATTENDEES", value: "0", Icon: Users },
-		{ label: "UPCOMING EVENTS", value: "0", Icon: CalendarCheck },
+		{ label: "TOTAL EVENTS", value: String(totalEvents), Icon: CalendarDays },
+		{ label: "TOTAL ATTENDEES", value: String(totalAttendees), Icon: Users },
+		{ label: "UPCOMING EVENTS", value: String(upcomingEvents), Icon: CalendarCheck },
 	];
 
 	const quickActions = [
@@ -273,78 +334,215 @@ export default async function OrganizerDashboard() {
 				))}
 			</div>
 
-			{/* SECTION 4 — Empty State */}
-			<div
-				style={{
-					background: "var(--bg-surface)",
-					border: "1px solid var(--border-dim)",
-					borderRadius: "var(--radius-lg)",
-					padding: "56px 24px",
-					textAlign: "center",
-				}}
-			>
+			{/* SECTION 4 — Recent Events */}
+			{recentEvents.length > 0 && (
+				<div style={{
+					background: 'var(--bg-surface)',
+					border: '1px solid var(--border-dim)',
+					borderRadius: 'var(--radius-lg)',
+					overflow: 'hidden',
+					marginBottom: '24px',
+				}}>
+					<div style={{
+						padding: '16px 20px',
+						borderBottom: '1px solid var(--border-dim)',
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+					}}>
+						<span style={{
+							fontSize: '12px',
+							fontWeight: 500,
+							color: 'var(--text-secondary)',
+							textTransform: 'uppercase',
+							letterSpacing: '0.08em',
+						}}>
+							Recent Events
+						</span>
+						<Link href="/organizer/events" 
+							style={{
+								fontSize: '12px',
+								color: 'var(--gold)',
+								textDecoration: 'none',
+							}}>
+							View all →
+						</Link>
+					</div>
+					
+					{recentEvents.map((event: any, i: number) => (
+						<div key={event._id.toString()} style={{
+							padding: '14px 20px',
+							borderBottom: i < recentEvents.length - 1 
+								? '1px solid var(--border-dim)' 
+								: 'none',
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							gap: '12px',
+						}}>
+							<div style={{ flex: 1, minWidth: 0 }}>
+								<p style={{
+									fontSize: '14px',
+									fontWeight: 500,
+									color: 'var(--text-primary)',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									whiteSpace: 'nowrap',
+								}}>
+									{event.title}
+								</p>
+								<p style={{
+									fontSize: '11px',
+									color: 'var(--text-muted)',
+									fontFamily: 'var(--font-mono)',
+									marginTop: '2px',
+								}}>
+									{event.startAt 
+										? new Date(event.startAt)
+												.toLocaleDateString('en-IN', {
+													day: 'numeric',
+													month: 'short',
+													year: 'numeric',
+												})
+										: 'No date set'}
+								</p>
+							</div>
+							
+							<div style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								flexShrink: 0,
+							}}>
+								<span style={{
+									fontSize: '10px',
+									fontWeight: 500,
+									letterSpacing: '0.06em',
+									textTransform: 'uppercase',
+									padding: '2px 7px',
+									borderRadius: '2px',
+									border: '1px solid',
+									borderColor: event.status === 'published'
+										? 'rgba(42,157,111,0.3)'
+										: 'var(--border)',
+									color: event.status === 'published'
+										? 'var(--green)'
+										: 'var(--text-muted)',
+									background: event.status === 'published'
+										? 'rgba(42,157,111,0.08)'
+										: 'transparent',
+								}}>
+									{event.status}
+								</span>
+								
+								<Link 
+									href={`/organizer/events/${
+										event._id.toString()
+									}/edit`}
+									style={{
+										fontSize: '12px',
+										color: 'var(--text-muted)',
+										textDecoration: 'none',
+										padding: '4px 8px',
+										border: '1px solid var(--border-dim)',
+										borderRadius: 'var(--radius-sm)',
+									}}>
+									Edit
+								</Link>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+
+			{/* SECTION 5 — Empty State / Footer */}
+			{totalEvents === 0 ? (
 				<div
 					style={{
-						width: "56px",
-						height: "56px",
-						background: "var(--gold-subtle)",
-						border: "1px solid rgba(255,107,53,0.15)",
-						borderRadius: "var(--radius-md)",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						margin: "0 auto 16px",
+						background: "var(--bg-surface)",
+						border: "1px solid var(--border-dim)",
+						borderRadius: "var(--radius-lg)",
+						padding: "56px 24px",
+						textAlign: "center",
 					}}
 				>
-					<CalendarDays size={24} style={{ color: "var(--gold)" }} />
+					<div
+						style={{
+							width: "56px",
+							height: "56px",
+							background: "var(--gold-subtle)",
+							border: "1px solid rgba(255,107,53,0.15)",
+							borderRadius: "var(--radius-md)",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							margin: "0 auto 16px",
+						}}
+					>
+						<CalendarDays size={24} style={{ color: "var(--gold)" }} />
+					</div>
+
+					<h3
+						style={{
+							fontFamily: "var(--font-serif)",
+							fontSize: "20px",
+							fontWeight: 600,
+							color: "var(--text-primary)",
+							marginBottom: "8px",
+						}}
+					>
+						No events yet
+					</h3>
+					<p
+						style={{
+							color: "var(--text-muted)",
+							fontSize: "14px",
+							marginBottom: "24px",
+							maxWidth: "340px",
+							margin: "0 auto 24px",
+							lineHeight: 1.6,
+						}}
+					>
+						Create your first tech event and start building your developer
+						community.
+					</p>
+
+					<Link
+						href="/organizer/events/new"
+						className="dash-btn-gold"
+						style={{
+							height: "44px",
+							padding: "0 20px",
+							background: "var(--gold)",
+							color: "#08080A",
+							border: "none",
+							borderRadius: "var(--radius-md)",
+							fontSize: "14px",
+							fontWeight: 600,
+							textDecoration: "none",
+							display: "inline-flex",
+							alignItems: "center",
+							transition: "background 160ms ease",
+						}}
+					>
+						Create Your First Event →
+					</Link>
 				</div>
-
-				<h3
-					style={{
-						fontFamily: "var(--font-serif)",
-						fontSize: "20px",
-						fontWeight: 600,
-						color: "var(--text-primary)",
-						marginBottom: "8px",
-					}}
-				>
-					No events yet
-				</h3>
-				<p
-					style={{
-						color: "var(--text-muted)",
-						fontSize: "14px",
-						marginBottom: "24px",
-						maxWidth: "340px",
-						margin: "0 auto 24px",
-						lineHeight: 1.6,
-					}}
-				>
-					Create your first tech event and start building your developer
-					community.
-				</p>
-
-				<Link
-					href="/organizer/events/new"
-					className="dash-btn-gold"
-					style={{
-						height: "44px",
-						padding: "0 20px",
-						background: "var(--gold)",
-						color: "#08080A",
-						border: "none",
-						borderRadius: "var(--radius-md)",
-						fontSize: "14px",
-						fontWeight: 600,
-						textDecoration: "none",
-						display: "inline-flex",
-						alignItems: "center",
-						transition: "background 160ms ease",
-					}}
-				>
-					Create Your First Event →
-				</Link>
-			</div>
+			) : (
+				<div>
+					<p style={{
+						color: 'var(--text-muted)',
+						fontSize: '14px',
+						textAlign: 'center'
+					}}>
+						You have {totalEvents} event{totalEvents !== 1 ? 's' : ''}.{' '}
+						<Link href="/organizer/events" 
+							style={{color: 'var(--gold)', textDecoration: 'none'}}>
+							View all events →
+						</Link>
+					</p>
+				</div>
+			)}
 
 			<style>{`
 				.dash-btn-secondary:hover {
