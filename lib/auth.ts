@@ -73,6 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						image: user.image,
 						roles: Array.from(user.roles || ["attendee"]),
 						isEmailVerified: user.emailVerified,
+						organizerStatus: user.organizerStatus || "not_applied",
 					};
 				} catch (error) {
 					console.error("❌ Login error:", error);
@@ -123,6 +124,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						user.id = existingUser._id.toString();
 						user.roles = Array.from(existingUser.roles || ["attendee"]);
 						user.isEmailVerified = true;
+						user.organizerStatus = existingUser.organizerStatus || "not_applied";
 
 						console.log("[Auth] Google login completed");
 					} else {
