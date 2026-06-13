@@ -5,17 +5,21 @@ import QRCode from "qrcode";
 
 type TicketQRProps = {
 	ticketCode: string;
+	// Signed payload encoded into the QR so a scan can be verified without
+	// trusting the human-readable code. Falls back to ticketCode if absent.
+	qrPayload?: string;
 	size?: number;
 };
 
-// Renders a real scannable QR encoding the ticket code. Falls back to a
+// Renders a real scannable QR encoding the signed payload. Falls back to a
 // monospace code if generation fails (offline / blocked).
-export default function TicketQR({ ticketCode, size = 180 }: TicketQRProps) {
+export default function TicketQR({ ticketCode, qrPayload, size = 180 }: TicketQRProps) {
 	const [dataUrl, setDataUrl] = useState<string | null>(null);
+	const encoded = qrPayload || ticketCode;
 
 	useEffect(() => {
 		let cancelled = false;
-		QRCode.toDataURL(ticketCode, {
+		QRCode.toDataURL(encoded, {
 			width: size,
 			margin: 1,
 			errorCorrectionLevel: "M",
@@ -30,7 +34,7 @@ export default function TicketQR({ ticketCode, size = 180 }: TicketQRProps) {
 		return () => {
 			cancelled = true;
 		};
-	}, [ticketCode, size]);
+	}, [encoded, size]);
 
 	if (!dataUrl) {
 		return (

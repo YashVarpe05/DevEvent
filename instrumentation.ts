@@ -22,7 +22,8 @@ export async function register() {
 	const critical = ["MONGODB_URI"] as const;
 	const criticalProd = ["NEXTAUTH_SECRET", "NEXTAUTH_URL", "NEXT_PUBLIC_BASE_URL", "CRON_SECRET"] as const;
 	const recommended = [
-		"REDIS_URL",
+		"UPSTASH_REDIS_REST_URL",
+		"UPSTASH_REDIS_REST_TOKEN",
 		"RESEND_API_KEY",
 		"STRIPE_SECRET_KEY",
 		"STRIPE_WEBHOOK_SECRET",

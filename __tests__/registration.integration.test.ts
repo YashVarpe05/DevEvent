@@ -7,7 +7,9 @@ import { POST as submitFeedback } from '@/app/api/events/[id]/feedback/route';
 import { POST as createEvent } from '@/app/api/events/route';
 import { POST as publishEvent } from '@/app/api/events/[id]/publish/route';
 import { GET as runLifecycleCron } from '@/app/api/cron/event-reminders/route';
+import { POST as undoCheckIn } from '@/app/api/organizer/registrations/[id]/undo-check-in/route';
 import FollowOrganizer from '@/database/follow-organizer.model';
+import { generateQrPayload, verifyQrPayload } from '@/lib/utils/ticket';
 import { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import Event from '@/database/event.model';
@@ -544,6 +546,86 @@ describe('Registration Integration Tests', () => {
     
     const updatedReg = await Registration.findById(reg._id);
     expect(updatedReg?.checkedInAt).toBeDefined();
+  });
+
+  it('Checks in via a valid signed QR payload but rejects a tampered one', async () => {
+    mockAuth({ id: testOrganizerId, roles: ['organizer'] });
+
+    const regId = new mongoose.Types.ObjectId();
+    const payload = generateQrPayload(regId.toString(), testEventId);
+    await Registration.create({
+      _id: regId,
+      eventId: testEventId,
+      attendeeUserId: testAttendeeId,
+      attendeeName: 'QR User',
+      attendeeEmail: 'qr@test.com',
+      status: 'confirmed',
+      ticketCode: 'QR-SIGNED-1',
+      qrPayload: payload,
+      bookingType: 'free',
+      quantity: 1
+    });
+    const props = { params: Promise.resolve({ id: testEventId }) };
+
+    // Tampered payload (flipped last signature char) is rejected before any check-in
+    const tampered = payload.slice(0, -1) + (payload.endsWith('a') ? 'b' : 'a');
+    let res = await checkInByCode(
+      new NextRequest(`http://localhost/api/organizer/events/${testEventId}/check-in/code`, {
+        method: 'POST', body: JSON.stringify({ payload: tampered }),
+      }),
+      props,
+    );
+    expect(res.status).toBe(400);
+    expect((await res.json()).message).toMatch(/tampered|invalid/i);
+
+    // Valid signed payload checks the attendee in
+    res = await checkInByCode(
+      new NextRequest(`http://localhost/api/organizer/events/${testEventId}/check-in/code`, {
+        method: 'POST', body: JSON.stringify({ payload }),
+      }),
+      props,
+    );
+    expect(res.status).toBe(200);
+    expect((await res.json()).scanMethod).toBe('qr');
+
+    const updated = await Registration.findById(regId);
+    expect(updated?.checkedInAt).toBeTruthy();
+  });
+
+  it('verifyQrPayload round-trips and rejects cross-event payloads', async () => {
+    const regId = new mongoose.Types.ObjectId().toString();
+    const payload = generateQrPayload(regId, testEventId);
+    const verified = verifyQrPayload(payload);
+    expect(verified?.registrationId).toBe(regId);
+    expect(verified?.eventId).toBe(testEventId);
+    expect(verifyQrPayload('garbage:data:here')).toBeNull();
+  });
+
+  it('Undoes an accidental check-in', async () => {
+    mockAuth({ id: testOrganizerId, roles: ['organizer'] });
+
+    const reg = await Registration.create({
+      eventId: testEventId,
+      attendeeUserId: testAttendeeId,
+      attendeeName: 'Undo User',
+      attendeeEmail: 'undo@test.com',
+      status: 'confirmed',
+      ticketCode: 'UNDO-1',
+      qrPayload: 'QR-UNDO',
+      bookingType: 'free',
+      quantity: 1,
+      checkedInAt: new Date(),
+      checkedInBy: new mongoose.Types.ObjectId(testOrganizerId),
+    });
+
+    const res = await undoCheckIn(
+      new NextRequest(`http://localhost/api/organizer/registrations/${reg._id}/undo-check-in`, { method: 'POST' }),
+      { params: Promise.resolve({ id: (reg as any)._id.toString() }) },
+    );
+    expect(res.status).toBe(200);
+
+    const updated = await Registration.findById(reg._id);
+    expect(updated?.checkedInAt).toBeNull();
   });
 
   it('Blocks check-in for registration from different event', async () => {

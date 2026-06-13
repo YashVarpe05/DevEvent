@@ -285,7 +285,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                       width: "fit-content",
                     }}
                   >
-                    <TicketQR ticketCode={registration.ticketCode} size={180} />
+                    <TicketQR ticketCode={registration.ticketCode} qrPayload={registration.qrPayload} size={180} />
                   </div>
 
                   {/* Ticket code below QR */}

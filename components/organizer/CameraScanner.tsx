@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
 import { Camera, CameraOff, AlertCircle } from "lucide-react";
 
 type CameraScannerProps = {
@@ -8,58 +9,36 @@ type CameraScannerProps = {
 	disabled?: boolean;
 };
 
-type BarcodeDetectorLike = {
-	detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue: string }>>;
-};
-
-// Camera-based QR scanner using the BarcodeDetector API.
-// Chromium-based browsers (Chrome, Edge, Brave, Samsung Internet) support it
-// natively. Safari/Firefox users still have the typed-code fallback above
-// this component on the check-in page.
+// Camera-based QR scanner built on @zxing/browser, which decodes in pure JS
+// and therefore works across all modern browsers — including iOS Safari and
+// Firefox, where the native BarcodeDetector API is unavailable.
 //
 // Behavior:
 // - Off by default to save battery; user taps to enable.
-// - Once enabled, polls for QR codes ~4x/sec.
-// - On a successful scan, calls onScan, briefly cools down (1.2s) to avoid
-//   re-scanning the same ticket while it's still in frame.
-const SCAN_INTERVAL_MS = 250;
+// - Prefers the rear ("environment") camera on phones.
+// - On a successful scan, calls onScan, then cools down (1.2s) so the same
+//   ticket isn't re-submitted while it's still in frame.
 const COOLDOWN_MS = 1200;
 
 export default function CameraScanner({ onScan, disabled = false }: CameraScannerProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
-	const streamRef = useRef<MediaStream | null>(null);
-	const detectorRef = useRef<BarcodeDetectorLike | null>(null);
-	const scanTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const controlsRef = useRef<IScannerControls | null>(null);
 	const cooldownUntilRef = useRef<number>(0);
+	const onScanRef = useRef(onScan);
+	const disabledRef = useRef(disabled);
 
 	const [active, setActive] = useState(false);
+	const [starting, setStarting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [supported, setSupported] = useState(true);
 
-	useEffect(() => {
-		if (typeof window === "undefined") return;
-		const BarcodeDetectorCtor = (window as unknown as {
-			BarcodeDetector?: new (options: { formats: string[] }) => BarcodeDetectorLike;
-		}).BarcodeDetector;
-		if (!BarcodeDetectorCtor) {
-			setSupported(false);
-			return;
-		}
-		try {
-			detectorRef.current = new BarcodeDetectorCtor({ formats: ["qr_code"] });
-		} catch {
-			setSupported(false);
-		}
-	}, []);
+	// Keep the latest callbacks/flags without restarting the camera
+	useEffect(() => { onScanRef.current = onScan; }, [onScan]);
+	useEffect(() => { disabledRef.current = disabled; }, [disabled]);
 
 	const stopCamera = () => {
-		if (scanTimerRef.current) {
-			clearInterval(scanTimerRef.current);
-			scanTimerRef.current = null;
-		}
-		if (streamRef.current) {
-			streamRef.current.getTracks().forEach((track) => track.stop());
-			streamRef.current = null;
+		if (controlsRef.current) {
+			controlsRef.current.stop();
+			controlsRef.current = null;
 		}
 		setActive(false);
 	};
@@ -68,38 +47,24 @@ export default function CameraScanner({ onScan, disabled = false }: CameraScanne
 
 	const startCamera = async () => {
 		setError(null);
-		if (!detectorRef.current) {
-			setError("Camera scanning isn't supported in this browser. Use the typed input.");
-			return;
-		}
+		setStarting(true);
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({
-				video: { facingMode: { ideal: "environment" } },
-				audio: false,
-			});
-			streamRef.current = stream;
-			if (videoRef.current) {
-				videoRef.current.srcObject = stream;
-				await videoRef.current.play();
-			}
-			setActive(true);
-
-			scanTimerRef.current = setInterval(async () => {
-				if (!videoRef.current || !detectorRef.current || disabled) return;
-				if (Date.now() < cooldownUntilRef.current) return;
-				try {
-					const codes = await detectorRef.current.detect(videoRef.current);
-					if (codes.length > 0) {
-						const value = codes[0].rawValue.trim();
-						if (value) {
-							cooldownUntilRef.current = Date.now() + COOLDOWN_MS;
-							onScan(value);
-						}
+			const reader = new BrowserQRCodeReader();
+			const controls = await reader.decodeFromConstraints(
+				{ video: { facingMode: { ideal: "environment" } }, audio: false },
+				videoRef.current!,
+				(result) => {
+					if (!result || disabledRef.current) return;
+					if (Date.now() < cooldownUntilRef.current) return;
+					const value = result.getText().trim();
+					if (value) {
+						cooldownUntilRef.current = Date.now() + COOLDOWN_MS;
+						onScanRef.current(value);
 					}
-				} catch {
-					// Detection errors are transient (frame not ready, etc.) — keep going.
-				}
-			}, SCAN_INTERVAL_MS);
+				},
+			);
+			controlsRef.current = controls;
+			setActive(true);
 		} catch (err: unknown) {
 			setError(
 				err instanceof Error && err.name === "NotAllowedError"
@@ -107,31 +72,10 @@ export default function CameraScanner({ onScan, disabled = false }: CameraScanne
 					: "Couldn't open the camera. Use the typed input or try another device.",
 			);
 			stopCamera();
+		} finally {
+			setStarting(false);
 		}
 	};
-
-	if (!supported) {
-		return (
-			<div
-				style={{
-					background: "var(--bg-surface)",
-					border: "1px dashed var(--border-dim)",
-					borderRadius: "var(--radius-lg)",
-					padding: "16px",
-					textAlign: "center",
-					fontSize: "13px",
-					color: "var(--text-muted)",
-					display: "flex",
-					alignItems: "center",
-					gap: "10px",
-					justifyContent: "center",
-				}}
-			>
-				<AlertCircle className="w-4 h-4" />
-				Camera scanning isn&apos;t supported in this browser. Try Chrome on Android, or use the typed input.
-			</div>
-		);
-	}
 
 	return (
 		<div
@@ -158,7 +102,7 @@ export default function CameraScanner({ onScan, disabled = false }: CameraScanne
 				<button
 					type="button"
 					onClick={active ? stopCamera : startCamera}
-					disabled={disabled}
+					disabled={disabled || starting}
 					style={{
 						display: "inline-flex",
 						alignItems: "center",
@@ -170,39 +114,50 @@ export default function CameraScanner({ onScan, disabled = false }: CameraScanne
 						borderRadius: "var(--radius-md)",
 						fontWeight: 600,
 						fontSize: "13px",
-						cursor: disabled ? "not-allowed" : "pointer",
-						opacity: disabled ? 0.5 : 1,
+						cursor: disabled || starting ? "not-allowed" : "pointer",
+						opacity: disabled || starting ? 0.5 : 1,
 					}}
 				>
-					{active ? <><CameraOff className="w-3.5 h-3.5" /> Stop</> : <><Camera className="w-3.5 h-3.5" /> Start camera</>}
+					{active ? (
+						<><CameraOff className="w-3.5 h-3.5" /> Stop</>
+					) : (
+						<><Camera className="w-3.5 h-3.5" /> {starting ? "Starting…" : "Start camera"}</>
+					)}
 				</button>
 			</div>
 
-			{active && (
-				<div style={{ position: "relative", borderRadius: "var(--radius-md)", overflow: "hidden", background: "#000", aspectRatio: "4 / 3" }}>
-					<video
-						ref={videoRef}
-						playsInline
-						muted
-						style={{ width: "100%", height: "100%", objectFit: "cover" }}
-					/>
-					{/* Centered framing reticle */}
-					<div
-						style={{
-							position: "absolute",
-							top: "50%",
-							left: "50%",
-							transform: "translate(-50%, -50%)",
-							width: "60%",
-							aspectRatio: "1",
-							border: "2px solid rgba(255, 107, 53, 0.85)",
-							borderRadius: "16px",
-							pointerEvents: "none",
-							boxShadow: "0 0 0 9999px rgba(0,0,0,0.25)",
-						}}
-					/>
-				</div>
-			)}
+			{/* Video stays mounted so the ref exists when decoding starts */}
+			<div
+				style={{
+					position: "relative",
+					borderRadius: "var(--radius-md)",
+					overflow: "hidden",
+					background: "#000",
+					aspectRatio: "4 / 3",
+					display: active ? "block" : "none",
+				}}
+			>
+				<video
+					ref={videoRef}
+					playsInline
+					muted
+					style={{ width: "100%", height: "100%", objectFit: "cover" }}
+				/>
+				<div
+					style={{
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-50%, -50%)",
+						width: "60%",
+						aspectRatio: "1",
+						border: "2px solid rgba(255, 107, 53, 0.85)",
+						borderRadius: "16px",
+						pointerEvents: "none",
+						boxShadow: "0 0 0 9999px rgba(0,0,0,0.25)",
+					}}
+				/>
+			</div>
 
 			{error && (
 				<p style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--red)", margin: 0 }}>

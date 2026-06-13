@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, QrCode, CheckCircle2, XCircle, Loader2, User, Ticket } from "lucide-react";
+import { ArrowLeft, QrCode, CheckCircle2, XCircle, Loader2, User, Ticket, RotateCcw } from "lucide-react";
 import { useParams } from "next/navigation";
 import CameraScanner from "@/components/organizer/CameraScanner";
 
@@ -22,9 +22,17 @@ export default function CheckInPage() {
     inputRef.current?.focus();
   }, []);
 
-  const submitCheckIn = useCallback(async (rawCode: string) => {
-    const code = rawCode.trim().toUpperCase();
-    if (!code) return;
+  // A signed QR payload has the shape id:id:timestamp:signature (3 colons);
+  // a manually typed code is DEV-XXXX-YYYY. Route each to the right field so
+  // the server can verify a scan's signature but still accept typed codes.
+  const submitCheckIn = useCallback(async (raw: string) => {
+    const value = raw.trim();
+    if (!value) return;
+
+    const isSignedPayload = value.split(":").length === 4;
+    const requestBody = isSignedPayload
+      ? { payload: value }
+      : { ticketCode: value.toUpperCase() };
 
     setStatus("loading");
     setMessage("");
@@ -32,7 +40,7 @@ export default function CheckInPage() {
     try {
       const res = await fetch(`/api/organizer/events/${eventId}/check-in/code`, {
         method: "POST",
-        body: JSON.stringify({ ticketCode: code }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
@@ -59,6 +67,26 @@ export default function CheckInPage() {
     }
   }, [eventId]);
 
+  const undoCheckIn = useCallback(async (registrationId: string) => {
+    try {
+      const res = await fetch(`/api/organizer/registrations/${registrationId}/undo-check-in`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setStatus("error");
+        setMessage(data.message || "Failed to undo check-in");
+        return;
+      }
+      setStatus("idle");
+      setMessage("");
+      setLastCheckIn(data.registration);
+    } catch {
+      setStatus("error");
+      setMessage("Connection error. Please try again.");
+    }
+  }, []);
+
   const handleCheckIn = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (status === "loading") return;
@@ -67,7 +95,6 @@ export default function CheckInPage() {
 
   const handleScan = useCallback((scannedValue: string) => {
     if (status === "loading") return;
-    setTicketCode(scannedValue.toUpperCase());
     submitCheckIn(scannedValue);
   }, [status, submitCheckIn]);
 
@@ -160,6 +187,15 @@ export default function CheckInPage() {
 								<span style={{ color: "var(--text-secondary)" }}>Ticket Code</span>
 								<span style={{ fontFamily: "monospace", fontWeight: 700, color: "var(--text-primary)", fontSize: "15px" }}>{lastCheckIn.ticketCode}</span>
 							</div>
+							{lastCheckIn.checkedInAt && (
+								<button
+									type="button"
+									onClick={() => undoCheckIn(lastCheckIn._id)}
+									style={{ marginTop: "16px", width: "100%", background: "transparent", color: "var(--text-secondary)", border: "1px solid var(--border-dim)", padding: "10px", borderRadius: "var(--radius-md)", fontWeight: 600, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+								>
+									<RotateCcw className="w-4 h-4" /> Undo check-in
+								</button>
+							)}
 						</div>
 					)}
 				</div>

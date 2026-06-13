@@ -1,6 +1,6 @@
 import { randomBytes, createHash } from "crypto";
 import { NextResponse } from "next/server";
-import { getRedisClient } from "@/lib/cache/redis";
+import { getUpstash } from "@/lib/cache/redis";
 
 // ─── Token Utilities ─────────────────────────────────────────────────────────
 
@@ -90,22 +90,10 @@ function isMemoryRateLimited(
 	return false;
 }
 
-async function ensureRedisReady(
-	client: NonNullable<ReturnType<typeof getRedisClient>>,
-) {
-	if (client.status === "ready") return;
-	try {
-		await client.connect();
-	} catch (error) {
-		const message = error instanceof Error ? error.message : "";
-		if (!message.includes("already connecting") && !message.includes("connected")) {
-			throw error;
-		}
-	}
-}
-
 /**
- * Redis-backed rate limiter with an in-memory fallback for local development.
+ * Distributed rate limiter backed by Upstash Redis (REST), with an in-memory
+ * fallback for local development. Uses a fixed window: INCR the counter and set
+ * its expiry on first hit.
  * @param key - Unique identifier (e.g., IP + endpoint)
  * @param maxAttempts - Max attempts in the window
  * @param windowMs - Time window in milliseconds
@@ -116,29 +104,28 @@ export async function isRateLimited(
 	maxAttempts: number = 5,
 	windowMs: number = 15 * 60 * 1000, // 15 minutes
 ): Promise<boolean> {
-	const redis = getRedisClient();
+	const redis = getUpstash();
 	const redisKey = `rate-limit:${key}`;
 
 	if (redis) {
 		try {
-			await ensureRedisReady(redis);
 			const attempts = await redis.incr(redisKey);
 			if (attempts === 1) {
 				await redis.pexpire(redisKey, windowMs);
 			}
 			return attempts > maxAttempts;
 		} catch {
-			// WARNING: in-memory fallback, not safe for multi-instance deployment.
+			// Fall through to the in-memory limiter on transient REST errors.
 		}
 	}
 
-	// [FIXED]: Disable rate limiting locally for easier debugging
+	// Disable rate limiting locally for easier debugging.
 	if (process.env.NODE_ENV === "development") {
 		return false;
 	}
 
-	// [FIXED]: Auth rate limiting uses Redis when REDIS_URL is configured.
-	// WARNING: in-memory fallback, not safe for multi-instance deployment.
+	// WARNING: in-memory fallback is per-instance, not safe as the sole limiter
+	// in multi-instance production. Configure Upstash in production.
 	return isMemoryRateLimited(key, maxAttempts, windowMs);
 }
 
