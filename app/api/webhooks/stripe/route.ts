@@ -17,6 +17,8 @@ import UserReferral from "@/database/user-referral.model";
 import { generateQrPayload, generateTicketCode } from "@/lib/utils/ticket";
 import { sendRegistrationEmail } from "@/lib/email";
 import { trackServerEvent } from "@/lib/analytics";
+import { generateEventICS } from "@/lib/ics";
+import { adjustRegistrationsCount } from "@/lib/registrations";
 
 export async function POST(req: Request) {
 	const signature = (await headers()).get("stripe-signature");
@@ -170,7 +172,9 @@ async function finalizePaidOrder(
 		return;
 	}
 
-	const eventDoc = await Event.findById(order.eventId).select("title");
+	const eventDoc = await Event.findById(order.eventId).select(
+		"title slug shortDescription startAt endAt location eventType",
+	);
 	const buyer = await User.findById(order.buyerUserId)
 		.select("email name")
 		.lean();
@@ -207,6 +211,19 @@ async function finalizePaidOrder(
 		orderId: order._id,
 	});
 	if (existingRegs === 0) {
+		const icsContent = eventDoc
+			? generateEventICS({
+					id: eventDoc._id.toString(),
+					slug: eventDoc.slug,
+					title: eventDoc.title,
+					description: eventDoc.shortDescription,
+					startAt: eventDoc.startAt,
+					endAt: eventDoc.endAt,
+					location: eventDoc.location,
+					eventType: eventDoc.eventType,
+				})
+			: undefined;
+		let createdSeats = 0;
 		for (const item of order.lineItems) {
 			for (let i = 0; i < item.quantity; i++) {
 				const registrationId = new Types.ObjectId();
@@ -233,13 +250,20 @@ async function finalizePaidOrder(
 					metadata: { paymentIntentId },
 				});
 
+				createdSeats++;
+
 				await sendRegistrationEmail(
 					buyerEmail,
 					buyerName,
 					eventDoc?.title || "DevEvent",
 					ticketCode,
+					icsContent,
 				);
 			}
+		}
+
+		if (createdSeats > 0) {
+			await adjustRegistrationsCount(order.eventId, createdSeats);
 		}
 	}
 
@@ -360,10 +384,14 @@ async function handleChargeRefunded(charge: any) {
 		refundedAmount >= amountPaid ? "refunded_full" : "refunded_partial";
 	await order.save();
 
-	await Registration.updateMany(
+	const cancelledRegs = await Registration.updateMany(
 		{ orderId: order._id, status: "confirmed" },
 		{ $set: { status: "cancelled_by_organizer", cancelledAt: new Date() } },
 	);
+	// Paid registrations are one seat each
+	if (cancelledRegs.modifiedCount > 0) {
+		await adjustRegistrationsCount(order.eventId, -cancelledRegs.modifiedCount);
+	}
 
 	await PaymentTransaction.updateOne(
 		{ type: "refund_issued", externalRef: charge.id },

@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import Registration from "@/database/registration.model";
 import Event from "@/database/event.model";
 import { sendCancellationEmail } from "@/lib/email";
+import { ACTIVE_REGISTRATION_STATUSES, adjustRegistrationsCount, promoteFromWaitlist } from "@/lib/registrations";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
 	try {
@@ -28,14 +29,12 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
 			return NextResponse.json({ message: "Forbidden" }, { status: 403 });
 		}
 
-		if (registration.status !== "confirmed") {
+		if (!(ACTIVE_REGISTRATION_STATUSES as readonly string[]).includes(registration.status)) {
 			return NextResponse.json({ message: "Registration is not active" }, { status: 400 });
 		}
 
-		// Optional: We could check if the event is already in the past, preventing late cancellations
-		// Not strictly required for MVP but good to have
-		// const event = await Event.findById(registration.eventId);
-		
+		const wasConfirmed = registration.status === "confirmed";
+
 		registration.status = "cancelled_by_user";
 		registration.cancelledAt = new Date();
 		await registration.save();
@@ -44,10 +43,16 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
         const event = await Event.findById(registration.eventId);
         if (event) {
             await sendCancellationEmail(
-                session.user.email!, 
-                session.user.name || "Attendee", 
+                session.user.email!,
+                session.user.name || "Attendee",
                 event.title
             );
+
+            // A confirmed seat just freed up — promote from the waitlist
+            if (wasConfirmed) {
+                await adjustRegistrationsCount(event._id, -registration.quantity);
+                await promoteFromWaitlist(event);
+            }
         }
 
 		return NextResponse.json(

@@ -16,12 +16,15 @@ const newEventSchema = z.object({
   timezone: z.string().min(1, "Timezone is required"),
   startAt: z.string().min(1, "Start time is required"),
   endAt: z.string().min(1, "End time is required"),
+  repeat: z.enum(["none", "weekly", "biweekly", "monthly"]).default("none"),
+  occurrences: z.coerce.number().int().min(2).max(12).default(4),
 }).refine((data) => new Date(data.startAt) < new Date(data.endAt), {
   message: "End time must be after start time",
   path: ["endAt"],
 });
 
 type NewEventFormValues = z.infer<typeof newEventSchema>;
+type NewEventFormInput = z.input<typeof newEventSchema>;
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -34,7 +37,7 @@ export default function NewEventPage() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<NewEventFormValues>({
+  } = useForm<NewEventFormInput, unknown, NewEventFormValues>({
     resolver: zodResolver(newEventSchema),
     defaultValues: {
       title: "",
@@ -43,10 +46,13 @@ export default function NewEventPage() {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       startAt: "",
       endAt: "",
+      repeat: "none",
+      occurrences: 4,
     },
   });
 
   const eventType = watch("eventType");
+  const repeat = watch("repeat");
 
   const onSubmit = async (data: NewEventFormValues) => {
     setIsSubmitting(true);
@@ -59,6 +65,10 @@ export default function NewEventPage() {
           ...data,
           startAt: new Date(data.startAt).toISOString(),
           endAt: new Date(data.endAt).toISOString(),
+          recurrence:
+            data.repeat !== "none"
+              ? { frequency: data.repeat, count: data.occurrences }
+              : undefined,
         }),
       });
 
@@ -216,6 +226,40 @@ export default function NewEventPage() {
                   </div>
                   {errors.endAt && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.endAt.message}</p>}
                 </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: repeat !== "none" ? "1fr 1fr" : "1fr", gap: "16px" }}>
+                <div>
+                  <label htmlFor="repeat" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                    Repeat
+                  </label>
+                  <select
+                    id="repeat"
+                    style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none" }}
+                    {...register("repeat")}
+                  >
+                    <option value="none">Does not repeat</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Every 2 weeks</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+                {repeat !== "none" && (
+                  <div>
+                    <label htmlFor="occurrences" style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                      Number of events (2–12)
+                    </label>
+                    <input
+                      id="occurrences"
+                      type="number"
+                      min={2}
+                      max={12}
+                      style={{ width: "100%", padding: "10px 14px", background: "var(--bg-base)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-md)", color: "var(--text-primary)", outline: "none" }}
+                      {...register("occurrences")}
+                    />
+                    {errors.occurrences && <p style={{ marginTop: "4px", fontSize: "14px", color: "var(--red)" }}>{errors.occurrences.message}</p>}
+                  </div>
+                )}
               </div>
 
               <div>

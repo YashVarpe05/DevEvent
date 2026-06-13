@@ -13,7 +13,9 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
+    "@sentry/nextjs": "^10.57.0",
     "@tabler/icons-react": "^3.42.0",
+    "@types/qrcode": "^1.5.6",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.8.0",
@@ -29,6 +31,7 @@
     "next-auth": "^5.0.0-beta.30",
     "ogl": "^1.0.11",
     "posthog-js": "^1.318.1",
+    "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

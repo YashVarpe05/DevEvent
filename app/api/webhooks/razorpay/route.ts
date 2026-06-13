@@ -14,6 +14,8 @@ import UserReferral from "@/database/user-referral.model";
 import { generateQrPayload, generateTicketCode } from "@/lib/utils/ticket";
 import { sendRegistrationEmail } from "@/lib/email";
 import { trackServerEvent } from "@/lib/analytics";
+import { generateEventICS } from "@/lib/ics";
+import { adjustRegistrationsCount } from "@/lib/registrations";
 
 export async function POST(req: Request) {
 	try {
@@ -48,7 +50,9 @@ export async function POST(req: Request) {
 		await order.save();
 
 		// Process registrations
-		const eventDoc = await Event.findById(order.eventId).select("title");
+		const eventDoc = await Event.findById(order.eventId).select(
+			"title slug shortDescription startAt endAt location eventType",
+		);
 		const buyer = await User.findById(order.buyerUserId).select("email name").lean();
 		const buyerEmail = buyer?.email || "paid-attendee@unknown.local";
 		const buyerName = buyer?.name || "Attendee";
@@ -71,6 +75,19 @@ export async function POST(req: Request) {
 
 		const existingRegs = await Registration.countDocuments({ orderId: order._id });
 		if (existingRegs === 0) {
+			const icsContent = eventDoc
+				? generateEventICS({
+						id: eventDoc._id.toString(),
+						slug: eventDoc.slug,
+						title: eventDoc.title,
+						description: eventDoc.shortDescription,
+						startAt: eventDoc.startAt,
+						endAt: eventDoc.endAt,
+						location: eventDoc.location,
+						eventType: eventDoc.eventType,
+					})
+				: undefined;
+			let createdSeats = 0;
 			for (const item of order.lineItems) {
 				for (let i = 0; i < item.quantity; i++) {
 					const regId = new Types.ObjectId();
@@ -83,8 +100,12 @@ export async function POST(req: Request) {
 						orderId: order._id, ticketTypeId: item.ticketTypeId, source: "web",
 						metadata: { razorpayPaymentId: razorpay_payment_id },
 					});
-					await sendRegistrationEmail(buyerEmail, buyerName, eventDoc?.title || "DevEvent", ticketCode);
+					createdSeats++;
+					await sendRegistrationEmail(buyerEmail, buyerName, eventDoc?.title || "DevEvent", ticketCode, icsContent);
 				}
+			}
+			if (createdSeats > 0) {
+				await adjustRegistrationsCount(order.eventId, createdSeats);
 			}
 		}
 

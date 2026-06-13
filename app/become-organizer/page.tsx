@@ -1,4 +1,6 @@
 import BecomeOrganizerForm from "@/components/BecomeOrganizerForm";
+import Navbar from "@/components/Navbar";
+import { Check } from "lucide-react";
 
 export const metadata = {
 	title: "Become an Organizer | DevEvent",
@@ -14,149 +16,47 @@ const benefits = [
 
 export default function BecomeOrganizerPage() {
 	return (
-		<main
-			style={{
-				minHeight: "100dvh",
-				background: "var(--bg-base)",
-				padding: "48px 24px",
-			}}
-		>
-			<div
-				style={{
-					maxWidth: "960px",
-					margin: "0 auto",
-					display: "grid",
-					gridTemplateColumns: "1fr 1.6fr",
-					gap: "48px",
-					alignItems: "start",
-				}}
-				className="become-org-grid"
-			>
+		<main className="min-h-dvh bg-bg-base pt-28 pb-16 px-6">
+			<Navbar />
+			<div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-12 items-start">
 				{/* LEFT COLUMN */}
 				<div>
-					{/* Page label */}
-					<span
-						style={{
-							fontSize: "10px",
-							color: "var(--gold)",
-							textTransform: "uppercase",
-							letterSpacing: "0.14em",
-							marginBottom: "8px",
-							display: "block",
-							fontFamily: "var(--font-mono)",
-						}}
-					>
+					<span className="section-label block mb-3">
 						{"// BECOME AN ORGANIZER"}
 					</span>
 
-					{/* Heading */}
-					<h1
-						style={{
-							fontFamily: "var(--font-serif)",
-							fontSize: "clamp(28px, 4vw, 42px)",
-							fontWeight: 600,
-							color: "var(--text-primary)",
-							letterSpacing: "-0.025em",
-							lineHeight: 1.1,
-							marginBottom: "12px",
-						}}
-					>
+					<h1 className="editorial-headline text-[32px] md:text-[42px] mb-4">
 						Build Your
 						<br />
-						<em style={{ color: "var(--gold)", fontStyle: "italic" }}>
-							Community
-						</em>
+						<em className="not-italic">Community</em>
 					</h1>
 
-					{/* Subtext */}
-					<p
-						style={{
-							fontSize: "14px",
-							color: "var(--text-muted)",
-							lineHeight: 1.7,
-							marginBottom: "28px",
-							maxWidth: "320px",
-						}}
-					>
+					<p className="text-sm text-text-secondary leading-relaxed mb-7 max-w-[320px]">
 						Join thousands of organizers hosting high-quality tech events around
 						the world.
 					</p>
 
 					{/* INFO CARD */}
-					<div
-						style={{
-							background: "var(--bg-surface)",
-							border: "1px solid var(--border-dim)",
-							borderLeft: "2px solid var(--gold)",
-							borderRadius: "var(--radius-md)",
-							padding: "16px 18px",
-							marginBottom: "28px",
-						}}
-					>
-						<h3
-							style={{
-								fontSize: "13px",
-								fontWeight: 600,
-								color: "var(--text-primary)",
-								marginBottom: "6px",
-							}}
-						>
+					<div className="bg-bg-elevated border border-border-subtle border-l-2 border-l-accent p-4 mb-7">
+						<h3 className="text-[13px] font-semibold text-text-primary mb-1.5">
 							Why we verify organizers
 						</h3>
-						<p
-							style={{
-								fontSize: "13px",
-								color: "var(--text-muted)",
-								lineHeight: 1.6,
-							}}
-						>
+						<p className="text-[13px] text-text-secondary leading-relaxed">
 							To maintain a high-quality experience for attendees, we review all
 							new organizer applications. Applications are typically reviewed
 							within{" "}
-							<span style={{ color: "var(--gold)", fontWeight: 500 }}>
-								48 hours
-							</span>
-							.
+							<span className="text-accent font-medium">48 hours</span>.
 						</p>
 					</div>
 
 					{/* BENEFITS LIST */}
-					<ul
-						style={{
-							borderTop: "1px solid var(--border-dim)",
-							paddingTop: "20px",
-							display: "flex",
-							flexDirection: "column",
-							gap: "10px",
-							listStyle: "none",
-							margin: 0,
-							padding: "20px 0 0 0",
-						}}
-					>
+					<ul className="border-t border-border-subtle pt-5 flex flex-col gap-2.5 list-none m-0">
 						{benefits.map((benefit) => (
 							<li
 								key={benefit}
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "10px",
-									fontSize: "13px",
-									color: "var(--text-secondary)",
-								}}
+								className="flex items-center gap-2.5 text-[13px] text-text-secondary"
 							>
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="var(--green)"
-									strokeWidth={2.5}
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									style={{ flexShrink: 0 }}
-								>
-									<path d="M5 13l4 4L19 7" />
-								</svg>
+								<Check size={14} className="text-teal shrink-0" aria-hidden="true" />
 								{benefit}
 							</li>
 						))}
@@ -168,14 +68,6 @@ export default function BecomeOrganizerPage() {
 					<BecomeOrganizerForm />
 				</div>
 			</div>
-
-			<style>{`
-				@media (max-width: 768px) {
-					.become-org-grid {
-						grid-template-columns: 1fr !important;
-					}
-				}
-			`}</style>
 		</main>
 	);
 }

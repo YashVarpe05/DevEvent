@@ -1,12 +1,24 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
+import { Types } from "mongoose";
 import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
 import Event from "@/database/event.model";
 import Registration from "@/database/registration.model";
 import { registerEventSchema } from "@/lib/validations/registration";
 import { generateTicketCode, generateQrPayload } from "@/lib/utils/ticket";
-import { sendRegistrationEmail } from "@/lib/email";
+import {
+	sendRegistrationEmail,
+	sendWaitlistJoinedEmail,
+	sendRegistrationPendingEmail,
+} from "@/lib/email";
+import { generateEventICS } from "@/lib/ics";
+import {
+	ACTIVE_REGISTRATION_STATUSES,
+	adjustRegistrationsCount,
+	countConfirmedSeats,
+} from "@/lib/registrations";
+import { isRateLimited } from "@/lib/auth.utils";
 
 export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
 	try {
@@ -16,6 +28,14 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
 		}
 		const attendeeUserId = session.user.id;
 		const { id: eventId } = await props.params;
+
+		// Rate limit: 10 registration attempts per user per 5 minutes
+		if (await isRateLimited(`register:${attendeeUserId}`, 10, 5 * 60 * 1000)) {
+			return NextResponse.json(
+				{ message: "Too many registration attempts. Please try again in a few minutes." },
+				{ status: 429 },
+			);
+		}
 
 		await connectDB();
 
@@ -29,6 +49,10 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
 			return NextResponse.json({ message: "Event is not open for registration" }, { status: 400 });
 		}
 
+		if (new Date(event.endAt) < new Date()) {
+			return NextResponse.json({ message: "This event has already ended" }, { status: 400 });
+		}
+
 		// Currently, we are only supporting free events in this phase
 		if (event.isPaid) {
 			return NextResponse.json({ message: "Paid events are not supported in this beta yet." }, { status: 400 });
@@ -36,45 +60,100 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
 
 		const body = await req.json().catch(() => ({}));
 		const parsedBody = registerEventSchema.safeParse(body);
-		
+
 		if (!parsedBody.success) {
 			return NextResponse.json({ message: "Invalid request payload", errors: parsedBody.error.issues }, { status: 400 });
 		}
 
 		const quantity = parsedBody.data.quantity;
 
-		// Optional: Check registration window if event.registrationStartAt / EndAt existed
-		// (Skipped for MVP as schema dates are mostly event dates)
-		
-		// Concurrency & Capacity check
-		if (event.capacityType === "limited" && event.capacity) {
-			const confirmedCount = await Registration.countDocuments({
-				eventId,
-				status: "confirmed"
-			});
-			
-			if (confirmedCount + quantity > event.capacity) {
-				return NextResponse.json({ message: "Event is sold out or insufficient capacity" }, { status: 409 });
+		// Validate answers against the event's custom registration questions.
+		// Answers are snapshotted with their label so the attendee view doesn't
+		// depend on the event's current question list.
+		const questions = event.registrationQuestions || [];
+		const rawAnswers = parsedBody.data.answers || {};
+		const answers: { id: string; label: string; value: string | boolean }[] = [];
+
+		for (const question of questions) {
+			const value = rawAnswers[question.id];
+			const isEmpty =
+				value === undefined ||
+				value === null ||
+				(typeof value === "string" && value.trim() === "") ||
+				(question.type === "checkbox" && value !== true);
+
+			if (question.required && isEmpty) {
+				return NextResponse.json(
+					{ message: `Please answer: ${question.label}` },
+					{ status: 400 },
+				);
 			}
+			if (isEmpty) continue;
+
+			if (
+				question.type === "select" &&
+				(typeof value !== "string" || !question.options.includes(value))
+			) {
+				return NextResponse.json(
+					{ message: `Invalid choice for: ${question.label}` },
+					{ status: 400 },
+				);
+			}
+
+			answers.push({
+				id: question.id,
+				label: question.label,
+				value: question.type === "checkbox" ? true : String(value).trim(),
+			});
 		}
 
-		// Check if user already registered
+		// Check if user already has an active registration (confirmed, waitlisted, or pending)
 		const existingRegistration = await Registration.findOne({
 			eventId,
 			attendeeUserId,
-			status: "confirmed"
+			status: { $in: ACTIVE_REGISTRATION_STATUSES },
 		});
 
 		if (existingRegistration) {
-			return NextResponse.json({ message: "You are already registered for this event" }, { status: 409 });
+			const messages: Record<string, string> = {
+				confirmed: "You are already registered for this event",
+				waitlisted: "You are already on the waitlist for this event",
+				pending_approval: "Your registration is already awaiting host approval",
+			};
+			return NextResponse.json(
+				{
+					message: messages[existingRegistration.status] || "You are already registered",
+					status: existingRegistration.status,
+				},
+				{ status: 409 },
+			);
+		}
+
+		// Capacity check — full events go to the waitlist when it's enabled
+		let registrationStatus: "confirmed" | "waitlisted" | "pending_approval" = "confirmed";
+
+		if (event.capacityType === "limited" && event.capacity) {
+			const confirmedSeats = await countConfirmedSeats(new Types.ObjectId(eventId));
+
+			if (confirmedSeats + quantity > event.capacity) {
+				if (event.waitlistEnabled) {
+					registrationStatus = "waitlisted";
+				} else {
+					return NextResponse.json({ message: "Event is sold out or insufficient capacity" }, { status: 409 });
+				}
+			}
+		}
+
+		// Approval mode: registrations that would be confirmed wait for the host instead.
+		// Waitlisted registrations stay waitlisted; approval applies when they're promoted.
+		if (registrationStatus === "confirmed" && event.requiresApproval) {
+			registrationStatus = "pending_approval";
 		}
 
 		// Create registration
 		const ticketCode = generateTicketCode();
-		
-		// Use a placeholder payload during creation, then sign it with the actual ID after save
-		// However, we need to save it, so we'll pre-generate an ObjectId.
-		const { Types } = require("mongoose");
+
+		// Pre-generate the ObjectId so the QR payload can be signed before saving
 		const registrationId = new Types.ObjectId();
 		const qrPayload = generateQrPayload(registrationId.toString(), eventId);
 
@@ -90,25 +169,50 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
 			ticketCode,
 			qrPayload,
 			source: parsedBody.data.source,
-			status: "confirmed",
-			metadata: {}
+			status: registrationStatus,
+			metadata: answers.length > 0 ? { answers } : {}
 		});
 
 		await newRegistration.save();
 
-		// Trigger Email hook
-		await sendRegistrationEmail(
-            session.user.email!, 
-            session.user.name || "Attendee", 
-            event.title, 
-            ticketCode
-        );
+		if (registrationStatus === "confirmed") {
+			await adjustRegistrationsCount(eventId, quantity);
+		}
+
+		// Email hook per outcome
+		const email = session.user.email!;
+		const name = session.user.name || "Attendee";
+
+		if (registrationStatus === "confirmed") {
+			const ics = generateEventICS({
+				id: event._id.toString(),
+				slug: event.slug,
+				title: event.title,
+				description: event.shortDescription,
+				startAt: event.startAt,
+				endAt: event.endAt,
+				location: event.location,
+				eventType: event.eventType,
+			});
+			await sendRegistrationEmail(email, name, event.title, ticketCode, ics);
+		} else if (registrationStatus === "waitlisted") {
+			await sendWaitlistJoinedEmail(email, name, event.title);
+		} else {
+			await sendRegistrationPendingEmail(email, name, event.title);
+		}
+
+		const successMessages: Record<string, string> = {
+			confirmed: "Registered successfully",
+			waitlisted: "Added to the waitlist — we'll email you if a spot opens up",
+			pending_approval: "Registration sent — the host will review your request",
+		};
 
 		return NextResponse.json(
-			{ 
-				message: "Registered successfully", 
-				registration: newRegistration 
-			}, 
+			{
+				message: successMessages[registrationStatus],
+				status: registrationStatus,
+				registration: newRegistration
+			},
 			{ status: 201 }
 		);
 	} catch (error: any) {

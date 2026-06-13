@@ -6,9 +6,12 @@ import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
 import Registration from "@/database/registration.model";
 import "@/database/organizer-profile.model"; // Added to register the schema for populate
+import "@/database/user.model"; // Registered for guest-list populate
+import { googleCalendarUrl, outlookCalendarUrl } from "@/lib/ics";
+import { ACTIVE_REGISTRATION_STATUSES, countConfirmedSeats } from "@/lib/registrations";
 import BookEvent from "@/components/BookEvent";
 import TicketSelector from "@/components/events/TicketSelector";
-import { CalendarDays, MapPin, Video, ExternalLink, Globe } from "lucide-react";
+import { CalendarDays, MapPin, Video, ArrowUpRight, Plus } from "lucide-react";
 import { getRelatedEventsByEvent } from "@/lib/discovery/recommendations";
 import { FollowOrganizerButton } from "@/components/events/FollowOrganizerButton";
 import { ShareEventActions } from "@/components/events/ShareEventActions";
@@ -22,18 +25,18 @@ function getCurrencySymbol(currency: string): string {
     EUR: "€",
     GBP: "£",
   }
-  return symbols[currency?.toUpperCase()] 
+  return symbols[currency?.toUpperCase()]
     ?? currency?.toUpperCase() ?? "$"
 }
 
 function formatEventDate(date: Date | string): string {
   const d = new Date(date)
-  const day = d.toLocaleDateString("en-IN", { 
-    weekday: "short" 
+  const day = d.toLocaleDateString("en-IN", {
+    weekday: "short"
   }).toUpperCase()
   const dayNum = d.getDate()
-  const month = d.toLocaleDateString("en-IN", { 
-    month: "short" 
+  const month = d.toLocaleDateString("en-IN", {
+    month: "short"
   }).toUpperCase()
   const time = d.toLocaleTimeString("en-IN", {
     hour: "numeric",
@@ -50,10 +53,10 @@ type Props = {
 type ObjectIdLike = string | { toString(): string };
 
 type EventPageOrganizerProfile = {
-	organizationName?: string;
+	displayName?: string;
 	bio?: string;
-	websiteUrl?: string;
-	logoUrl?: string;
+	website?: string;
+	avatarUrl?: string;
 	socialLinks?: Record<string, string | undefined>;
 	slug?: string;
 	userId?: ObjectIdLike;
@@ -87,6 +90,17 @@ type EventPageData = {
 		meetingUrl?: string;
 	};
 	capacity?: number;
+	capacityType?: "limited" | "unlimited";
+	requiresApproval?: boolean;
+	waitlistEnabled?: boolean;
+	showGuestList?: boolean;
+	registrationQuestions?: {
+		id: string;
+		label: string;
+		type: "text" | "select" | "checkbox";
+		required: boolean;
+		options: string[];
+	}[];
 	isPaid: boolean;
 	currency?: string;
 	basePrice?: number | null;
@@ -109,7 +123,7 @@ async function getEvent(slug: string) {
 	})
 		.populate({
 			path: "organizerProfileId",
-			select: "organizationName bio websiteUrl logoUrl socialLinks slug userId",
+			select: "displayName bio website avatarUrl socialLinks slug userId",
 		})
 		.lean();
 
@@ -121,20 +135,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const event = (await getEvent(slug)) as EventPageData | null;
 
 	if (!event) {
-		return {
-			title: "Event Not Found | DevEvent",
-		};
+		// Sets the 404 status before streaming begins; returning plain metadata
+		// here would let the page shell stream with a 200.
+		notFound();
 	}
 
 	const title = event.seo?.metaTitle || `${event.title} | DevEvent`;
 	const description = event.seo?.metaDescription || event.shortDescription;
-	const ogImage =
-		event.seo?.ogImage ||
-		event.coverImageUrl ||
-		"https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200&h=630";
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonical = `${appUrl}/events/${event.slug}`;
 	const isPublic = event.visibility === "public";
+
+	// Only override images when the organizer set a custom one — otherwise the
+	// opengraph-image.tsx file convention serves the generated branded card.
+	const customOgImage = event.seo?.ogImage
+		? [{ url: event.seo.ogImage, width: 1200, height: 630, alt: event.title }]
+		: undefined;
 
 	return {
 		title,
@@ -146,21 +162,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			title,
 			description,
 			url: canonical,
-			images: [
-				{
-					url: ogImage,
-					width: 1200,
-					height: 630,
-					alt: event.title,
-				},
-			],
+			...(customOgImage ? { images: customOgImage } : {}),
 			type: "website",
 		},
 		twitter: {
 			card: "summary_large_image",
 			title,
 			description,
-			images: [ogImage],
+			...(customOgImage ? { images: [event.seo!.ogImage!] } : {}),
 		},
 		robots: isPublic
 			? { index: true, follow: true }
@@ -177,27 +186,93 @@ export default async function EventDetailPage({ params }: Props) {
 	}
 
 	const session = await auth();
-	let isRegistered = false;
+	let registrationStatus: "confirmed" | "waitlisted" | "pending_approval" | null = null;
 	let availableSpots = undefined;
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://devevents.dev";
 	const canonicalUrl = `${appUrl}/events/${event.slug}`;
 
 	if (session?.user?.id) {
-		const reg = await Registration.findOne({
+		const reg = (await Registration.findOne({
 			eventId: event._id,
 			attendeeUserId: session.user.id,
-			status: "confirmed",
-		});
-		if (reg) isRegistered = true;
+			status: { $in: ACTIVE_REGISTRATION_STATUSES },
+		})
+			.select("status")
+			.lean()) as { status: string } | null;
+		if (reg) {
+			registrationStatus = reg.status as "confirmed" | "waitlisted" | "pending_approval";
+		}
 	}
 
 	if (event.capacity) {
-		const confirmedCount = await Registration.countDocuments({
+		const confirmedSeats = await countConfirmedSeats(event._id.toString());
+		availableSpots = Math.max(0, event.capacity - confirmedSeats);
+	}
+
+	// Guest list — public-safe: first names and avatars of confirmed guests only
+	const showGuestList = event.showGuestList !== false;
+	let goingCount = 0;
+	let guestPreviews: { name: string; avatar?: string }[] = [];
+
+	if (showGuestList) {
+		goingCount = await Registration.countDocuments({
 			eventId: event._id,
 			status: "confirmed",
 		});
-		availableSpots = Math.max(0, event.capacity - confirmedCount);
+
+		if (goingCount > 0) {
+			const guests = (await Registration.find({
+				eventId: event._id,
+				status: "confirmed",
+			})
+				.sort({ createdAt: 1 })
+				.limit(8)
+				.populate({ path: "attendeeUserId", select: "name image" })
+				.lean()) as Array<{
+				attendeeName?: string;
+				attendeeUserId?: { name?: string; image?: string } | null;
+			}>;
+
+			guestPreviews = guests.map((g) => ({
+				name: (g.attendeeUserId?.name || g.attendeeName || "Guest").split(" ")[0],
+				avatar: g.attendeeUserId?.image,
+			}));
+		}
 	}
+
+	// Other upcoming dates if this event is part of a recurring series
+	let seriesEvents: { slug: string; startAt: Date | string; title: string }[] = [];
+	const eventWithSeries = event as EventPageData & { seriesId?: ObjectIdLike | null };
+	if (eventWithSeries.seriesId) {
+		seriesEvents = (await Event.find({
+			seriesId: eventWithSeries.seriesId.toString(),
+			_id: { $ne: event._id.toString() },
+			status: "published",
+			deletedAt: null,
+			visibility: { $in: ["public", "unlisted"] },
+			endAt: { $gte: new Date() },
+		})
+			.select("slug startAt title")
+			.sort({ startAt: 1 })
+			.limit(6)
+			.lean()) as { slug: string; startAt: Date; title: string }[];
+	}
+
+	const calendarEventInput = {
+		id: event._id.toString(),
+		slug: event.slug,
+		title: event.title,
+		description: event.shortDescription,
+		startAt: event.startAt,
+		endAt: event.endAt,
+		location: event.location,
+		eventType: event.eventType,
+	};
+	const calendarLinks = {
+		google: googleCalendarUrl(calendarEventInput),
+		outlook: outlookCalendarUrl(calendarEventInput),
+		ics: `/api/public/events/${event.slug}/calendar`,
+	};
 
 	const startDate = new Date(event.startAt);
 	const endDate = new Date(event.endAt);
@@ -265,7 +340,7 @@ export default async function EventDetailPage({ params }: Props) {
 					},
 		organizer: {
 			"@type": "Organization",
-			name: event.organizerProfileId?.organizationName || "DevEvent Organizer",
+			name: event.organizerProfileId?.displayName || "DevEvent Organizer",
 			url: event.organizerProfileId?.slug
 				? `${appUrl}/organizers/${event.organizerProfileId.slug}`
 				: undefined,
@@ -282,19 +357,6 @@ export default async function EventDetailPage({ params }: Props) {
 		},
 	};
 
-	const getTypeIcon = () => {
-		switch (event.eventType) {
-			case "online":
-				return <Video className="w-5 h-5 text-blue-500" />;
-			case "offline":
-				return <MapPin className="w-5 h-5 text-red-500" />;
-			case "hybrid":
-				return <Globe className="w-5 h-5 text-purple-500" />;
-			default:
-				return <MapPin className="w-5 h-5 text-gray-400" />;
-		}
-	};
-
 	const getFormatString = () => {
 		switch (event.eventType) {
 			case "online":
@@ -308,8 +370,17 @@ export default async function EventDetailPage({ params }: Props) {
 		}
 	};
 
+	const priceLabel = event.isPaid
+		? `${getCurrencySymbol(event.currency || "USD")}${event.basePrice}`
+		: "Free";
+
+	const capacityUsedPct =
+		availableSpots !== undefined && event.capacity
+			? Math.min(100, ((event.capacity - availableSpots) / event.capacity) * 100)
+			: 0;
+
 	return (
-		<main className="min-h-screen pb-20" style={{ backgroundColor: "var(--bg-base)" }}>
+		<main className="min-h-screen bg-bg-base pb-44 md:pb-20">
 			<ReferralTracker eventId={event._id.toString()} />
 			<script
 				type="application/ld+json"
@@ -319,11 +390,10 @@ export default async function EventDetailPage({ params }: Props) {
 			/>
 
 			{/* SECTION 1 — HERO */}
-			<section
-				className="w-full relative overflow-hidden flex flex-col justify-end min-h-[280px] md:min-h-[420px]"
-			>
+			<section className="w-full relative overflow-hidden flex flex-col justify-end min-h-[320px] md:min-h-[440px] pt-24">
 				{event.coverImageUrl ? (
 					<>
+						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							src={event.coverImageUrl}
 							alt={event.title}
@@ -333,180 +403,83 @@ export default async function EventDetailPage({ params }: Props) {
 							className="absolute inset-0"
 							style={{
 								background:
-									"linear-gradient(to bottom, rgba(5,5,7,0.3) 0%, rgba(5,5,7,0.6) 50%, rgba(5,5,7,0.95) 100%)",
+									"linear-gradient(to bottom, rgba(10,10,11,0.45) 0%, rgba(10,10,11,0.65) 50%, rgba(10,10,11,0.97) 100%)",
 							}}
 						/>
 					</>
 				) : (
 					<div
-						className="absolute inset-0"
+						className="absolute inset-0 bg-bg-void"
 						style={{
-							backgroundColor: "var(--bg-void)",
 							backgroundImage:
-								"radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255,107,53,0.04), transparent)",
+								"radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255,107,53,0.05), transparent), linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)",
+							backgroundSize: "auto, 64px 64px, 64px 64px",
 						}}
 					/>
 				)}
 
-				<div
-					className="relative w-full max-w-[1200px] mx-auto z-10"
-					style={{ padding: "0 24px 40px 24px" }}
-				>
+				<div className="relative w-full max-w-[1200px] mx-auto z-10 px-6 pb-10">
 					{/* ROW 1 — Badges */}
-					<div className="flex flex-row items-center gap-2 mb-4 flex-wrap">
+					<div className="flex flex-row items-center gap-2 mb-5 flex-wrap">
 						{event.category && (
-							<span
-								style={{
-									padding: "3px 10px",
-									fontSize: "11px",
-									fontWeight: 500,
-									letterSpacing: "0.08em",
-									textTransform: "uppercase",
-									border: "1px solid rgba(255,107,53,0.3)",
-									borderRadius: "var(--radius-xs, 4px)",
-									color: "var(--gold)",
-									backgroundColor: "var(--gold-subtle)",
-								}}
-							>
+							<span className="tag-industrial border-accent/40 text-accent bg-accent-dim">
 								{event.category}
 							</span>
 						)}
-						<span
-							style={{
-								padding: "3px 10px",
-								fontSize: "11px",
-								fontWeight: 500,
-								letterSpacing: "0.08em",
-								textTransform: "uppercase",
-								border: "1px solid var(--border-bright)",
-								borderRadius: "var(--radius-xs, 4px)",
-								color: "var(--text-secondary)",
-								backgroundColor: "rgba(18,18,20,0.8)",
-							}}
-						>
+						<span className="tag-industrial bg-bg-base/80 text-text-secondary">
 							{getFormatString()}
 						</span>
-
 						{availableSpots === 0 ? (
-							<span
-								style={{
-									padding: "3px 10px",
-									fontSize: "11px",
-									fontWeight: 500,
-									letterSpacing: "0.08em",
-									textTransform: "uppercase",
-									border: "1px solid rgba(239,68,68,0.3)",
-									borderRadius: "var(--radius-xs, 4px)",
-									color: "#EF4444",
-									backgroundColor: "rgba(239,68,68,0.1)",
-								}}
-							>
-								Sold Out
+							<span className="tag-industrial border-error/40 text-error bg-transparent">
+								{event.waitlistEnabled !== false && !event.isPaid
+									? "Full · Waitlist Open"
+									: "Sold Out"}
 							</span>
-						) : availableSpots !== undefined && availableSpots <= 10 && availableSpots > 0 ? (
-							<span
-								style={{
-									padding: "3px 10px",
-									fontSize: "11px",
-									fontWeight: 500,
-									letterSpacing: "0.08em",
-									textTransform: "uppercase",
-									border: "1px solid rgba(255,107,53,0.5)",
-									borderRadius: "var(--radius-xs, 4px)",
-									color: "var(--gold-bright)",
-									backgroundColor: "var(--gold-subtle)",
-								}}
-							>
+						) : availableSpots !== undefined &&
+							availableSpots <= 10 &&
+							availableSpots > 0 ? (
+							<span className="tag-industrial border-accent text-accent-hover bg-accent-dim">
 								Only {availableSpots} spots left
 							</span>
 						) : null}
 					</div>
 
 					{/* ROW 2 — Event title */}
-					<h1
-						style={{
-							fontFamily: "var(--font-display)",
-							fontSize: "clamp(28px, 4vw, 52px)",
-							fontWeight: 700,
-							lineHeight: 1.05,
-							letterSpacing: "-0.025em",
-							color: "var(--text-primary)",
-							maxWidth: "760px",
-							marginBottom: "16px",
-							textShadow: "0 2px 20px rgba(0,0,0,0.5)",
-						}}
-					>
+					<h1 className="editorial-headline text-[34px] md:text-[52px] max-w-[800px] mb-5 [text-shadow:0_2px_20px_rgba(0,0,0,0.5)]">
 						{event.title}
 					</h1>
 
 					{/* ROW 3 — Short description */}
-					<p
-						style={{
-							fontSize: "16px",
-							color: "rgba(237,234,225,0.75)",
-							maxWidth: "600px",
-							lineHeight: 1.6,
-							marginBottom: "20px",
-							fontFamily: "var(--font-body)",
-						}}
-					>
+					<p className="text-base text-text-primary/75 max-w-[620px] leading-relaxed mb-6 font-body">
 						{event.shortDescription}
 					</p>
 
 					{/* ROW 4 — Organizer row */}
 					<div className="flex items-center gap-3 flex-wrap">
-						<div
-							className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden shrink-0"
-							style={{
-								backgroundColor: "var(--gold-subtle)",
-								border: "1px solid rgba(255,107,53,0.2)",
-							}}
-						>
-							{event.organizerProfileId?.logoUrl ? (
+						<div className="w-9 h-9 flex items-center justify-center overflow-hidden shrink-0 bg-bg-elevated border border-accent/30">
+							{event.organizerProfileId?.avatarUrl ? (
+								// eslint-disable-next-line @next/next/no-img-element
 								<img
-									src={event.organizerProfileId.logoUrl}
+									src={event.organizerProfileId.avatarUrl}
 									alt="Organizer"
 									className="w-full h-full object-cover"
 								/>
 							) : (
-								<span
-									style={{
-										fontFamily: "var(--font-mono)",
-										color: "var(--gold)",
-										fontSize: "14px",
-										fontWeight: 600,
-									}}
-								>
-									{event.organizerProfileId?.organizationName?.substring(0, 1) || "O"}
+								<span className="font-mono text-accent text-sm font-semibold">
+									{event.organizerProfileId?.displayName?.substring(0, 1) || "O"}
 								</span>
 							)}
 						</div>
 						<div className="flex flex-col">
-							<span
-								style={{
-									fontSize: "11px",
-									color: "var(--text-muted)",
-									textTransform: "uppercase",
-									letterSpacing: "0.05em",
-									lineHeight: 1,
-									marginBottom: "2px",
-								}}
-							>
+							<span className="font-mono text-[10px] uppercase tracking-widest text-text-secondary leading-none mb-1">
 								Hosted by
 							</span>
-							<span
-								style={{
-									fontSize: "14px",
-									color: "var(--text-primary)",
-									fontWeight: 500,
-									lineHeight: 1,
-								}}
-							>
-								{event.organizerProfileId?.organizationName || "DevEvent Organizer"}
+							<span className="text-sm text-text-primary font-medium leading-none">
+								{event.organizerProfileId?.displayName || "DevEvent Organizer"}
 							</span>
 						</div>
 
-						<span style={{ color: "var(--text-muted)", margin: "0 4px" }}>·</span>
+						<span className="text-text-secondary mx-1" aria-hidden="true">·</span>
 
 						{event.organizerProfileId?.userId && (
 							<FollowOrganizerButton
@@ -514,7 +487,7 @@ export default async function EventDetailPage({ params }: Props) {
 							/>
 						)}
 
-						<span style={{ color: "var(--text-muted)", margin: "0 4px" }}>·</span>
+						<span className="text-text-secondary mx-1" aria-hidden="true">·</span>
 
 						<ShareEventActions
 							eventId={event._id.toString()}
@@ -526,160 +499,70 @@ export default async function EventDetailPage({ params }: Props) {
 			</section>
 
 			{/* SECTION 2 — MAIN CONTENT + SIDEBAR */}
-			<section
-				className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-12"
-				style={{ padding: "48px 24px" }}
-			>
+			<section className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_340px] gap-12 px-6 py-12">
 				{/* LEFT — MAIN CONTENT */}
-				<div>
+				<div className="min-w-0">
 					{/* BLOCK 1 — About This Event */}
 					<div className="mb-10">
-						<span
-							style={{
-								fontSize: "11px",
-								fontWeight: 500,
-								letterSpacing: "0.08em",
-								textTransform: "uppercase",
-								color: "var(--gold)",
-							}}
-						>
-							About This Event
-						</span>
-						<div
-							style={{
-								fontSize: "15px",
-								lineHeight: 1.8,
-								color: "var(--text-secondary)",
-								fontFamily: "var(--font-body)",
-								whiteSpace: "pre-wrap",
-								marginTop: "16px",
-							}}
-						>
+						<span className="section-label">About This Event</span>
+						<div className="mt-4 text-[15px] leading-[1.8] text-text-primary/80 font-body whitespace-pre-wrap">
 							{event.description ? (
 								event.description
 							) : (
-								<span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>
+								<span className="text-text-secondary italic">
 									No additional details provided.
 								</span>
 							)}
 						</div>
 					</div>
 
-					<div style={{ borderBottom: "1px solid var(--border-dim)", margin: "40px 0" }} />
+					<div className="divider-industrial my-10" />
 
 					{/* BLOCK 2 — Organizer Section */}
-					{(event.organizerProfileId?.bio || event.organizerProfileId?.websiteUrl) && (
-						<div
-							style={{
-								backgroundColor: "var(--bg-surface)",
-								border: "1px solid var(--border-dim)",
-								borderRadius: "var(--radius-lg, 12px)",
-								padding: "24px",
-								marginBottom: "40px",
-							}}
-						>
-							<span
-								style={{
-									fontSize: "11px",
-									fontWeight: 500,
-									letterSpacing: "0.08em",
-									textTransform: "uppercase",
-									color: "var(--gold)",
-								}}
-							>
-								About the Organizer
-							</span>
-							<div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
-								<div
-									style={{
-										width: "56px",
-										height: "56px",
-										borderRadius: "50%",
-										overflow: "hidden",
-										flexShrink: 0,
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid var(--border-gold, rgba(255,107,53,0.3))",
-									}}
-								>
-									{event.organizerProfileId?.logoUrl ? (
+					{(event.organizerProfileId?.bio || event.organizerProfileId?.website) && (
+						<div className="card-industrial p-6 mb-10">
+							<span className="section-label">About the Organizer</span>
+							<div className="flex gap-4 mt-4">
+								<div className="w-14 h-14 overflow-hidden shrink-0 flex items-center justify-center bg-bg-void border border-accent/30">
+									{event.organizerProfileId?.avatarUrl ? (
+										// eslint-disable-next-line @next/next/no-img-element
 										<img
-											src={event.organizerProfileId.logoUrl}
+											src={event.organizerProfileId.avatarUrl}
 											alt="Logo"
 											className="w-full h-full object-cover"
 										/>
 									) : (
-										<span
-											style={{
-												fontFamily: "var(--font-mono)",
-												color: "var(--gold)",
-												fontSize: "20px",
-											}}
-										>
-											{event.organizerProfileId?.organizationName?.substring(0, 1) || "O"}
+										<span className="font-mono text-accent text-xl">
+											{event.organizerProfileId?.displayName?.substring(0, 1) || "O"}
 										</span>
 									)}
 								</div>
-								<div>
-									<div
-										style={{
-											fontFamily: "var(--font-display)",
-											fontSize: "18px",
-											fontWeight: 600,
-											color: "var(--text-primary)",
-											marginBottom: "6px",
-										}}
-									>
-										{event.organizerProfileId?.organizationName || "DevEvent Organizer"}
+								<div className="min-w-0">
+									<div className="font-display text-lg font-bold text-text-primary mb-1.5">
+										{event.organizerProfileId?.displayName || "DevEvent Organizer"}
 									</div>
 									{event.organizerProfileId?.bio && (
-										<div
-											style={{
-												fontFamily: "var(--font-body)",
-												fontSize: "14px",
-												color: "var(--text-secondary)",
-												lineHeight: 1.7,
-												marginBottom: "12px",
-											}}
-										>
+										<p className="font-body text-sm text-text-secondary leading-[1.7] mb-3">
 											{event.organizerProfileId.bio}
-										</div>
+										</p>
 									)}
-									<div style={{ display: "flex", gap: "16px" }}>
-										{event.organizerProfileId?.websiteUrl && (
+									<div className="flex gap-5 flex-wrap">
+										{event.organizerProfileId?.website && (
 											<a
-												href={event.organizerProfileId.websiteUrl}
+												href={event.organizerProfileId.website}
 												target="_blank"
 												rel="noreferrer"
-												style={{
-													fontSize: "13px",
-													color: "var(--gold)",
-													display: "inline-flex",
-													alignItems: "center",
-													gap: "4px",
-													textDecoration: "none",
-												}}
-												className="hover:text-[var(--gold-bright)] transition-colors"
+												className="inline-flex items-center gap-1 font-mono text-[12px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
 											>
-												Visit Website ↗
+												Visit Website <ArrowUpRight size={12} aria-hidden="true" />
 											</a>
 										)}
 										{event.organizerProfileId?.slug && (
 											<Link
 												href={`/organizers/${event.organizerProfileId.slug}`}
-												style={{
-													fontSize: "13px",
-													color: "var(--gold)",
-													display: "inline-flex",
-													alignItems: "center",
-													gap: "4px",
-													textDecoration: "none",
-												}}
-												className="hover:text-[var(--gold-bright)] transition-colors"
+												className="inline-flex items-center gap-1 font-mono text-[12px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
 											>
-												View Profile →
+												View Profile <ArrowUpRight size={12} aria-hidden="true" />
 											</Link>
 										)}
 									</div>
@@ -691,62 +574,21 @@ export default async function EventDetailPage({ params }: Props) {
 					{/* BLOCK 3 — Related Events */}
 					{relatedEvents.length > 0 && (
 						<div>
-							<span
-								style={{
-									fontSize: "11px",
-									fontWeight: 500,
-									letterSpacing: "0.08em",
-									textTransform: "uppercase",
-									color: "var(--gold)",
-								}}
-							>
-								You Might Also Like
-							</span>
-							<div
-								className="grid grid-cols-1 md:grid-cols-2 gap-3"
-								style={{ marginTop: "16px" }}
-							>
+							<span className="section-label">You Might Also Like</span>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
 								{relatedEvents.map((related) => (
 									<Link
 										href={`/events/${related.slug}`}
 										key={related._id.toString()}
-										className="group transition-all duration-200 block"
-										style={{
-											backgroundColor: "var(--bg-surface)",
-											border: "1px solid var(--border-dim)",
-											borderRadius: "var(--radius-lg, 12px)",
-											padding: "16px",
-										}}
+										className="group block card-industrial p-4"
 									>
-										<p
-											style={{
-												fontSize: "11px",
-												color: "var(--gold)",
-												textTransform: "uppercase",
-												letterSpacing: "0.08em",
-												marginBottom: "6px",
-											}}
-										>
+										<p className="font-mono text-[10px] uppercase tracking-widest text-accent mb-2">
 											{related.category || "Event"}
 										</p>
-										<h3
-											className="line-clamp-2"
-											style={{
-												fontFamily: "var(--font-display)",
-												fontSize: "15px",
-												fontWeight: 600,
-												color: "var(--text-primary)",
-											}}
-										>
+										<h3 className="font-display text-[15px] font-bold text-text-primary line-clamp-2 group-hover:text-accent transition-colors">
 											{related.title}
 										</h3>
-										<span style={{
-											fontFamily: "var(--font-mono)",
-											fontSize: "11px",
-											color: "var(--text-muted)",
-											marginTop: "6px",
-											display: "block",
-										}}>
+										<span className="block font-mono text-[11px] text-text-secondary mt-2">
 											{formatEventDate(related.startAt)}
 										</span>
 									</Link>
@@ -757,82 +599,40 @@ export default async function EventDetailPage({ params }: Props) {
 				</div>
 
 				{/* RIGHT — STICKY SIDEBAR */}
-				<div style={{ position: "sticky", top: "80px", alignSelf: "flex-start" }}>
+				<div className="md:sticky md:top-24 self-start w-full">
 					{/* CARD 1 — BOOKING CARD */}
-					<div
-						style={{
-							backgroundColor: "var(--bg-surface)",
-							border: "1px solid var(--border-dim)",
-							borderRadius: "var(--radius-lg, 12px)",
-							overflow: "hidden",
-							marginBottom: "16px",
-						}}
-					>
-						<div
-							style={{
-								padding: "20px",
-								borderBottom: "1px solid var(--border-dim)",
-							}}
-						>
+					<div className="bg-bg-elevated border border-border-subtle overflow-hidden mb-4">
+						<div className="p-5 border-b border-border-subtle">
 							<div className="flex justify-between items-center">
+								<span className="section-label">Access</span>
 								<span
-									style={{
-										fontSize: "11px",
-										fontWeight: 500,
-										letterSpacing: "0.08em",
-										textTransform: "uppercase",
-										color: "var(--gold)",
-									}}
+									className={`font-mono text-[26px] font-semibold ${
+										event.isPaid ? "text-text-primary" : "text-teal"
+									}`}
 								>
-									Access
-								</span>
-								<span
-									style={{
-										fontFamily: "var(--font-mono)",
-										fontSize: "28px",
-										fontWeight: 600,
-										color: event.isPaid ? "var(--text-primary)" : "var(--gold)",
-									}}
-								>
-									{event.isPaid
-										? `${getCurrencySymbol(event.currency || "USD")}${event.basePrice}`
-										: "Free"}
+									{priceLabel}
 								</span>
 							</div>
 
 							{availableSpots !== undefined && (
-								<div style={{ marginTop: "12px" }}>
-									<div
-										style={{
-											height: "4px",
-											backgroundColor: "var(--border-dim)",
-											borderRadius: "2px",
-											overflow: "hidden",
-										}}
-									>
+								<div className="mt-3">
+									<div className="h-1 bg-border-subtle overflow-hidden">
 										<div
-											style={{
-												height: "100%",
-												backgroundColor: "var(--gold)",
-												width: `${Math.min(
-													100,
-													((event.capacity! - availableSpots) / event.capacity!) * 100
-												)}%`,
-												transition: "width 600ms ease",
-											}}
+											className="h-full bg-accent transition-[width] duration-500"
+											style={{ width: `${capacityUsedPct}%` }}
 										/>
 									</div>
-									<div style={{ marginTop: "6px" }}>
+									<div className="mt-2">
 										{availableSpots > 10 ? (
-											<span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+											<span className="font-mono text-[11px] uppercase tracking-wider text-text-secondary">
 												{availableSpots} spots remaining
 											</span>
 										) : availableSpots > 0 ? (
-											<span style={{ color: "var(--gold)", fontSize: "12px" }}>
-												Only {availableSpots} spots left!
+											<span className="font-mono text-[11px] uppercase tracking-wider text-accent">
+												Only {availableSpots} spots left
 											</span>
 										) : (
-											<span style={{ color: "#EF4444", fontSize: "12px" }}>
+											<span className="font-mono text-[11px] uppercase tracking-wider text-error">
 												This event is sold out
 											</span>
 										)}
@@ -841,7 +641,7 @@ export default async function EventDetailPage({ params }: Props) {
 							)}
 						</div>
 
-						<div style={{ padding: "20px" }}>
+						<div className="p-5">
 							{event.isPaid ? (
 								<TicketSelector
 									eventId={event._id.toString()}
@@ -851,255 +651,197 @@ export default async function EventDetailPage({ params }: Props) {
 								<BookEvent
 									eventId={event._id.toString()}
 									isLoggedIn={!!session?.user}
-									isRegistered={isRegistered}
+									registrationStatus={registrationStatus}
 									isPaid={event.isPaid}
 									basePrice={event.basePrice ?? null}
 									currency={event.currency || "USD"}
 									capacity={event.capacity}
 									availableSpots={availableSpots}
+									waitlistEnabled={event.waitlistEnabled !== false}
+									requiresApproval={event.requiresApproval === true}
+									questions={event.registrationQuestions || []}
 								/>
 							)}
 
 							{!session?.user && !event.isPaid && (
-								<p
-									style={{
-										fontSize: "12px",
-										color: "var(--text-muted)",
-										textAlign: "center",
-										marginTop: "12px",
-									}}
-								>
-									Sign in required to register.
+								<p className="font-mono text-[11px] uppercase tracking-wider text-text-secondary text-center mt-3">
+									Sign in required to register
 								</p>
 							)}
 						</div>
 					</div>
 
-					{/* CARD 2 — DATE & TIME */}
-					<div
-						style={{
-							backgroundColor: "var(--bg-surface)",
-							border: "1px solid var(--border-dim)",
-							borderRadius: "var(--radius-lg, 12px)",
-							padding: "20px",
-							marginBottom: "16px",
-						}}
-					>
-						<span
-							style={{
-								fontSize: "11px",
-								fontWeight: 500,
-								letterSpacing: "0.08em",
-								textTransform: "uppercase",
-								color: "var(--gold)",
-							}}
-						>
-							Date & Time
-						</span>
-						<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
-							<div
-								style={{
-									width: "36px",
-									height: "36px",
-									backgroundColor: "var(--gold-subtle)",
-									border: "1px solid rgba(255,107,53,0.15)",
-									borderRadius: "var(--radius-sm, 6px)",
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									flexShrink: 0,
-								}}
-							>
-								<CalendarDays size={16} color="var(--gold)" />
+					{/* CARD — GUESTS */}
+					{showGuestList && goingCount > 0 && (
+						<div className="bg-bg-elevated border border-border-subtle p-5 mb-4">
+							<div className="flex justify-between items-center">
+								<span className="section-label">Guests</span>
+								<span className="font-mono text-[11px] uppercase tracking-wider text-text-secondary">
+									{goingCount} going
+								</span>
 							</div>
-							<div>
-								<div
-									style={{
-										fontFamily: "var(--font-body)",
-										fontSize: "14px",
-										color: "var(--text-primary)",
-										fontWeight: 500,
-									}}
-								>
+							<div className="flex items-center mt-3.5">
+								{guestPreviews.map((guest, index) => (
+									<div
+										key={index}
+										className="w-9 h-9 rounded-full border-2 border-bg-elevated overflow-hidden bg-bg-void flex items-center justify-center shrink-0 -ml-2 first:ml-0"
+										title={guest.name}
+									>
+										{guest.avatar ? (
+											// eslint-disable-next-line @next/next/no-img-element
+											<img
+												src={guest.avatar}
+												alt={guest.name}
+												className="w-full h-full object-cover"
+											/>
+										) : (
+											<span className="font-mono text-[11px] text-accent font-semibold">
+												{guest.name.charAt(0).toUpperCase()}
+											</span>
+										)}
+									</div>
+								))}
+								{goingCount > guestPreviews.length && (
+									<div className="w-9 h-9 rounded-full border-2 border-bg-elevated bg-bg-void flex items-center justify-center shrink-0 -ml-2">
+										<span className="font-mono text-[9px] text-text-secondary">
+											+{goingCount - guestPreviews.length}
+										</span>
+									</div>
+								)}
+							</div>
+							<p className="font-body text-[13px] text-text-secondary mt-3 leading-relaxed">
+								{goingCount === 1
+									? `${guestPreviews[0]?.name} is going`
+									: goingCount === 2
+										? `${guestPreviews.map((g) => g.name).slice(0, 2).join(" and ")} are going`
+										: `${guestPreviews.map((g) => g.name).slice(0, 2).join(", ")} and ${goingCount - 2} others are going`}
+							</p>
+						</div>
+					)}
+
+					{/* CARD 2 — DATE & TIME */}
+					<div className="bg-bg-elevated border border-border-subtle p-5 mb-4">
+						<span className="section-label">Date &amp; Time</span>
+						<div className="flex gap-3 mt-3.5">
+							<div className="w-9 h-9 bg-accent-dim border border-accent/20 flex items-center justify-center shrink-0">
+								<CalendarDays size={16} className="text-accent" aria-hidden="true" />
+							</div>
+							<div className="min-w-0">
+								<div className="font-body text-sm text-text-primary font-medium">
 									{dateString}
 								</div>
-								<div
-									style={{
-										fontFamily: "var(--font-mono)",
-										fontSize: "13px",
-										color: "var(--text-muted)",
-										marginTop: "3px",
-									}}
-								>
-									{event.isAllDay ? "All Day" : `${startTimeString} to ${endTimeString}`}
+								<div className="font-mono text-[13px] text-text-secondary mt-1">
+									{event.isAllDay ? "All Day" : `${startTimeString} – ${endTimeString}`}
 								</div>
-								<div
-									style={{
-										fontFamily: "var(--font-body)",
-										fontSize: "12px",
-										color: "var(--text-muted)",
-										marginTop: "2px",
-									}}
-								>
-									{event.timezone}
+								{event.timezone && (
+									<div className="font-mono text-[11px] text-text-secondary mt-0.5 uppercase tracking-wider">
+										{event.timezone}
+									</div>
+								)}
+								<div className="mt-3">
+									<span className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider text-text-secondary">
+										Add to Calendar <Plus size={11} aria-hidden="true" />
+									</span>
+									<div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5">
+										<a
+											href={calendarLinks.google}
+											target="_blank"
+											rel="noreferrer"
+											className="font-mono text-[11px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
+										>
+											Google
+										</a>
+										<a
+											href={calendarLinks.outlook}
+											target="_blank"
+											rel="noreferrer"
+											className="font-mono text-[11px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
+										>
+											Outlook
+										</a>
+										<a
+											href={calendarLinks.ics}
+											className="font-mono text-[11px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
+										>
+											Apple / .ics
+										</a>
+									</div>
 								</div>
-								<a
-									href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${new Date(event.startAt).toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(event.endAt).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=${encodeURIComponent(event.shortDescription)}`}
-									target="_blank"
-									rel="noreferrer"
-									style={{
-										marginTop: "12px",
-										fontSize: "12px",
-										color: "var(--gold)",
-										display: "flex",
-										alignItems: "center",
-										gap: "4px",
-										textDecoration: "none",
-									}}
-								>
-									Add to Calendar +
-								</a>
 							</div>
 						</div>
 					</div>
 
+					{/* CARD — SERIES DATES */}
+					{seriesEvents.length > 0 && (
+						<div className="bg-bg-elevated border border-border-subtle p-5 mb-4">
+							<span className="section-label">More Dates in This Series</span>
+							<div className="flex flex-col gap-2 mt-3.5">
+								{seriesEvents.map((occurrence) => (
+									<Link
+										key={occurrence.slug}
+										href={`/events/${occurrence.slug}`}
+										className="flex items-center justify-between gap-2 font-mono text-[12px] text-text-secondary hover:text-accent transition-colors"
+									>
+										<span>{formatEventDate(occurrence.startAt)}</span>
+										<ArrowUpRight size={12} aria-hidden="true" />
+									</Link>
+								))}
+							</div>
+						</div>
+					)}
+
 					{/* CARD 3 — LOCATION */}
-					<div
-						style={{
-							backgroundColor: "var(--bg-surface)",
-							border: "1px solid var(--border-dim)",
-							borderRadius: "var(--radius-lg, 12px)",
-							padding: "20px",
-							marginBottom: "16px",
-						}}
-					>
-						<span
-							style={{
-								fontSize: "11px",
-								fontWeight: 500,
-								letterSpacing: "0.08em",
-								textTransform: "uppercase",
-								color: "var(--gold)",
-							}}
-						>
-							Location
-						</span>
+					<div className="bg-bg-elevated border border-border-subtle p-5 mb-4">
+						<span className="section-label">Location</span>
 
 						{(event.eventType === "offline" || event.eventType === "hybrid") && event.location && (
-							<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
-								<div
-									style={{
-										width: "36px",
-										height: "36px",
-										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid rgba(255,107,53,0.15)",
-										borderRadius: "var(--radius-sm, 6px)",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										flexShrink: 0,
-									}}
-								>
-									<MapPin size={16} color="var(--gold)" />
+							<div className="flex gap-3 mt-3.5">
+								<div className="w-9 h-9 bg-accent-dim border border-accent/20 flex items-center justify-center shrink-0">
+									<MapPin size={16} className="text-accent" aria-hidden="true" />
 								</div>
-								<div>
-									<div
-										style={{
-											fontSize: "14px",
-											color: "var(--text-primary)",
-											fontWeight: 500,
-										}}
-									>
+								<div className="min-w-0">
+									<div className="text-sm text-text-primary font-medium">
 										{event.location.venueName || "Venue"}
 									</div>
-									<div
-										style={{
-											fontSize: "13px",
-											color: "var(--text-secondary)",
-											marginTop: "3px",
-										}}
-									>
-										{event.location.addressLine1}
-									</div>
+									{event.location.addressLine1 && (
+										<div className="text-[13px] text-text-secondary mt-1">
+											{event.location.addressLine1}
+										</div>
+									)}
 									{event.location.addressLine2 && (
-										<div
-											style={{
-												fontSize: "13px",
-												color: "var(--text-secondary)",
-											}}
-										>
+										<div className="text-[13px] text-text-secondary">
 											{event.location.addressLine2}
 										</div>
 									)}
-									<div
-										style={{
-											fontSize: "13px",
-											color: "var(--text-muted)",
-										}}
-									>
+									<div className="text-[13px] text-text-secondary">
 										{event.location.city}, {event.location.country}
 									</div>
 									<a
 										href={`https://maps.google.com/?q=${encodeURIComponent(`${event.location.addressLine1} ${event.location.city} ${event.location.country}`)}`}
 										target="_blank"
 										rel="noreferrer"
-										style={{
-											marginTop: "10px",
-											fontSize: "12px",
-											color: "var(--gold)",
-											display: "inline-block",
-											textDecoration: "none",
-										}}
-										className="hover:underline"
+										className="mt-2.5 inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider text-accent hover:text-accent-hover transition-colors"
 									>
-										View on Maps →
+										View on Maps <ArrowUpRight size={11} aria-hidden="true" />
 									</a>
 								</div>
 							</div>
 						)}
 
 						{event.eventType === "hybrid" && (
-							<div
-								style={{
-									borderTop: "1px solid var(--border-dim)",
-									margin: "16px 0",
-								}}
-							/>
+							<div className="divider-industrial my-4" />
 						)}
 
 						{(event.eventType === "online" || event.eventType === "hybrid") && event.online && (
-							<div style={{ display: "flex", gap: "12px", marginTop: "14px" }}>
-								<div
-									style={{
-										width: "36px",
-										height: "36px",
-										backgroundColor: "var(--gold-subtle)",
-										border: "1px solid rgba(255,107,53,0.15)",
-										borderRadius: "var(--radius-sm, 6px)",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										flexShrink: 0,
-									}}
-								>
-									<Video size={16} color="var(--gold)" />
+							<div className="flex gap-3 mt-3.5">
+								<div className="w-9 h-9 bg-teal-dim border border-teal/20 flex items-center justify-center shrink-0">
+									<Video size={16} className="text-teal" aria-hidden="true" />
 								</div>
-								<div>
-									<div
-										style={{
-											fontSize: "14px",
-											color: "var(--text-primary)",
-										}}
-									>
+								<div className="min-w-0">
+									<div className="text-sm text-text-primary font-medium">
 										{event.online.platform || "Online Streaming"}
 									</div>
-									<div
-										style={{
-											fontSize: "12px",
-											color: "var(--text-muted)",
-											fontStyle: "italic",
-										}}
-									>
+									<div className="text-[12px] text-text-secondary mt-0.5">
 										Link shared with registered attendees
 									</div>
 								</div>
@@ -1111,42 +853,20 @@ export default async function EventDetailPage({ params }: Props) {
 
 			{/* SECTION 3 — MOBILE STICKY CTA */}
 			<div
-				className="md:hidden block"
+				className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-subtle px-4 pt-3 pb-5"
 				style={{
-					position: "fixed",
-					bottom: 0,
-					left: 0,
-					right: 0,
-					zIndex: 50,
-					backgroundColor: "rgba(8,8,9,0.95)",
+					backgroundColor: "rgba(10,10,11,0.95)",
 					backdropFilter: "blur(20px)",
-					borderTop: "1px solid var(--border-dim)",
-					padding: "12px 16px 20px",
 				}}
 			>
-				<div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+				<div className="flex justify-between items-center mb-2.5">
+					<span className="section-label">Access</span>
 					<span
-						style={{
-							fontSize: "11px",
-							fontWeight: 500,
-							letterSpacing: "0.08em",
-							textTransform: "uppercase",
-							color: "var(--gold)",
-						}}
+						className={`font-mono text-[20px] font-semibold ${
+							event.isPaid ? "text-text-primary" : "text-teal"
+						}`}
 					>
-						Access
-					</span>
-					<span
-						style={{
-							fontFamily: "var(--font-mono)",
-							fontSize: "20px",
-							fontWeight: 600,
-							color: event.isPaid ? "var(--text-primary)" : "var(--gold)",
-						}}
-					>
-						{event.isPaid
-							? `${getCurrencySymbol(event.currency || "USD")}${event.basePrice}`
-							: "Free"}
+						{priceLabel}
 					</span>
 				</div>
 				{event.isPaid ? (
@@ -1158,12 +878,15 @@ export default async function EventDetailPage({ params }: Props) {
 					<BookEvent
 						eventId={event._id.toString()}
 						isLoggedIn={!!session?.user}
-						isRegistered={isRegistered}
+						registrationStatus={registrationStatus}
 						isPaid={event.isPaid}
 						basePrice={event.basePrice ?? null}
 						currency={event.currency || "USD"}
 						capacity={event.capacity}
 						availableSpots={availableSpots}
+						waitlistEnabled={event.waitlistEnabled !== false}
+						requiresApproval={event.requiresApproval === true}
+						questions={event.registrationQuestions || []}
 					/>
 				)}
 			</div>

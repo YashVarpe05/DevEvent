@@ -50,10 +50,48 @@ export async function PATCH(
 		}
 		const { id } = await props.params;
 
-		const body = await req.json();
-		delete body.status;
-		delete body.organizerId;
-		delete body.organizerProfileId;
+		const rawBody = await req.json();
+
+		// Allowlist of organizer-editable fields. Everything else (status, slug,
+		// stats, ranking scores, isFeatured, ownership, timestamps) is server-managed.
+		const EDITABLE_FIELDS = [
+			"title",
+			"shortDescription",
+			"description",
+			"category",
+			"tags",
+			"coverImageUrl",
+			"galleryImages",
+			"eventType",
+			"visibility",
+			"timezone",
+			"startAt",
+			"endAt",
+			"isAllDay",
+			"location",
+			"online",
+			"capacityType",
+			"capacity",
+			"requiresApproval",
+			"waitlistEnabled",
+			"showGuestList",
+			"coHostEmails",
+			"registrationQuestions",
+			"registrationStartAt",
+			"registrationEndAt",
+			"isPaid",
+			"currency",
+			"basePrice",
+			"seo",
+			"language",
+		] as const;
+
+		const body: Record<string, unknown> = {};
+		for (const field of EDITABLE_FIELDS) {
+			if (field in rawBody) {
+				body[field] = rawBody[field];
+			}
+		}
 
 		await connectDB();
 		const event = await Event.findById(id);

@@ -425,3 +425,16 @@
   background-color: var(--border-subtle);
   width: 100%;
 }
+
+/* ─── REDUCED MOTION ─── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-shimmer,
+  .animate-glow-pulse,
+  .hero-vertical-scroll,
+  .hero-glitch-r,
+  .hero-glitch-b,
+  .hero-glitch-scanlines {
+    animation: none !important;
+  }
+}

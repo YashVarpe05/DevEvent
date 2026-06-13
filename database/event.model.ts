@@ -41,6 +41,17 @@ export interface IEvent extends Document {
 	};
 	capacityType: CapacityType;
 	capacity?: number;
+	requiresApproval: boolean;
+	waitlistEnabled: boolean;
+	showGuestList: boolean;
+	coHostEmails: string[];
+	registrationQuestions: {
+		id: string;
+		label: string;
+		type: "text" | "select" | "checkbox";
+		required: boolean;
+		options: string[];
+	}[];
 	registrationStartAt?: Date;
 	registrationEndAt?: Date;
 	isPaid: boolean;
@@ -65,6 +76,13 @@ export interface IEvent extends Document {
 		coordinates: [number, number];
 	};
 	language?: string;
+	// Idempotency markers for the lifecycle email cron
+	lifecycleEmails?: {
+		dayBeforeSentAt?: Date | null;
+		hourBeforeSentAt?: Date | null;
+		feedbackSentAt?: Date | null;
+	};
+	seriesId?: Types.ObjectId | null;
 	isFeatured: boolean;
 	publishedAt?: Date | null;
 	lastPublishedAt?: Date | null;
@@ -72,6 +90,17 @@ export interface IEvent extends Document {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const RegistrationQuestionSchema = new Schema(
+	{
+		id: { type: String, required: true },
+		label: { type: String, required: true, trim: true, maxlength: 150 },
+		type: { type: String, enum: ["text", "select", "checkbox"], default: "text" },
+		required: { type: Boolean, default: false },
+		options: { type: [String], default: [] },
+	},
+	{ _id: false },
+);
 
 const EventSchema = new Schema<IEvent>(
 	{
@@ -157,6 +186,14 @@ const EventSchema = new Schema<IEvent>(
 			default: "unlimited",
 		},
 		capacity: { type: Number },
+		requiresApproval: { type: Boolean, default: false },
+		waitlistEnabled: { type: Boolean, default: true },
+		showGuestList: { type: Boolean, default: true },
+		coHostEmails: { type: [{ type: String, lowercase: true, trim: true }], default: [] },
+		registrationQuestions: {
+			type: [RegistrationQuestionSchema],
+			default: [],
+		},
 		registrationStartAt: { type: Date },
 		registrationEndAt: { type: Date },
 		isPaid: { type: Boolean, default: false },
@@ -200,6 +237,13 @@ const EventSchema = new Schema<IEvent>(
 			},
 		},
 		language: { type: String, trim: true, lowercase: true },
+		lifecycleEmails: {
+			dayBeforeSentAt: { type: Date, default: null },
+			hourBeforeSentAt: { type: Date, default: null },
+			feedbackSentAt: { type: Date, default: null },
+		},
+		// Links the occurrences of a recurring event together
+		seriesId: { type: Schema.Types.ObjectId, default: null, index: true },
 		isFeatured: { type: Boolean, default: false, index: true },
 		publishedAt: { type: Date, default: null },
 		lastPublishedAt: { type: Date, default: null },

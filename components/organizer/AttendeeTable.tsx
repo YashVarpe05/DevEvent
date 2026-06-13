@@ -24,11 +24,13 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
       att.ticketCode?.toLowerCase().includes(search.toLowerCase());
       
     if (!matchesSearch) return false;
-    
+
     if (filter === "confirmed") return att.status === "confirmed";
-    if (filter === "cancelled") return att.status === "cancelled";
+    if (filter === "pending") return att.status === "pending_approval";
+    if (filter === "waitlisted") return att.status === "waitlisted";
+    if (filter === "cancelled") return att.status?.startsWith("cancelled");
     if (filter === "checked-in") return !!att.checkedInAt;
-    
+
     return true;
   });
 
@@ -51,6 +53,32 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
       alert("Failed to export attendees");
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+
+  const handleReview = async (registrationId: string, action: "approve" | "decline") => {
+    setReviewingId(registrationId);
+    try {
+      const res = await fetch(`/api/organizer/registrations/${registrationId}/${action}`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message);
+      }
+
+      setAttendees(attendees.map(att =>
+        att._id === registrationId
+          ? { ...att, status: data.registration.status }
+          : att
+      ));
+    } catch (error: any) {
+      alert(error.message || `Failed to ${action} registration`);
+    } finally {
+      setReviewingId(null);
     }
   };
 
@@ -105,6 +133,8 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
           >
             <option value="all">All Statuses</option>
             <option value="confirmed">Confirmed</option>
+            <option value="pending">Pending Approval</option>
+            <option value="waitlisted">Waitlisted</option>
             <option value="cancelled">Cancelled</option>
             <option value="checked-in">Checked In</option>
           </select>
@@ -147,6 +177,16 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
                     <td style={{ padding: "16px 24px" }}>
                       <div style={{ fontWeight: 500, color: "var(--text-primary)" }}>{att.attendeeUserId?.name || "Unknown User"}</div>
                       <div style={{ color: "var(--text-secondary)", fontSize: "13px" }}>{att.attendeeUserId?.email || "No email provided"}</div>
+                      {Array.isArray(att.metadata?.answers) && att.metadata.answers.length > 0 && (
+                        <div style={{ marginTop: "6px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                          {att.metadata.answers.map((answer: { id: string; label: string; value: string | boolean }) => (
+                            <div key={answer.id} style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "normal" }}>
+                              <span style={{ color: "var(--text-secondary)" }}>{answer.label}:</span>{" "}
+                              {answer.value === true ? "Yes" : String(answer.value)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: "16px 24px" }}>
                       <div style={{ fontFamily: "monospace", color: "var(--gold)", background: "var(--gold-dim)", padding: "2px 8px", borderRadius: "4px", fontSize: "12px", display: "inline-block", marginBottom: "4px" }}>
@@ -158,9 +198,17 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
                       </div>
                     </td>
                     <td style={{ padding: "16px 24px" }}>
-                      {att.status === 'cancelled' ? (
+                      {att.status?.startsWith('cancelled') ? (
                         <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(239, 68, 68, 0.1)", color: "var(--red)", fontWeight: 500, padding: "4px 10px", borderRadius: "9999px", fontSize: "12px" }}>
                           <XCircle className="w-3.5 h-3.5" /> Cancelled
+                        </span>
+                      ) : att.status === 'pending_approval' ? (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(245, 158, 11, 0.1)", color: "#f59e0b", fontWeight: 500, padding: "4px 10px", borderRadius: "9999px", fontSize: "12px" }}>
+                          <Clock className="w-3.5 h-3.5" /> Pending Approval
+                        </span>
+                      ) : att.status === 'waitlisted' ? (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(148, 163, 184, 0.1)", color: "#94a3b8", fontWeight: 500, padding: "4px 10px", borderRadius: "9999px", fontSize: "12px" }}>
+                          <Clock className="w-3.5 h-3.5" /> Waitlisted
                         </span>
                       ) : att.checkedInAt ? (
                         <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(34, 197, 94, 0.1)", color: "var(--green)", fontWeight: 500, padding: "4px 10px", borderRadius: "9999px", fontSize: "12px" }}>
@@ -173,6 +221,24 @@ export default function AttendeeTable({ eventId, initialAttendees, totalExpected
                       )}
                     </td>
                     <td style={{ padding: "16px 24px", textAlign: "right" }}>
+                      {(att.status === 'pending_approval' || att.status === 'waitlisted') && (
+                        <div style={{ display: "inline-flex", gap: "8px" }}>
+                          <button
+                            onClick={() => handleReview(att._id, "approve")}
+                            disabled={reviewingId === att._id}
+                            style={{ color: "var(--green)", background: "rgba(34, 197, 94, 0.1)", border: "none", padding: "6px 12px", borderRadius: "var(--radius-sm)", fontWeight: 500, fontSize: "12px", cursor: reviewingId === att._id ? "wait" : "pointer", transition: "all 0.2s", opacity: reviewingId === att._id ? 0.5 : 1 }}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleReview(att._id, "decline")}
+                            disabled={reviewingId === att._id}
+                            style={{ color: "var(--red)", background: "rgba(239, 68, 68, 0.1)", border: "none", padding: "6px 12px", borderRadius: "var(--radius-sm)", fontWeight: 500, fontSize: "12px", cursor: reviewingId === att._id ? "wait" : "pointer", transition: "all 0.2s", opacity: reviewingId === att._id ? 0.5 : 1 }}
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      )}
                       {att.status === 'confirmed' && !att.checkedInAt && (
                         <button
                           onClick={() => handleManualCheckIn(att._id)}

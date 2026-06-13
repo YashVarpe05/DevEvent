@@ -6,7 +6,7 @@ export interface IRegistration extends Document {
 	attendeeEmail: string;
 	attendeeName: string;
 	attendeePhone?: string;
-	status: "confirmed" | "cancelled_by_user" | "cancelled_by_organizer" | "waitlisted" | "no_show";
+	status: "confirmed" | "pending_approval" | "cancelled_by_user" | "cancelled_by_organizer" | "waitlisted" | "no_show";
 	bookingType: "free" | "paid";
 	quantity: number;
 	ticketCode: string; // e.g., TKT-AB12CD34
@@ -31,7 +31,7 @@ const RegistrationSchema = new Schema<IRegistration>(
 		attendeePhone: { type: String },
 		status: {
 			type: String,
-			enum: ["confirmed", "cancelled_by_user", "cancelled_by_organizer", "waitlisted", "no_show"],
+			enum: ["confirmed", "pending_approval", "cancelled_by_user", "cancelled_by_organizer", "waitlisted", "no_show"],
 			default: "confirmed",
 			required: true,
 		},

@@ -64,6 +64,14 @@ export default auth((req) => {
 		) {
 			return NextResponse.next();
 		}
+		// Event-scoped management pages are also open to co-hosts, who may not
+		// be approved organizers. Authorization happens in the page/API via
+		// canManageEvent (owner, admin, or co-host email match).
+		const coHostAccessible = /^\/organizer\/events\/[^/]+\/(attendees|check-in|messages|feedback)$/;
+		if (coHostAccessible.test(pathname)) {
+			return NextResponse.next();
+		}
+
 		// All other /organizer/** routes require approved organizer or admin
 		const organizerStatus = req.auth?.user?.organizerStatus;
 		const roles = req.auth?.user?.roles || [];

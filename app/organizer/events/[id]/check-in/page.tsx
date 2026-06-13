@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, QrCode, CheckCircle2, XCircle, Loader2, User, Ticket } from "lucide-react";
 import { useParams } from "next/navigation";
+import CameraScanner from "@/components/organizer/CameraScanner";
 
 export default function CheckInPage() {
   const params = useParams();
@@ -21,44 +22,54 @@ export default function CheckInPage() {
     inputRef.current?.focus();
   }, []);
 
-  const handleCheckIn = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!ticketCode || status === "loading") return;
+  const submitCheckIn = useCallback(async (rawCode: string) => {
+    const code = rawCode.trim().toUpperCase();
+    if (!code) return;
 
     setStatus("loading");
     setMessage("");
-    
+
     try {
       const res = await fetch(`/api/organizer/events/${eventId}/check-in/code`, {
         method: "POST",
-        body: JSON.stringify({ ticketCode: ticketCode.toUpperCase() }),
+        body: JSON.stringify({ ticketCode: code }),
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         setStatus("error");
         setMessage(data.message || "Failed to check in");
         if (data.registration) setLastCheckIn(data.registration);
         return;
       }
-      
+
       setStatus("success");
       setMessage("Check-in successful");
       setLastCheckIn(data.registration);
-      setTicketCode(""); // Clear for next scan
+      setTicketCode("");
       inputRef.current?.focus();
-      
-      // Reset success state after 3 seconds but keep the lastCheckIn info
-      setTimeout(() => {
-        if (status === "success") setStatus("idle");
-      }, 3000);
 
-    } catch (error) {
+      setTimeout(() => {
+        setStatus((current) => (current === "success" ? "idle" : current));
+      }, 3000);
+    } catch {
       setStatus("error");
       setMessage("Connection error. Please try again.");
     }
+  }, [eventId]);
+
+  const handleCheckIn = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (status === "loading") return;
+    submitCheckIn(ticketCode);
   };
+
+  const handleScan = useCallback((scannedValue: string) => {
+    if (status === "loading") return;
+    setTicketCode(scannedValue.toUpperCase());
+    submitCheckIn(scannedValue);
+  }, [status, submitCheckIn]);
 
   return (
 		<div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", flexDirection: "column" }}>
@@ -78,7 +89,9 @@ export default function CheckInPage() {
 			</div>
 
 			<div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "24px 24px 48px" }}>
-				<div style={{ width: "100%", maxWidth: "448px", display: "flex", flexDirection: "column", gap: "32px" }}>
+				<div style={{ width: "100%", maxWidth: "448px", display: "flex", flexDirection: "column", gap: "20px" }}>
+
+					<CameraScanner onScan={handleScan} disabled={status === "loading"} />
 					
 					{/* Main Input Component */}
 					<div style={{ background: "var(--bg-surface)", borderRadius: "var(--radius-xl)", border: "1px solid var(--border-dim)", padding: "32px", textAlign: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
@@ -153,8 +166,8 @@ export default function CheckInPage() {
 			</div>
 
 			{/* Helpful Hint (Mobile Only) */}
-			<div style={{ padding: "24px", textAlign: "center", color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
-				<p style={{ margin: 0 }}>Pro Tip: Use a Bluetooth barcode scanner for rapid entry.</p>
+			<div style={{ padding: "24px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px", marginBottom: "16px" }}>
+				<p style={{ margin: 0 }}>Tap &ldquo;Start camera&rdquo; to scan ticket QRs, or use a Bluetooth barcode scanner.</p>
 			</div>
 		</div>
   );

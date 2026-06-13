@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
+import { canManageEvent } from "@/lib/event-access";
 import Event from "@/database/event.model";
 import Registration from "@/database/registration.model";
 
@@ -22,10 +23,7 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
 			return NextResponse.json({ message: "Event not found" }, { status: 404 });
 		}
 
-		const isAdmin = session.user.roles?.includes("admin");
-		const isOwner = event.organizerId.toString() === session.user.id;
-
-		if (!isAdmin && !isOwner) {
+		if (!canManageEvent(event, session)) {
 			return NextResponse.json({ message: "Forbidden: You do not have permission to view attendees for this event" }, { status: 403 });
 		}
 

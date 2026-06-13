@@ -105,7 +105,16 @@ export default async function OrganizerPublicPage({ params }: Props) {
 							{organizer.bio || "Organizer profile"}
 						</p>
 					</div>
-					<FollowOrganizerButton organizerId={organizer.userId.toString()} />
+					<div className="flex flex-wrap items-center gap-3">
+						<FollowOrganizerButton organizerId={organizer.userId.toString()} />
+						<a
+							href={`/api/public/organizers/${organizer.slug}/calendar`}
+							className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
+							title="Subscribe in Apple Calendar, Google Calendar, or Outlook — new events appear automatically"
+						>
+							📅 Subscribe to Calendar
+						</a>
+					</div>
 				</div>
 			</section>
 

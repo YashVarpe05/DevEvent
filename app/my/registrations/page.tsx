@@ -65,11 +65,29 @@ export default async function MyRegistrationsPage() {
         color: "var(--green)",
         label: "Confirmed",
       },
-      cancelled: {
+      waitlisted: {
+        bg: "rgba(148,163,184,0.08)",
+        border: "rgba(148,163,184,0.25)",
+        color: "#94a3b8",
+        label: "Waitlisted",
+      },
+      pending_approval: {
+        bg: "rgba(245,158,11,0.08)",
+        border: "rgba(245,158,11,0.25)",
+        color: "#f59e0b",
+        label: "Pending Approval",
+      },
+      cancelled_by_user: {
         bg: "rgba(204,70,70,0.08)",
         border: "rgba(204,70,70,0.25)",
         color: "var(--red)",
         label: "Cancelled",
+      },
+      cancelled_by_organizer: {
+        bg: "rgba(204,70,70,0.08)",
+        border: "rgba(204,70,70,0.25)",
+        color: "var(--red)",
+        label: "Cancelled by Host",
       },
     };
     const s = styles[status] || {
@@ -104,7 +122,7 @@ export default async function MyRegistrationsPage() {
     if (!event) return null;
 
     const startDate = new Date(event.startAt);
-    const isCancelled = reg.status === "cancelled";
+    const isCancelled = typeof reg.status === "string" && reg.status.startsWith("cancelled");
     const locationText =
       event.eventType === "online"
         ? "Online"

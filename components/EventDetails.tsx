@@ -221,7 +221,7 @@ const EventDetails = async ({ params }: { params: Promise<{ slug: string }> }) =
 						<BookEvent
 							eventId={event._id}
 							isLoggedIn={false}
-							isRegistered={false}
+							registrationStatus={null}
 							isPaid={event.isPaid || false}
 							basePrice={event.basePrice ?? null}
 							currency={event.currency || "USD"}

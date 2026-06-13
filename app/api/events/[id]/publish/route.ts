@@ -6,6 +6,7 @@ import connectDB from "@/lib/mongodb";
 import { auth } from "@/lib/auth";
 import { publishEventSchema } from "@/lib/validations/event";
 import { cacheDelByPrefix } from "@/lib/cache/redis";
+import { notifyFollowersOfNewEvent } from "@/lib/follow-notifications";
 
 export async function POST(
 	req: NextRequest,
@@ -89,8 +90,19 @@ export async function POST(
 			cacheDelByPrefix("discovery:recommended:"),
 		]);
 
+		// First publish of a public event → tell the organizer's followers.
+		// Republishing an unpublished event doesn't re-notify.
+		let followersNotified = 0;
+		if (!event.publishedAt && updatedEvent) {
+			try {
+				followersNotified = await notifyFollowersOfNewEvent(updatedEvent);
+			} catch (notifyError) {
+				console.error("Follower notification error:", notifyError);
+			}
+		}
+
 		return NextResponse.json(
-			{ message: "Event published successfully", event: updatedEvent },
+			{ message: "Event published successfully", event: updatedEvent, followersNotified },
 			{ status: 200 },
 		);
 	} catch (error: any) {

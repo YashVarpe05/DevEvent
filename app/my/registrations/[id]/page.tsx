@@ -7,6 +7,8 @@ import connectDB from "@/lib/mongodb";
 import Registration from "@/database/registration.model";
 import { ArrowLeft, MapPin, CalendarDays, Ticket, ExternalLink, Video } from "lucide-react";
 import CancelRegistrationButton from "@/components/CancelRegistrationButton";
+import FeedbackForm from "@/components/FeedbackForm";
+import TicketQR from "@/components/TicketQR";
 
 async function getRegistrationDetails(id: string, userId: string) {
   await connectDB();
@@ -35,7 +37,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
 
   const event = registration.eventId;
   const startDate = new Date(event.startAt);
-  const isCancelled = registration.status === "cancelled";
+  const isCancelled = typeof registration.status === "string" && registration.status.startsWith("cancelled");
 
   const formatLabel = (label: string) => (
     <span style={{
@@ -65,6 +67,10 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
     ? { bg: "rgba(204,70,70,0.08)", border: "rgba(204,70,70,0.3)", color: "var(--red)", icon: "✕", label: "CANCELLED" }
     : registration.status === "confirmed"
     ? { bg: "var(--gold-subtle)", border: "var(--border-gold)", color: "var(--gold)", icon: "✓", label: "CONFIRMED" }
+    : registration.status === "waitlisted"
+    ? { bg: "rgba(148,163,184,0.08)", border: "rgba(148,163,184,0.3)", color: "#94a3b8", icon: "⏳", label: "WAITLISTED" }
+    : registration.status === "pending_approval"
+    ? { bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.3)", color: "#f59e0b", icon: "⏳", label: "PENDING APPROVAL" }
     : { bg: "var(--bg-elevated)", border: "var(--border-dim)", color: "var(--text-muted)", icon: "⏳", label: registration.status?.toUpperCase() || "PENDING" };
 
   const locationText = event.eventType === "online"
@@ -271,7 +277,6 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
             >
               {!isCancelled ? (
                 <>
-                  {/* QR container with white bg for visibility */}
                   <div
                     style={{
                       background: "#EDEAE1",
@@ -280,15 +285,7 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
                       width: "fit-content",
                     }}
                   >
-                    {/* Mock QR graphic, visually representing the cryptographic payload */}
-                    <div
-                      style={{
-                        width: "160px",
-                        height: "160px",
-                        backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg')",
-                        backgroundSize: "cover",
-                      }}
-                    />
+                    <TicketQR ticketCode={registration.ticketCode} size={180} />
                   </div>
 
                   {/* Ticket code below QR */}
@@ -389,6 +386,17 @@ export default async function TicketDetailsPage({ params }: { params: Promise<{ 
             </div>
           </div>
         </div>
+
+        {/* Post-event feedback — confirmed guests only, after the event ends */}
+        {!isCancelled &&
+          registration.status !== "waitlisted" &&
+          registration.status !== "pending_approval" &&
+          new Date(event.endAt) < new Date() && (
+            <FeedbackForm
+              eventId={event._id.toString()}
+              eventTitle={event.title}
+            />
+          )}
       </div>
     </main>
   );

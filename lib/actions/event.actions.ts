@@ -1,5 +1,6 @@
 "use server";
 import Event from "@/database/event.model";
+import "@/database/organizer-profile.model"; // Registers the schema for populate
 import connectDB from "../mongodb";
 
 export const getEventBySlug = async (slug: string) => {

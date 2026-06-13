@@ -4,15 +4,29 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle } from "lucide-react";
 import {
 	organizerApplicationSchema,
 	OrganizerApplicationInput,
 } from "@/lib/validations/organizer.schemas";
 
+const labelClasses =
+	"block font-mono text-[11px] uppercase tracking-widest font-medium text-text-secondary mb-2";
+
+const inputClasses =
+	"w-full bg-bg-base border border-border-subtle px-4 py-3 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary focus:border-accent";
+
+const fieldErrorClasses = "text-[12px] mt-1.5 text-error";
+
+const RequiredMark = () => (
+	<span className="text-accent" aria-hidden="true">
+		{" "}*
+	</span>
+);
+
 export default function BecomeOrganizerForm() {
 	const router = useRouter();
 	const [error, setError] = useState<string | null>(null);
-	const [status, setStatus] = useState<string | null>(null);
 
 	// Check if user already applied
 	useEffect(() => {
@@ -58,7 +72,7 @@ export default function BecomeOrganizerForm() {
 			}
 
 			router.push("/organizer/application-status");
-		} catch (err) {
+		} catch {
 			setError("An unexpected error occurred. Please try again.");
 		}
 	};
@@ -74,201 +88,122 @@ export default function BecomeOrganizerForm() {
 		"Other",
 	];
 
-	const labelStyle: React.CSSProperties = {
-		fontSize: "12px",
-		fontWeight: 500,
-		color: "var(--text-secondary)",
-		letterSpacing: "0.02em",
-		marginBottom: "6px",
-		display: "block",
-	};
-
-	const inputStyle: React.CSSProperties = {
-		width: "100%",
-		background: "var(--bg-elevated)",
-		border: "1px solid var(--border)",
-		borderRadius: "var(--radius-md)",
-		padding: "10px 14px",
-		fontSize: "14px",
-		color: "var(--text-primary)",
-		outline: "none",
-		transition: "border-color 150ms ease, box-shadow 150ms ease",
-		fontFamily: "var(--font-body)",
-		boxSizing: "border-box" as const,
-	};
-
-	const fieldErrorStyle: React.CSSProperties = {
-		fontSize: "12px",
-		color: "var(--red)",
-		marginTop: "4px",
-	};
-
-	const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		e.target.style.borderColor = "rgba(255,107,53,0.5)";
-		e.target.style.boxShadow = "0 0 0 3px #1A0A05";
-	};
-
-	const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		e.target.style.borderColor = "var(--border)";
-		e.target.style.boxShadow = "none";
-	};
-
 	return (
-		<div
-			style={{
-				background: "var(--bg-surface)",
-				border: "1px solid var(--border-dim)",
-				borderRadius: "var(--radius-lg)",
-				padding: "28px 32px",
-			}}
-		>
-			<h2
-				style={{
-					fontFamily: "var(--font-serif)",
-					fontSize: "22px",
-					fontWeight: 600,
-					color: "var(--text-primary)",
-					marginBottom: "24px",
-				}}
-			>
+		<div className="bg-bg-elevated border border-border-subtle p-6 sm:p-8">
+			<h2 className="font-display text-[22px] font-bold text-text-primary mb-6">
 				Organizer Application
 			</h2>
 
 			{error && (
 				<div
-					style={{
-						marginBottom: "20px",
-						background: "rgba(204,70,70,0.06)",
-						border: "1px solid rgba(204,70,70,0.25)",
-						borderRadius: "var(--radius-md)",
-						padding: "10px 14px",
-						color: "var(--red)",
-						fontSize: "13px",
-					}}
+					role="alert"
+					className="mb-5 flex items-start gap-2.5 border border-error/30 bg-error/5 px-4 py-3 text-[13px] text-error"
 				>
+					<AlertCircle size={15} className="shrink-0 mt-0.5" aria-hidden="true" />
 					{error}
 				</div>
 			)}
 
-			<form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="flex flex-col gap-5"
+				noValidate
+			>
 				{/* Why Organizing */}
 				<div>
-					<label style={labelStyle}>
-						Why do you want to organize events on DevEvent? <span style={{ color: "var(--red)" }}>*</span>
+					<label htmlFor="whyOrganizing" className={labelClasses}>
+						Why do you want to organize events on DevEvent?
+						<RequiredMark />
 					</label>
 					<textarea
+						id="whyOrganizing"
 						{...register("whyOrganizing")}
 						rows={4}
 						placeholder="Tell us about your community goals..."
-						style={{
-							...inputStyle,
-							minHeight: "100px",
-							resize: "vertical" as const,
-							lineHeight: 1.6,
-						}}
-						onFocus={handleFocus as any}
-						onBlur={handleBlur as any}
+						className={`${inputClasses} min-h-[100px] resize-y leading-relaxed`}
+						aria-invalid={Boolean(errors.whyOrganizing)}
 					/>
 					{errors.whyOrganizing && (
-						<p style={fieldErrorStyle}>{errors.whyOrganizing.message}</p>
+						<p className={fieldErrorClasses}>{errors.whyOrganizing.message}</p>
 					)}
 				</div>
 
-				<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 					{/* Past Events */}
 					<div>
-						<label style={labelStyle}>
-							How many events have you organized? <span style={{ color: "var(--red)" }}>*</span>
+						<label htmlFor="pastEventsCount" className={labelClasses}>
+							Events organized so far
+							<RequiredMark />
 						</label>
 						<input
+							id="pastEventsCount"
 							type="number"
 							{...register("pastEventsCount", { valueAsNumber: true })}
 							min="0"
-							style={{
-								...inputStyle,
-								fontFamily: "var(--font-mono)",
-							}}
-							onFocus={handleFocus}
-							onBlur={handleBlur}
+							className={`${inputClasses} font-mono`}
+							aria-invalid={Boolean(errors.pastEventsCount)}
 						/>
 						{errors.pastEventsCount && (
-							<p style={fieldErrorStyle}>{errors.pastEventsCount.message}</p>
+							<p className={fieldErrorClasses}>{errors.pastEventsCount.message}</p>
 						)}
 					</div>
 
 					{/* Expected Events */}
 					<div>
-						<label style={labelStyle}>
-							Expected events per month? <span style={{ color: "var(--red)" }}>*</span>
+						<label htmlFor="expectedEventsPerMonth" className={labelClasses}>
+							Expected events per month
+							<RequiredMark />
 						</label>
 						<input
+							id="expectedEventsPerMonth"
 							type="number"
 							{...register("expectedEventsPerMonth", { valueAsNumber: true })}
 							min="1"
-							style={{
-								...inputStyle,
-								fontFamily: "var(--font-mono)",
-							}}
-							onFocus={handleFocus}
-							onBlur={handleBlur}
+							className={`${inputClasses} font-mono`}
+							aria-invalid={Boolean(errors.expectedEventsPerMonth)}
 						/>
 						{errors.expectedEventsPerMonth && (
-							<p style={fieldErrorStyle}>{errors.expectedEventsPerMonth.message}</p>
+							<p className={fieldErrorClasses}>
+								{errors.expectedEventsPerMonth.message}
+							</p>
 						)}
 					</div>
 				</div>
 
 				{/* Event Types */}
 				<div>
-					<label style={labelStyle}>
-						What types of events will you host? <span style={{ color: "var(--red)" }}>*</span>
-					</label>
-					<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+					<span className={labelClasses}>
+						What types of events will you host?
+						<RequiredMark />
+					</span>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 						{EVENT_TYPES.map((type) => (
 							<label
 								key={type}
-								className="event-type-checkbox"
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "10px",
-									padding: "10px 12px",
-									background: "var(--bg-elevated)",
-									border: "1px solid var(--border-dim)",
-									borderRadius: "var(--radius-sm)",
-									fontSize: "13px",
-									color: "var(--text-secondary)",
-									cursor: "pointer",
-									transition: "all 150ms ease",
-								}}
+								className="flex items-center gap-2.5 px-3 py-2.5 bg-bg-base border border-border-subtle text-[13px] text-text-secondary cursor-pointer transition-colors hover:border-border-hover hover:text-text-primary has-[input:checked]:border-accent has-[input:checked]:text-accent has-[input:checked]:bg-accent-dim"
 							>
 								<input
 									type="checkbox"
 									value={type}
 									{...register("primaryEventTypes")}
-									style={{
-										width: "14px",
-										height: "14px",
-										accentColor: "var(--gold)",
-										flexShrink: 0,
-										cursor: "pointer",
-									}}
+									className="w-3.5 h-3.5 shrink-0 cursor-pointer accent-[#FF6B35]"
 								/>
 								<span>{type}</span>
 							</label>
 						))}
 					</div>
 					{errors.primaryEventTypes && (
-						<p style={fieldErrorStyle}>{errors.primaryEventTypes.message}</p>
+						<p className={fieldErrorClasses}>{errors.primaryEventTypes.message}</p>
 					)}
 				</div>
 
 				{/* Ticketing Intent */}
 				<div>
-					<label style={labelStyle}>
-						Ticketing plans <span style={{ color: "var(--red)" }}>*</span>
-					</label>
-					<div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+					<span className={labelClasses}>
+						Ticketing plans
+						<RequiredMark />
+					</span>
+					<div className="flex flex-col gap-1.5">
 						{[
 							{ value: "free_only", label: "Free events only" },
 							{ value: "paid_only", label: "Paid events only" },
@@ -276,198 +211,79 @@ export default function BecomeOrganizerForm() {
 						].map((option) => (
 							<label
 								key={option.value}
-								className="ticketing-radio"
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: "10px",
-									padding: "12px 14px",
-									background: "var(--bg-elevated)",
-									border: "1px solid var(--border-dim)",
-									borderRadius: "var(--radius-md)",
-									fontSize: "13px",
-									color: "var(--text-secondary)",
-									cursor: "pointer",
-									transition: "all 150ms ease",
-								}}
+								className="flex items-center gap-2.5 px-3.5 py-3 bg-bg-base border border-border-subtle text-[13px] text-text-secondary cursor-pointer transition-colors hover:border-border-hover hover:text-text-primary has-[input:checked]:border-accent has-[input:checked]:text-text-primary"
 							>
 								<input
 									type="radio"
 									value={option.value}
 									{...register("ticketingIntent")}
-									style={{
-										accentColor: "var(--gold)",
-										width: "14px",
-										height: "14px",
-										cursor: "pointer",
-									}}
+									className="w-3.5 h-3.5 shrink-0 cursor-pointer accent-[#FF6B35]"
 								/>
 								<span>{option.label}</span>
 							</label>
 						))}
 					</div>
 					{errors.ticketingIntent && (
-						<p style={fieldErrorStyle}>{errors.ticketingIntent.message}</p>
+						<p className={fieldErrorClasses}>{errors.ticketingIntent.message}</p>
 					)}
 				</div>
 
 				{/* Terms / Policy */}
-				<div
-					style={{
-						borderTop: "1px solid var(--border-dim)",
-						paddingTop: "20px",
-						marginTop: "8px",
-						display: "flex",
-						flexDirection: "column",
-						gap: "12px",
-					}}
-				>
-					<label
-						style={{
-							display: "flex",
-							alignItems: "flex-start",
-							gap: "10px",
-							fontSize: "13px",
-							color: "var(--text-muted)",
-							lineHeight: 1.5,
-							cursor: "pointer",
-						}}
-					>
+				<div className="border-t border-border-subtle pt-5 mt-2 flex flex-col gap-3">
+					<label className="flex items-start gap-2.5 text-[13px] text-text-secondary leading-normal cursor-pointer">
 						<input
 							type="checkbox"
 							{...register("termsAccepted")}
-							style={{
-								marginTop: "2px",
-								width: "14px",
-								height: "14px",
-								accentColor: "var(--gold)",
-								flexShrink: 0,
-								cursor: "pointer",
-							}}
+							className="mt-0.5 w-3.5 h-3.5 shrink-0 cursor-pointer accent-[#FF6B35]"
 						/>
 						<span>
 							I agree to the{" "}
 							<a
 								href="#"
-								style={{
-									color: "var(--gold)",
-									textDecoration: "none",
-								}}
-								onMouseEnter={(e) => (e.currentTarget.style.color = "#FF8555")}
-								onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gold)")}
+								className="text-accent hover:text-accent-hover transition-colors"
 							>
 								Terms of Service
 							</a>{" "}
-							for Organizers. <span style={{ color: "var(--red)" }}>*</span>
+							for Organizers.
+							<RequiredMark />
 						</span>
 					</label>
 					{errors.termsAccepted && (
-						<p style={fieldErrorStyle}>{errors.termsAccepted.message}</p>
+						<p className={fieldErrorClasses}>{errors.termsAccepted.message}</p>
 					)}
 
-					<label
-						style={{
-							display: "flex",
-							alignItems: "flex-start",
-							gap: "10px",
-							fontSize: "13px",
-							color: "var(--text-muted)",
-							lineHeight: 1.5,
-							cursor: "pointer",
-						}}
-					>
+					<label className="flex items-start gap-2.5 text-[13px] text-text-secondary leading-normal cursor-pointer">
 						<input
 							type="checkbox"
 							{...register("policyAccepted")}
-							style={{
-								marginTop: "2px",
-								width: "14px",
-								height: "14px",
-								accentColor: "var(--gold)",
-								flexShrink: 0,
-								cursor: "pointer",
-							}}
+							className="mt-0.5 w-3.5 h-3.5 shrink-0 cursor-pointer accent-[#FF6B35]"
 						/>
 						<span>
 							I have read and agree to follow the{" "}
 							<a
 								href="#"
-								style={{
-									color: "var(--gold)",
-									textDecoration: "none",
-								}}
-								onMouseEnter={(e) => (e.currentTarget.style.color = "#FF8555")}
-								onMouseLeave={(e) => (e.currentTarget.style.color = "var(--gold)")}
+								className="text-accent hover:text-accent-hover transition-colors"
 							>
 								Community Guidelines &amp; Organizer Policy
 							</a>
-							. <span style={{ color: "var(--red)" }}>*</span>
+							.
+							<RequiredMark />
 						</span>
 					</label>
 					{errors.policyAccepted && (
-						<p style={fieldErrorStyle}>{errors.policyAccepted.message}</p>
+						<p className={fieldErrorClasses}>{errors.policyAccepted.message}</p>
 					)}
 				</div>
 
 				{/* Submit */}
-				<div>
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						style={{
-							width: "100%",
-							height: "48px",
-							background: "var(--gold)",
-							color: "#08080A",
-							fontWeight: 600,
-							fontSize: "14px",
-							border: "none",
-							borderRadius: "var(--radius-md)",
-							cursor: isSubmitting ? "not-allowed" : "pointer",
-							transition: "background 160ms ease",
-							letterSpacing: "0.02em",
-							opacity: isSubmitting ? 0.5 : 1,
-						}}
-						onMouseEnter={(e) => {
-							if (!isSubmitting) e.currentTarget.style.background = "#FF8555";
-						}}
-						onMouseLeave={(e) => {
-							if (!isSubmitting) e.currentTarget.style.background = "var(--gold)";
-						}}
-					>
-						{isSubmitting ? "Submitting Application..." : "Submit Application"}
-					</button>
-				</div>
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					className="w-full h-12 bg-accent text-bg-base font-mono text-[12px] uppercase tracking-widest font-bold transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+				>
+					{isSubmitting ? "Submitting Application..." : "Submit Application"}
+				</button>
 			</form>
-
-			<style>{`
-				.event-type-checkbox:hover {
-					border-color: var(--border) !important;
-					color: var(--text-primary) !important;
-				}
-				.event-type-checkbox:has(input:checked) {
-					border-color: rgba(255,107,53,0.4) !important;
-					background: rgba(19,16,8,0.8) !important;
-					color: var(--gold) !important;
-				}
-				.ticketing-radio:hover {
-					border-color: var(--border) !important;
-					color: var(--text-primary) !important;
-				}
-				.ticketing-radio:has(input:checked) {
-					border-color: rgba(255,107,53,0.4) !important;
-					color: var(--text-primary) !important;
-				}
-				textarea::placeholder,
-				input::placeholder {
-					color: var(--text-muted) !important;
-				}
-				@media (max-width: 640px) {
-					.event-type-checkbox {
-						/* keep single column on very small screens handled by grid */
-					}
-				}
-			`}</style>
 		</div>
 	);
 }

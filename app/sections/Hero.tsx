@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import MagneticButton from "@/components/MagneticButton";
+import HeroBackdrop from "@/components/HeroBackdrop";
 
 /* ── Hero card data ── */
 const heroCards = [
@@ -99,14 +100,15 @@ export default function Hero() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { ease: "easeOut", duration: 0.6 } as any },
+    show: { opacity: 1, y: 0, transition: { ease: "easeOut", duration: 0.6 } },
   };
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-24 pb-16 overflow-hidden bg-bg-base">
-      <div className="max-w-[1440px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center z-10">
+      <HeroBackdrop />
+      <div className="relative max-w-[1440px] mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center z-10">
         
         {/* LEFT: Content */}
         <motion.div 
@@ -117,7 +119,7 @@ export default function Hero() {
         >
           <motion.div variants={itemVariants} className="mb-6">
             <span className="section-label">
-              // INDIA&apos;S DEVELOPER EVENT PLATFORM
+              {"// INDIA'S DEVELOPER EVENT PLATFORM"}
             </span>
           </motion.div>
           
@@ -258,6 +260,7 @@ export default function Hero() {
                         src={card.image}
                         alt={card.title}
                         fill
+                        priority={card.id === 1}
                         className={`object-cover transition-all duration-500 ${
                           isFront 
                             ? "grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105" 

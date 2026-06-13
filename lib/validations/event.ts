@@ -38,6 +38,38 @@ export const eventFormSchema = z.object({
     // Capacity
     capacityType: z.enum(["limited", "unlimited"]).default("unlimited"),
     capacity: z.coerce.number().optional(),
+
+    // Registration settings
+    requiresApproval: z.boolean().default(false),
+    waitlistEnabled: z.boolean().default(true),
+    showGuestList: z.boolean().default(true),
+
+    // Co-hosts get day-of management access (attendees, check-in, approvals,
+    // messaging) — matched by their account email. Accepts a comma/space
+    // separated string from the form or an array from the API.
+    // Custom questions guests answer when registering (free events)
+    registrationQuestions: z.array(z.object({
+        id: z.string().min(1).max(60),
+        label: z.string().trim().min(2, "Question text is too short").max(150),
+        type: z.enum(["text", "select", "checkbox"]).default("text"),
+        required: z.boolean().default(false),
+        // The form sends options as a comma-separated string
+        options: z.preprocess(
+            (value) =>
+                typeof value === "string"
+                    ? value.split(",").map((s) => s.trim()).filter(Boolean)
+                    : value,
+            z.array(z.string().trim().min(1).max(80)).max(12),
+        ).default([]),
+    })).max(10, "Maximum 10 questions").default([]),
+
+    coHostEmails: z.preprocess(
+        (value) =>
+            typeof value === "string"
+                ? value.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean)
+                : value,
+        z.array(z.string().trim().toLowerCase().pipe(z.email("Invalid co-host email"))).max(10, "Maximum 10 co-hosts"),
+    ).default([]),
     
     // Pricing
     isPaid: z.boolean().default(false),
