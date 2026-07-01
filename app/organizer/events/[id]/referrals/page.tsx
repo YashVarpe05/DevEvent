@@ -59,9 +59,8 @@ export default async function ReferralsPage({
 				<div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "8px" }}>
 					<Link
 						href="/organizer/events"
-						style={{ color: "var(--text-secondary)", background: "var(--bg-surface)", border: "1px solid var(--border-dim)", padding: "8px", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
-						onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"}
-						onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-secondary)"}
+						className="nav-pill"
+						style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", padding: "8px", borderRadius: "var(--radius-md)", display: "flex", alignItems: "center", justifyContent: "center" }}
 					>
 						<ArrowLeft className="w-4 h-4" />
 					</Link>
@@ -84,25 +83,22 @@ export default async function ReferralsPage({
 				<div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "16px", marginBottom: "32px" }}>
 					<Link
 						href={`/organizer/events/${id}/edit`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Edit Event
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/tickets`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Tickets
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/promo-codes`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Promo Codes
 					</Link>
@@ -114,25 +110,22 @@ export default async function ReferralsPage({
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/orders`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Orders
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/attendees`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Attendees
 					</Link>
 					<Link
 						href={`/organizer/events/${id}/earnings`}
-						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", color: "var(--text-secondary)", textDecoration: "none", transition: "all 0.2s" }}
-						onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+						className="nav-pill"
+						style={{ fontSize: "13px", padding: "6px 12px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-dim)", textDecoration: "none" }}
 					>
 						Earnings
 					</Link>

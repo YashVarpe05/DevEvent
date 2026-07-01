@@ -144,7 +144,6 @@ export default async function MyRegistrationsPage() {
           textDecoration: "none",
         }}
         className="group hover:translate-y-[-1px]"
-        onMouseEnter={undefined}
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
           {/* Left side */}

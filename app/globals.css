@@ -426,6 +426,22 @@
   width: 100%;
 }
 
+/* Row hover for server-rendered lists (no JS handlers needed) */
+.hover-row:hover {
+  background-color: var(--bg-elevated);
+}
+
+/* Nav pill hover for server-rendered link groups (no JS handlers).
+   Base color lives here so :hover can override it (inline color would win). */
+.nav-pill {
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.nav-pill:hover {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
 /* ─── REDUCED MOTION ─── */
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,

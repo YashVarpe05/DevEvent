@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 import React from "react";
 import Link from "next/link";
+import HoverLink from "@/components/HoverLink";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Event, { IEvent } from "@/database/event.model";
@@ -44,7 +45,7 @@ export default async function OrganizerEventsPage({
 					</p>
 				</div>
 				<div className="flex gap-4">
-					<Link
+					<HoverLink
 						href="/organizer/events/new"
 						style={{
 							padding: "8px 16px",
@@ -61,18 +62,17 @@ export default async function OrganizerEventsPage({
 							boxShadow: "0 0 16px rgba(255,107,53, 0.3)",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 0 24px rgba(255,107,53, 0.5)"}
-						onMouseLeave={(e) => e.currentTarget.style.boxShadow = "0 0 16px rgba(255,107,53, 0.3)"}
+						hoverStyle={{ boxShadow: "0 0 24px rgba(255,107,53, 0.5)" }}
 					>
 						<Plus className="w-4 h-4" />
 						Create Event
-					</Link>
+					</HoverLink>
 				</div>
 			</div>
 
 			<div className="mb-6" style={{ borderBottom: "1px solid var(--border-dim)" }}>
 				<nav className="flex space-x-8">
-					<Link
+					<HoverLink
 						href="/organizer/events"
 						style={{
 							paddingBottom: "16px",
@@ -83,12 +83,11 @@ export default async function OrganizerEventsPage({
 							textDecoration: "none",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => { if (currentStatus !== "all") e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { if (currentStatus !== "all") e.currentTarget.style.color = "var(--text-muted)"; }}
+						hoverStyle={currentStatus === "all" ? undefined : { color: "var(--text-primary)" }}
 					>
 						All Events
-					</Link>
-					<Link
+					</HoverLink>
+					<HoverLink
 						href="/organizer/events?status=draft"
 						style={{
 							paddingBottom: "16px",
@@ -99,12 +98,11 @@ export default async function OrganizerEventsPage({
 							textDecoration: "none",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => { if (currentStatus !== "draft") e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { if (currentStatus !== "draft") e.currentTarget.style.color = "var(--text-muted)"; }}
+						hoverStyle={currentStatus === "draft" ? undefined : { color: "var(--text-primary)" }}
 					>
 						Drafts
-					</Link>
-					<Link
+					</HoverLink>
+					<HoverLink
 						href="/organizer/events?status=published"
 						style={{
 							paddingBottom: "16px",
@@ -115,11 +113,10 @@ export default async function OrganizerEventsPage({
 							textDecoration: "none",
 							transition: "all 0.2s"
 						}}
-						onMouseEnter={(e) => { if (currentStatus !== "published") e.currentTarget.style.color = "var(--text-primary)"; }}
-						onMouseLeave={(e) => { if (currentStatus !== "published") e.currentTarget.style.color = "var(--text-muted)"; }}
+						hoverStyle={currentStatus === "published" ? undefined : { color: "var(--text-primary)" }}
 					>
 						Published
-					</Link>
+					</HoverLink>
 				</nav>
 			</div>
 
@@ -157,7 +154,7 @@ export default async function OrganizerEventsPage({
 				<div style={{ background: "var(--bg-surface)", border: "1px solid var(--border-dim)", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
 					<ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
 						{events.map((event, i) => (
-							<li key={event._id?.toString()} style={{ borderTop: i > 0 ? "1px solid var(--border-dim)" : "none", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "var(--bg-elevated)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+							<li key={event._id?.toString()} className="hover-row" style={{ borderTop: i > 0 ? "1px solid var(--border-dim)" : "none", transition: "background 0.2s" }}>
 								<div style={{ padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
 									<div style={{ flex: 1, minWidth: 0, paddingRight: "16px" }}>
 										<div className="flex items-center gap-3 mb-1">
@@ -222,18 +219,17 @@ export default async function OrganizerEventsPage({
 									
 									<div className="flex items-center gap-3">
 										{event.status === 'published' && (
-											<Link 
-												href={`/events/${event.slug}`} 
+											<HoverLink
+												href={`/events/${event.slug}`}
 												target="_blank"
 												style={{ padding: "8px", color: "var(--text-muted)", transition: "color 0.2s" }}
 												title="View Public Page"
-												onMouseEnter={(e) => e.currentTarget.style.color = "var(--green)"}
-												onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+												hoverStyle={{ color: "var(--green)" }}
 											>
 												<CheckCircle className="w-5 h-5" />
-											</Link>
+											</HoverLink>
 										)}
-										<Link 
+										<HoverLink
 											href={`/organizer/events/${event._id}/edit`}
 											style={{
 												display: "flex",
@@ -249,15 +245,14 @@ export default async function OrganizerEventsPage({
 												textDecoration: "none",
 												transition: "all 0.2s"
 											}}
-											onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-dim)"; }}
-											onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg-elevated)"; }}
+											hoverStyle={{ background: "var(--border-dim)" }}
 										>
 											<Edit2 className="w-4 h-4" />
 											Edit
-										</Link>
-										<Link href={`/organizer/events/${event._id}/attendees`} style={{ background: "none", border: "none", color: "var(--text-muted)", padding: "8px", cursor: "pointer", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--text-primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>
+										</HoverLink>
+										<HoverLink href={`/organizer/events/${event._id}/attendees`} style={{ background: "none", border: "none", color: "var(--text-muted)", padding: "8px", cursor: "pointer", transition: "color 0.2s" }} hoverStyle={{ color: "var(--text-primary)" }}>
 											<MoreVertical className="w-5 h-5" />
-										</Link>
+										</HoverLink>
 									</div>
 								</div>
 							</li>
