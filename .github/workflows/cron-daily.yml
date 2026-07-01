@@ -18,12 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Skip if not configured
+        if: ${{ vars.PRODUCTION_URL == '' }}
+        run: echo "PRODUCTION_URL not set — skipping. Configure the repo variable + CRON_SECRET secret to enable."
       - name: Event lifecycle cleanup
+        if: ${{ vars.PRODUCTION_URL != '' }}
         run: |
           curl -fsS --max-time 120 -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ vars.PRODUCTION_URL }}/api/cron"
       - name: Organizer payouts
+        if: ${{ vars.PRODUCTION_URL != '' }}
         run: |
           curl -fsS --max-time 120 -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
