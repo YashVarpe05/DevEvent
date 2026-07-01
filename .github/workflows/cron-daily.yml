@@ -1,0 +1,30 @@
+name: Cron — daily
+
+# Daily maintenance: transition ended events to completed / release stale
+# inventory (/api/cron) and process organizer payouts. Driven from GitHub
+# Actions to stay on Vercel's free plan. Endpoints are secured with CRON_SECRET.
+#
+# Requires repo configuration:
+#   - Secret  CRON_SECRET     (same value as the app's env)
+#   - Variable PRODUCTION_URL  (e.g. https://devevents.dev)
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 02:00 UTC daily
+  workflow_dispatch: {}
+
+jobs:
+  daily-maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Event lifecycle cleanup
+        run: |
+          curl -fsS --max-time 120 -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.PRODUCTION_URL }}/api/cron"
+      - name: Organizer payouts
+        run: |
+          curl -fsS --max-time 120 -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.PRODUCTION_URL }}/api/cron/organizer-payouts"

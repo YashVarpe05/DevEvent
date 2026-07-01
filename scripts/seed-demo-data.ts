@@ -42,10 +42,19 @@ async function seed() {
 
 	const hashedPassword = await bcrypt.hash("Demo@1234", 12);
 
+	// Demo account emails use +tags on a real inbox so confirmation/test emails
+	// actually deliver instead of bouncing. Override with SEED_EMAIL_BASE.
+	const SEED_BASE = process.env.SEED_EMAIL_BASE || "yashvarpe2005@gmail.com";
+	const [seedLocal, seedDomain] = SEED_BASE.split("@");
+	const demoEmail = (tag: string) => `${seedLocal}+${tag}@${seedDomain}`;
+	const ADMIN_EMAIL = demoEmail("admin");
+	const ORGANIZER_EMAIL = demoEmail("organizer");
+	const ATTENDEE_EMAIL = demoEmail("attendee");
+
 	const demoUsers = [
 		{
 			name: "Admin User",
-			email: "admin@devevent.com",
+			email: ADMIN_EMAIL,
 			passwordHash: hashedPassword,
 			provider: "credentials",
 			roles: ["admin", "attendee"],
@@ -57,7 +66,7 @@ async function seed() {
 		},
 		{
 			name: "Organizer Demo",
-			email: "organizer@devevent.com",
+			email: ORGANIZER_EMAIL,
 			passwordHash: hashedPassword,
 			provider: "credentials",
 			roles: ["organizer", "attendee"],
@@ -70,7 +79,7 @@ async function seed() {
 		},
 		{
 			name: "Attendee Demo",
-			email: "attendee@devevent.com",
+			email: ATTENDEE_EMAIL,
 			passwordHash: hashedPassword,
 			provider: "credentials",
 			roles: ["attendee"],
@@ -92,7 +101,7 @@ async function seed() {
 		}
 	}
 
-	const organizer = await usersCollection.findOne({ email: "organizer@devevent.com" });
+	const organizer = await usersCollection.findOne({ email: ORGANIZER_EMAIL });
 	const organizerId = organizer!._id;
 
 	// ─── 2. Create Organizer Profile ──────────────────────────────────────────
@@ -427,10 +436,10 @@ async function seed() {
 		}
 	}
 
-	console.log("\n🎉 Seed complete! Demo accounts:");
-	console.log("  Admin:     admin@devevent.com     / Demo@1234");
-	console.log("  Organizer: organizer@devevent.com / Demo@1234");
-	console.log("  Attendee:  attendee@devevent.com  / Demo@1234");
+	console.log("\n🎉 Seed complete! Demo accounts (password: Demo@1234):");
+	console.log(`  Admin:     ${ADMIN_EMAIL}`);
+	console.log(`  Organizer: ${ORGANIZER_EMAIL}`);
+	console.log(`  Attendee:  ${ATTENDEE_EMAIL}`);
 	console.log("\n📊 6 demo events created with ticket types");
 
 	await mongoose.disconnect();

@@ -49,9 +49,12 @@ Seed demo data (3 accounts + sample events):
 
 ```bash
 npx tsx scripts/seed-demo-data.ts
-# Admin:     admin@devevent.com     / Demo@1234
-# Organizer: organizer@devevent.com / Demo@1234
-# Attendee:  attendee@devevent.com  / Demo@1234
+# Demo accounts use +tags on a real inbox so emails deliver.
+# Override the inbox with SEED_EMAIL_BASE=you@gmail.com
+# Default accounts (password: Demo@1234):
+#   Admin:     yashvarpe2005+admin@gmail.com
+#   Organizer: yashvarpe2005+organizer@gmail.com
+#   Attendee:  yashvarpe2005+attendee@gmail.com
 ```
 
 > After changing any Mongoose model, restart the dev server — schemas are cached across hot reloads.
@@ -65,6 +68,7 @@ npx tsx scripts/seed-demo-data.ts
 | `npm test` | Vitest suite (uses in-memory MongoDB) |
 | `npx tsc --noEmit` | Typecheck |
 | `npm run db:indexes` | Ensure MongoDB indexes |
+| `npm run preflight` | Pre-deploy validation (checks env vars + live service connections) |
 
 ## Environment variables
 
@@ -75,7 +79,7 @@ See [.env.example](.env.example) for the full list. The critical ones:
 | `MONGODB_URI` | always | MongoDB Atlas connection string |
 | `NEXTAUTH_SECRET` | production | Auth/JWT + token signing |
 | `NEXTAUTH_URL`, `NEXT_PUBLIC_BASE_URL` | production | Canonical URLs in auth, emails, ICS feeds |
-| `CRON_SECRET` | production | Authorizes cron endpoints (Vercel sends it automatically) |
+| `CRON_SECRET` | production | Authorizes cron endpoints (sent by the GitHub Actions scheduler) |
 | `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME` | for email | Without these, emails log to console instead of sending |
 | `REDIS_URL` | recommended | Cross-instance rate limiting + caching (falls back to in-memory) |
 | `RAZORPAY_KEY_ID/SECRET`, `STRIPE_*` | for paid events | Payment processing |
@@ -89,8 +93,11 @@ Missing critical variables abort a production boot (see [instrumentation.ts](ins
 2. Set the environment variables above (Production + Preview).
 3. Provision **MongoDB Atlas** and **Upstash Redis**; point `MONGODB_URI` / `REDIS_URL` at them.
 4. Verify your sending domain in **Resend** (SPF + DKIM) and set `RESEND_FROM_EMAIL` to it — otherwise emails land in spam.
-5. Cron jobs are declared in [vercel.json](vercel.json) (event completion, reminders, payouts). Vercel automatically calls them with `Authorization: Bearer $CRON_SECRET`.
+5. Scheduled jobs (event completion, lifecycle emails, payouts) run via GitHub Actions ([.github/workflows/cron-hourly.yml](.github/workflows/cron-hourly.yml), [cron-daily.yml](.github/workflows/cron-daily.yml)) which call the `/api/cron/*` endpoints with `Authorization: Bearer $CRON_SECRET`. Set repo secret `CRON_SECRET` and variable `PRODUCTION_URL`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 6. Point Stripe/Razorpay webhooks at `/api/webhooks/stripe` and `/api/webhooks/razorpay`.
+7. Verify the deployment is healthy: `GET /api/health` returns `200` with MongoDB + Redis status.
+
+For the full step-by-step checklist (including MongoDB Atlas setup, secret generation, OAuth callbacks, Razorpay KYC, and post-deploy smoke tests), see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## CI
 

@@ -102,10 +102,21 @@ Add these in Vercel → Project → Settings → Environment Variables. Set each
 
 ---
 
-## 6. Cron jobs
+## 6. Cron jobs (GitHub Actions, not Vercel)
 
-- [ ] Already declared in `vercel.json` (event completion, hourly lifecycle emails, payouts). Vercel registers them automatically on deploy and calls them with `Authorization: Bearer $CRON_SECRET` — no extra setup.
-- [ ] Verify under Vercel → Settings → Cron Jobs that all three appear.
+Vercel's Hobby plan caps cron jobs at once-per-day, so scheduled work runs from
+GitHub Actions instead — free, and lets the lifecycle emails run hourly. Two
+workflows are committed: `.github/workflows/cron-hourly.yml` (lifecycle emails)
+and `.github/workflows/cron-daily.yml` (event cleanup + payouts).
+
+- [ ] In GitHub → repo → Settings → Secrets and variables → Actions:
+  - [ ] Add **secret** `CRON_SECRET` — the exact same value as in Vercel.
+  - [ ] Add **variable** `PRODUCTION_URL` — your live URL, e.g. `https://devevents.dev`.
+- [ ] The schedules only run once the workflows are on your **default branch**.
+- [ ] Test now: Actions tab → "Cron — hourly" → Run workflow. A green run means
+      the endpoint accepted the secret and processed.
+- [ ] (Optional, upgrade path) If you later move to Vercel Pro, you can re-add a
+      `vercel.json` `crons` block and disable these workflows.
 
 ---
 

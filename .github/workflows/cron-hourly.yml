@@ -1,0 +1,26 @@
+name: Cron — hourly
+
+# Vercel Hobby caps cron jobs at once-per-day, so we drive the time-sensitive
+# lifecycle email pipeline from GitHub Actions instead. The endpoint is
+# idempotent (per-stage flags on the event) and secured with CRON_SECRET, so
+# occasional duplicate or delayed runs are safe.
+#
+# Requires repo configuration:
+#   - Secret  CRON_SECRET     (same value as the app's env)
+#   - Variable PRODUCTION_URL  (e.g. https://devevents.dev)
+
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour, on the hour (UTC)
+  workflow_dispatch: {} # allow manual runs for testing
+
+jobs:
+  lifecycle-emails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger lifecycle email pipeline
+        run: |
+          curl -fsS --max-time 120 -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ vars.PRODUCTION_URL }}/api/cron/event-reminders"

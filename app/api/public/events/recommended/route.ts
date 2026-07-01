@@ -6,9 +6,19 @@ import { getRecommendedEvents } from "@/lib/discovery/recommendations";
 import { DISCOVERY_CONFIG } from "@/lib/discovery/config";
 import { cacheGet, cacheSet } from "@/lib/cache/redis";
 import { buildFiltersHash } from "@/lib/discovery/normalization";
+import { isRateLimited, getClientIp } from "@/lib/auth.utils";
 
 export async function GET(request: Request) {
 	try {
+		// Throttle this public endpoint to deter scraping / abuse.
+		const ip = getClientIp(request);
+		if (await isRateLimited(`public-recommended:${ip}`, 60, 60 * 1000)) {
+			return NextResponse.json(
+				{ error: "Too many requests. Please slow down." },
+				{ status: 429, headers: { "Retry-After": "60" } },
+			);
+		}
+
 		const session = await auth();
 		const url = new URL(request.url);
 		const city = url.searchParams.get("city") || "";

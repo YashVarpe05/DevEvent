@@ -141,19 +141,120 @@ export default function EventForm({ initialData }: EventFormProps) {
     }
   };
 
+  // ── Shared dark-theme styles (mirrors new-event form + MessageGuestsPanel) ──
+  const sectionCardStyle: React.CSSProperties = {
+    background: "var(--bg-surface)",
+    border: "1px solid var(--border-subtle)",
+    borderRadius: "var(--radius-xl)",
+    padding: "24px",
+  };
+  const headingStyle: React.CSSProperties = {
+    fontFamily: "var(--font-display)",
+    fontSize: "20px",
+    fontWeight: 700,
+    color: "var(--text-primary)",
+    margin: "0 0 16px 0",
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "var(--text-secondary)",
+    marginBottom: "6px",
+  };
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 14px",
+    background: "var(--bg-base)",
+    border: "1px solid var(--border-subtle)",
+    borderRadius: "var(--radius-md)",
+    color: "var(--text-primary)",
+    outline: "none",
+    fontSize: "14px",
+    transition: "border-color 0.2s",
+  };
+  const selectStyle: React.CSSProperties = { ...inputStyle, appearance: "none" };
+  const helperTextStyle: React.CSSProperties = {
+    fontSize: "12px",
+    color: "var(--text-muted)",
+    marginTop: "4px",
+  };
+  const errorTextStyle: React.CSSProperties = {
+    fontSize: "14px",
+    color: "var(--red)",
+    marginTop: "4px",
+  };
+  const checkboxStyle: React.CSSProperties = {
+    width: "16px",
+    height: "16px",
+    marginTop: "2px",
+    accentColor: "var(--accent)",
+    flexShrink: 0,
+  };
+  const checkboxLabelStyle: React.CSSProperties = {
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "var(--text-primary)",
+  };
+  const primaryButtonStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 24px",
+    background: "var(--accent)",
+    color: "var(--bg-base)",
+    fontWeight: 600,
+    fontSize: "14px",
+    border: "none",
+    borderRadius: "var(--radius-md)",
+    transition: "all 0.2s",
+  };
+  const secondaryButtonStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 24px",
+    background: "transparent",
+    color: "var(--text-primary)",
+    fontWeight: 500,
+    fontSize: "14px",
+    border: "1px solid var(--border-subtle)",
+    borderRadius: "var(--radius-md)",
+    transition: "all 0.2s",
+  };
+  // register() supplies its own onBlur; use onFocus + onBlurCapture so the
+  // focus-border effect doesn't clobber react-hook-form's blur handling.
+  const focusBorder = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    e.target.style.borderColor = "var(--accent)";
+  };
+  const blurBorder = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    e.target.style.borderColor = "var(--border-subtle)";
+  };
+
   return (
     <form className="space-y-8 pb-24">
       {message && (
-        <div className={`p-4 rounded-md flex items-start gap-3 ${
-          message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
-          <div className="mt-0.5">
+        <div
+          className="flex items-start gap-3"
+          style={{
+            padding: "16px",
+            borderRadius: "var(--radius-md)",
+            background: message.type === "success" ? "rgba(42,157,111,0.1)" : "rgba(204,70,70,0.1)",
+            border: `1px solid ${message.type === "success" ? "rgba(42,157,111,0.25)" : "rgba(204,70,70,0.25)"}`,
+            color: message.type === "success" ? "var(--green)" : "var(--red)",
+          }}
+        >
+          <div style={{ marginTop: "2px" }}>
             {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
           </div>
           <div>
-            <p className="font-medium">{message.text}</p>
+            <p style={{ fontWeight: 500, margin: 0 }}>{message.text}</p>
             {message.details && message.details.length > 0 && (
-              <ul className="mt-2 space-y-1 text-sm list-disc list-inside">
+              <ul className="mt-2 space-y-1 list-disc list-inside" style={{ fontSize: "14px" }}>
                 {message.details.map((detail, idx) => (
                   <li key={idx}>{detail}</li>
                 ))}
@@ -164,54 +265,64 @@ export default function EventForm({ initialData }: EventFormProps) {
       )}
 
       {/* --- Section: Basic Information --- */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Basic Information</h2>
+      <div style={sectionCardStyle}>
+        <h2 style={headingStyle}>Basic Information</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+            <label style={labelStyle}>Title *</label>
             <input
               type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+              style={inputStyle}
               {...register("title")}
+              onFocus={focusBorder}
+              onBlurCapture={blurBorder}
             />
-            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
+            {errors.title && <p style={errorTextStyle}>{errors.title.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Short Description *</label>
+            <label style={labelStyle}>Short Description *</label>
             <textarea
               rows={2}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md resize-none focus:ring-primary focus:border-primary"
+              style={{ ...inputStyle, resize: "none" }}
               {...register("shortDescription")}
+              onFocus={focusBorder}
+              onBlurCapture={blurBorder}
             />
-            {errors.shortDescription && <p className="mt-1 text-sm text-red-600">{errors.shortDescription.message}</p>}
+            {errors.shortDescription && <p style={errorTextStyle}>{errors.shortDescription.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
+            <label style={labelStyle}>Full Description</label>
             <textarea
               rows={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+              style={{ ...inputStyle, resize: "vertical" }}
               {...register("description")}
+              onFocus={focusBorder}
+              onBlurCapture={blurBorder}
               placeholder="Detailed information about your event..."
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label style={labelStyle}>Category</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                style={inputStyle}
                 {...register("category")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
                 placeholder="e.g., Technology, Design, Business"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Event Type *</label>
+              <label style={labelStyle}>Event Type *</label>
               <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white focus:ring-primary focus:border-primary"
+                style={selectStyle}
                 {...register("eventType")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
               >
                 <option value="offline">In Person (Offline)</option>
                 <option value="online">Online</option>
@@ -223,66 +334,78 @@ export default function EventForm({ initialData }: EventFormProps) {
       </div>
 
       {/* --- Section: Date & Time --- */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Date & Time</h2>
+      <div style={sectionCardStyle}>
+        <h2 style={headingStyle}>Date &amp; Time</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date & Time *</label>
+            <label style={labelStyle}>Start Date &amp; Time *</label>
             <input
               type="datetime-local"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+              style={inputStyle}
               {...register("startAt")}
+              onFocus={focusBorder}
+              onBlurCapture={blurBorder}
             />
-            {errors.startAt && <p className="mt-1 text-sm text-red-600">{errors.startAt.message}</p>}
+            {errors.startAt && <p style={errorTextStyle}>{errors.startAt.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Date & Time *</label>
+            <label style={labelStyle}>End Date &amp; Time *</label>
             <input
               type="datetime-local"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+              style={inputStyle}
               {...register("endAt")}
+              onFocus={focusBorder}
+              onBlurCapture={blurBorder}
             />
-            {errors.endAt && <p className="mt-1 text-sm text-red-600">{errors.endAt.message}</p>}
+            {errors.endAt && <p style={errorTextStyle}>{errors.endAt.message}</p>}
           </div>
         </div>
       </div>
 
       {/* --- Section: Location --- */}
       {(eventType === "offline" || eventType === "hybrid") && (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Venue Location</h2>
+        <div style={sectionCardStyle}>
+          <h2 style={headingStyle}>Venue Location</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Venue Name/Building</label>
+              <label style={labelStyle}>Venue Name/Building</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                style={inputStyle}
                 {...register("location.venueName")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
+              <label style={labelStyle}>Address Line 1</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                style={inputStyle}
                 {...register("location.addressLine1")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <label style={labelStyle}>City</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  style={inputStyle}
                   {...register("location.city")}
+                  onFocus={focusBorder}
+                  onBlurCapture={blurBorder}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <label style={labelStyle}>Country</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  style={inputStyle}
                   {...register("location.country")}
+                  onFocus={focusBorder}
+                  onBlurCapture={blurBorder}
                 />
               </div>
             </div>
@@ -292,23 +415,27 @@ export default function EventForm({ initialData }: EventFormProps) {
 
       {/* --- Section: Online Meeting --- */}
       {(eventType === "online" || eventType === "hybrid") && (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Online Meeting Details</h2>
+        <div style={sectionCardStyle}>
+          <h2 style={headingStyle}>Online Meeting Details</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Platform (Zoom, Google Meet, etc.)</label>
+              <label style={labelStyle}>Platform (Zoom, Google Meet, etc.)</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                style={inputStyle}
                 {...register("online.platform")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Meeting URL</label>
+              <label style={labelStyle}>Meeting URL</label>
               <input
                 type="url"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                style={inputStyle}
                 {...register("online.meetingUrl")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
                 placeholder="https://..."
               />
             </div>
@@ -317,15 +444,17 @@ export default function EventForm({ initialData }: EventFormProps) {
       )}
 
       {/* --- Section: Capacity & Registration --- */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Capacity & Registration</h2>
+      <div style={sectionCardStyle}>
+        <h2 style={headingStyle}>Capacity &amp; Registration</h2>
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+              <label style={labelStyle}>Capacity</label>
               <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white focus:ring-primary focus:border-primary"
+                style={selectStyle}
                 {...register("capacityType")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
               >
                 <option value="unlimited">Unlimited</option>
                 <option value="limited">Limited</option>
@@ -333,12 +462,14 @@ export default function EventForm({ initialData }: EventFormProps) {
             </div>
             {capacityType === "limited" && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Guests</label>
+                <label style={labelStyle}>Max Guests</label>
                 <input
                   type="number"
                   min="1"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                  style={inputStyle}
                   {...register("capacity", { valueAsNumber: true })}
+                  onFocus={focusBorder}
+                  onBlurCapture={blurBorder}
                 />
               </div>
             )}
@@ -350,12 +481,12 @@ export default function EventForm({ initialData }: EventFormProps) {
                 <input
                   type="checkbox"
                   id="waitlistEnabled"
-                  className="w-4 h-4 mt-0.5 text-primary focus:ring-primary border-gray-300 rounded"
+                  style={checkboxStyle}
                   {...register("waitlistEnabled")}
                 />
                 <div>
-                  <label htmlFor="waitlistEnabled" className="text-sm font-medium text-gray-700">Enable waitlist</label>
-                  <p className="text-xs text-gray-500">When the event is full, new guests join a waitlist and are confirmed automatically if spots open up.</p>
+                  <label htmlFor="waitlistEnabled" style={checkboxLabelStyle}>Enable waitlist</label>
+                  <p style={helperTextStyle}>When the event is full, new guests join a waitlist and are confirmed automatically if spots open up.</p>
                 </div>
               </div>
             )}
@@ -364,37 +495,39 @@ export default function EventForm({ initialData }: EventFormProps) {
               <input
                 type="checkbox"
                 id="requiresApproval"
-                className="w-4 h-4 mt-0.5 text-primary focus:ring-primary border-gray-300 rounded"
+                style={checkboxStyle}
                 {...register("requiresApproval")}
               />
               <div>
-                <label htmlFor="requiresApproval" className="text-sm font-medium text-gray-700">Require approval</label>
-                <p className="text-xs text-gray-500">Review and approve each registration before guests receive their ticket.</p>
+                <label htmlFor="requiresApproval" style={checkboxLabelStyle}>Require approval</label>
+                <p style={helperTextStyle}>Review and approve each registration before guests receive their ticket.</p>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Co-hosts</label>
+              <label style={labelStyle}>Co-hosts</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                style={inputStyle}
                 {...register("coHostEmails")}
+                onFocus={focusBorder}
+                onBlurCapture={blurBorder}
                 placeholder="cohost1@example.com, cohost2@example.com"
               />
-              <p className="text-xs text-gray-500 mt-1">Co-hosts can view attendees, check in guests, approve registrations, and message guests. Separate emails with commas.</p>
-              {errors.coHostEmails && <p className="mt-1 text-sm text-red-600">{(errors.coHostEmails as { message?: string }).message}</p>}
+              <p style={helperTextStyle}>Co-hosts can view attendees, check in guests, approve registrations, and message guests. Separate emails with commas.</p>
+              {errors.coHostEmails && <p style={errorTextStyle}>{(errors.coHostEmails as { message?: string }).message}</p>}
             </div>
 
             <div className="flex items-start gap-2">
               <input
                 type="checkbox"
                 id="showGuestList"
-                className="w-4 h-4 mt-0.5 text-primary focus:ring-primary border-gray-300 rounded"
+                style={checkboxStyle}
                 {...register("showGuestList")}
               />
               <div>
-                <label htmlFor="showGuestList" className="text-sm font-medium text-gray-700">Show guest list</label>
-                <p className="text-xs text-gray-500">Display attendee avatars and the &quot;going&quot; count on the public event page.</p>
+                <label htmlFor="showGuestList" style={checkboxLabelStyle}>Show guest list</label>
+                <p style={helperTextStyle}>Display attendee avatars and the &quot;going&quot; count on the public event page.</p>
               </div>
             </div>
           </div>
@@ -402,32 +535,41 @@ export default function EventForm({ initialData }: EventFormProps) {
       </div>
 
       {/* --- Section: Registration Questions --- */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Registration Questions</h2>
-        <p className="text-sm text-gray-500 mb-4">Ask guests for extra info when they register — t-shirt size, dietary needs, company, etc.</p>
+      <div style={sectionCardStyle}>
+        <h2 style={{ ...headingStyle, marginBottom: "4px" }}>Registration Questions</h2>
+        <p style={{ fontSize: "14px", color: "var(--text-muted)", margin: "0 0 16px 0" }}>Ask guests for extra info when they register — t-shirt size, dietary needs, company, etc.</p>
 
         <div className="space-y-4">
           {questionFields.map((field, index) => {
             const type = questionTypes?.[index]?.type || "text";
             return (
-              <div key={field.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div
+                key={field.id}
+                className="space-y-3"
+                style={{ border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-lg)", padding: "16px" }}
+              >
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Question</label>
+                    <label style={labelStyle}>Question</label>
                     <input
                       type="text"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                      style={inputStyle}
                       placeholder="e.g. What's your t-shirt size?"
                       {...register(`registrationQuestions.${index}.label`)}
+                      onFocus={focusBorder}
+                      onBlurCapture={blurBorder}
                     />
                     {errors.registrationQuestions?.[index]?.label && (
-                      <p className="mt-1 text-sm text-red-600">{errors.registrationQuestions[index]?.label?.message}</p>
+                      <p style={errorTextStyle}>{errors.registrationQuestions[index]?.label?.message}</p>
                     )}
                   </div>
                   <button
                     type="button"
                     onClick={() => removeQuestion(index)}
-                    className="mt-7 p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className="mt-7 p-2 transition-colors"
+                    style={{ color: "var(--text-muted)", background: "transparent", border: "none", cursor: "pointer" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--red)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                     aria-label="Remove question"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -436,10 +578,12 @@ export default function EventForm({ initialData }: EventFormProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Answer type</label>
+                    <label style={labelStyle}>Answer type</label>
                     <select
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white"
+                      style={selectStyle}
                       {...register(`registrationQuestions.${index}.type`)}
+                      onFocus={focusBorder}
+                      onBlurCapture={blurBorder}
                     >
                       <option value="text">Short text</option>
                       <option value="select">Dropdown</option>
@@ -448,12 +592,14 @@ export default function EventForm({ initialData }: EventFormProps) {
                   </div>
                   {type === "select" && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Options (comma separated)</label>
+                      <label style={labelStyle}>Options (comma separated)</label>
                       <input
                         type="text"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                        style={inputStyle}
                         placeholder="S, M, L, XL"
                         {...register(`registrationQuestions.${index}.options`)}
+                        onFocus={focusBorder}
+                        onBlurCapture={blurBorder}
                       />
                     </div>
                   )}
@@ -463,10 +609,10 @@ export default function EventForm({ initialData }: EventFormProps) {
                   <input
                     type="checkbox"
                     id={`q-required-${index}`}
-                    className="w-4 h-4 text-primary border-gray-300 rounded"
+                    style={{ ...checkboxStyle, marginTop: 0 }}
                     {...register(`registrationQuestions.${index}.required`)}
                   />
-                  <label htmlFor={`q-required-${index}`} className="text-sm text-gray-700">Required</label>
+                  <label htmlFor={`q-required-${index}`} style={{ fontSize: "14px", color: "var(--text-secondary)" }}>Required</label>
                 </div>
 
                 <input type="hidden" {...register(`registrationQuestions.${index}.id`)} />
@@ -486,7 +632,19 @@ export default function EventForm({ initialData }: EventFormProps) {
                   options: "",
                 })
               }
-              className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 text-gray-600 rounded-md hover:border-gray-400 hover:text-gray-800 transition-colors text-sm font-medium"
+              className="flex items-center gap-2 transition-colors"
+              style={{
+                padding: "10px 16px",
+                border: "1px dashed var(--border-subtle)",
+                color: "var(--text-secondary)",
+                borderRadius: "var(--radius-md)",
+                fontSize: "14px",
+                fontWeight: 500,
+                background: "transparent",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
             >
               <Plus className="w-4 h-4" />
               Add question
@@ -496,36 +654,40 @@ export default function EventForm({ initialData }: EventFormProps) {
       </div>
 
       {/* --- Section: Pricing --- */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Pricing</h2>
+      <div style={sectionCardStyle}>
+        <h2 style={headingStyle}>Pricing</h2>
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
               id="isPaid"
-              className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
+              style={{ ...checkboxStyle, marginTop: 0 }}
               {...register("isPaid")}
             />
-            <label htmlFor="isPaid" className="text-sm font-medium text-gray-700">This is a paid event</label>
+            <label htmlFor="isPaid" style={checkboxLabelStyle}>This is a paid event</label>
           </div>
-          
+
           {isPaid && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ticket Price</label>
+                <label style={labelStyle}>Ticket Price</label>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  style={inputStyle}
                   {...register("basePrice", { valueAsNumber: true })}
+                  onFocus={focusBorder}
+                  onBlurCapture={blurBorder}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                <label style={labelStyle}>Currency</label>
                 <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white"
+                  style={selectStyle}
                   {...register("currency")}
+                  onFocus={focusBorder}
+                  onBlurCapture={blurBorder}
                 >
                   <option value="USD">USD ($)</option>
                   <option value="EUR">EUR (€)</option>
@@ -539,9 +701,16 @@ export default function EventForm({ initialData }: EventFormProps) {
       </div>
 
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-10">
+      <div
+        className="fixed bottom-0 left-0 right-0 p-4 z-10"
+        style={{
+          background: "var(--bg-surface)",
+          borderTop: "1px solid var(--border-subtle)",
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.4)",
+        }}
+      >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-sm text-gray-500">
+          <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>
             {isDirty ? "Unsaved changes" : "All changes saved"}
           </div>
           <div className="flex gap-3">
@@ -549,7 +718,11 @@ export default function EventForm({ initialData }: EventFormProps) {
               type="button"
               onClick={handleSubmit((data) => onSubmit(data, "save"))}
               disabled={isSaving || isPublishing}
-              className="flex items-center gap-2 px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+              style={{
+                ...secondaryButtonStyle,
+                opacity: isSaving || isPublishing ? 0.5 : 1,
+                cursor: isSaving || isPublishing ? "not-allowed" : "pointer",
+              }}
             >
               <Save className="w-4 h-4" />
               {isSaving ? "Saving..." : "Save Draft"}
@@ -558,7 +731,11 @@ export default function EventForm({ initialData }: EventFormProps) {
               type="button"
               onClick={handleSubmit((data) => onSubmit(data, "publish"))}
               disabled={isSaving || isPublishing || initialData.status === "published"}
-              className="flex items-center gap-2 px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:bg-gray-400"
+              style={{
+                ...primaryButtonStyle,
+                opacity: isSaving || isPublishing || initialData.status === "published" ? 0.5 : 1,
+                cursor: isSaving || isPublishing || initialData.status === "published" ? "not-allowed" : "pointer",
+              }}
             >
               <CheckCircle2 className="w-4 h-4" />
               {initialData.status === "published" ? "Published" : (isPublishing ? "Publishing..." : "Publish Event")}

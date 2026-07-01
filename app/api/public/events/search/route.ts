@@ -14,9 +14,20 @@ import { rankEvents } from "@/lib/discovery/ranking";
 import UserInterestProfile from "@/database/user-interest-profile.model";
 import { cacheGet, cacheSet } from "@/lib/cache/redis";
 import { trackServerEvent } from "@/lib/analytics";
+import { isRateLimited, getClientIp } from "@/lib/auth.utils";
 
 export async function GET(request: Request) {
 	try {
+		// Throttle this public endpoint to deter scraping / abuse. Generous for
+		// real browsing; rejected cheaply before auth() or any DB work.
+		const ip = getClientIp(request);
+		if (await isRateLimited(`public-search:${ip}`, 60, 60 * 1000)) {
+			return NextResponse.json(
+				{ error: "Too many requests. Please slow down." },
+				{ status: 429, headers: { "Retry-After": "60" } },
+			);
+		}
+
 		const url = new URL(request.url);
 		const session = await auth();
 		const page = Math.max(
