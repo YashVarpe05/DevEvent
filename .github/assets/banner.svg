@@ -1,0 +1,64 @@
+<svg width="1280" height="360" viewBox="0 0 1280 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DevEvent — India's Developer Event Platform">
+  <defs>
+    <linearGradient id="glow" x1="640" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF6B35" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#FF6B35" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1F1F23" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="360" fill="#0A0A0B"/>
+  <rect width="1280" height="360" fill="url(#grid)"/>
+  <ellipse cx="640" cy="40" rx="620" ry="220" fill="url(#glow)"/>
+
+  <!-- wordmark -->
+  <text x="80" y="150" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="-1">
+    <tspan fill="#F5F5F7">Dev</tspan><tspan fill="#FF6B35" font-style="italic">Event</tspan>
+  </text>
+
+  <!-- tagline -->
+  <text x="82" y="205" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="500" fill="#C9C9CE">
+    Discover, host &amp; manage developer events — book your spot in seconds.
+  </text>
+
+  <!-- mono subline -->
+  <text x="82" y="245" font-family="Consolas, Menlo, monospace" font-size="14" letter-spacing="3" fill="#6B6B74">
+    HACKATHONS · MEETUPS · WORKSHOPS · CONFERENCES
+  </text>
+
+  <!-- feature pills -->
+  <g font-family="Consolas, Menlo, monospace" font-size="13" font-weight="600">
+    <rect x="82" y="280" width="150" height="34" rx="6" fill="#111113" stroke="#1F1F23"/>
+    <text x="157" y="302" fill="#FF6B35" text-anchor="middle">WAITLISTS</text>
+    <rect x="244" y="280" width="180" height="34" rx="6" fill="#111113" stroke="#1F1F23"/>
+    <text x="334" y="302" fill="#FF6B35" text-anchor="middle">QR CHECK-IN</text>
+    <rect x="436" y="280" width="200" height="34" rx="6" fill="#111113" stroke="#1F1F23"/>
+    <text x="536" y="302" fill="#FF6B35" text-anchor="middle">PAID TICKETING</text>
+    <rect x="648" y="280" width="230" height="34" rx="6" fill="#111113" stroke="#1F1F23"/>
+    <text x="763" y="302" fill="#FF6B35" text-anchor="middle">ORGANIZER SUITE</text>
+  </g>
+
+  <!-- right-side ticket motif -->
+  <g transform="translate(980, 96)" opacity="0.95">
+    <rect x="0" y="0" width="220" height="150" rx="14" fill="#111113" stroke="#242428"/>
+    <rect x="0" y="0" width="220" height="6" rx="3" fill="#FF6B35"/>
+    <circle cx="0" cy="80" r="12" fill="#0A0A0B"/>
+    <circle cx="220" cy="80" r="12" fill="#0A0A0B"/>
+    <line x1="18" y1="80" x2="202" y2="80" stroke="#242428" stroke-width="2" stroke-dasharray="5 5"/>
+    <text x="22" y="42" font-family="Consolas, Menlo, monospace" font-size="12" letter-spacing="2" fill="#6B6B74">ADMIT ONE</text>
+    <text x="22" y="66" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#F5F5F7">DevEvent 2026</text>
+    <!-- mini qr -->
+    <g transform="translate(150, 98)" fill="#F5F5F7">
+      <rect x="0" y="0" width="42" height="42" fill="#F5F5F7"/>
+      <rect x="4" y="4" width="10" height="10" fill="#0A0A0B"/>
+      <rect x="28" y="4" width="10" height="10" fill="#0A0A0B"/>
+      <rect x="4" y="28" width="10" height="10" fill="#0A0A0B"/>
+      <rect x="18" y="18" width="6" height="6" fill="#0A0A0B"/>
+      <rect x="28" y="24" width="6" height="6" fill="#0A0A0B"/>
+      <rect x="24" y="30" width="6" height="6" fill="#0A0A0B"/>
+    </g>
+    <text x="22" y="126" font-family="Consolas, Menlo, monospace" font-size="13" letter-spacing="1" fill="#FF6B35">DEV-A1B2-C3D4</text>
+  </g>
+</svg>

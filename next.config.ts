@@ -51,8 +51,10 @@ const nextConfig: NextConfig = {
 						value: "strict-origin-when-cross-origin",
 					},
 					{
+						// Allow the app's own origin to use the camera (check-in QR
+						// scanner needs getUserMedia); deny mic/geolocation.
 						key: "Permissions-Policy",
-						value: "camera=(), microphone=(), geolocation=()",
+						value: "camera=(self), microphone=(), geolocation=()",
 					},
 					{ key: "X-DNS-Prefetch-Control", value: "on" },
 				],
